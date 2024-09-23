@@ -6,7 +6,7 @@
 #    By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/23 15:11:26 by bthomas          ###   ########.fr        #
+#    Updated: 2024/09/23 15:21:45 by bthomas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,6 +17,8 @@ INCS		= -I ./include
 SRC			= main.cpp
 CFLAGS		= -Wall -Werror -Wextra -std=c++98
 CPP			= c++
+
+vpath %.cpp src/
 
 OBJS		= $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
@@ -36,7 +38,7 @@ clean:
 	@echo "Cleaning object files..."
 	rm -rf $(OBJDIR)
 
-flcean: clean
+fclean: clean
 	@echo "Removing webserv..."
 	rm -f $(NAME)
 
