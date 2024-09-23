@@ -1,6 +1,6 @@
 name: Compilation Makefile
 
-on: push
+on: [push]
 
 jobs:
   build:
