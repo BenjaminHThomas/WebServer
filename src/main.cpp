@@ -12,73 +12,6 @@
 
 #include <temp.hpp>
 
-static const std::string whitespace = "\t\r\n ";
-
-static const std::string all_chars = "{}[];,\"" + whitespace;
-
-struct Keywords
-{
-	enum Value
-	{
-		KTRUE,
-		KFALSE,
-		KNULL
-	};
-};
-
-std::map<Keywords::Value, std::string> init_keywords()
-{
-	std::map<Keywords::Value, std::string> map;
-
-	map.insert(std::make_pair(Keywords::KTRUE, "true"));
-	map.insert(std::make_pair(Keywords::KFALSE, "false"));
-	map.insert(std::make_pair(Keywords::KNULL, "null"));
-	return map;
-}
-
-static const std::map<Keywords::Value, std::string> keywords = init_keywords();
-
-std::string handle_string(std::string::iterator &begin, const std::string::iterator &end)
-{
-	std::string s;
-	while (begin++ < end)
-	{
-		if (*begin == '"')
-			break;
-		s.push_back(*begin);
-	}
-	return s;
-}
-
-bool handle_complete(std::string::iterator &begin, const std::string::iterator &end)
-{
-
-	std::string::iterator end_word = std::find_first_of(begin, end, all_chars.begin(), all_chars.end());
-	if (end_word == end)
-	{
-		std::cerr << "error syntax: handle_complete()" << std::endl;
-		return false;
-	}
-
-	std::string word;
-	for (; begin < end_word; begin++)
-	{
-		word.push_back(*begin);
-	}
-
-	if (word == "true" || word == "false" || word == "null")
-		std::cout << "KEYWORD(" << word << ")" << std::endl;
-	else if (word.find_first_not_of("0123456789.") == std::string::npos)
-	{
-		std::cout << "NUMBER(" << word << ")" << std::endl;
-	}
-	else
-	{
-		std::cerr << "error syntax: invalid 'word' handle_complete()" << std::endl;
-		return false;
-	}
-	return true;
-}
 
 int main(int ac, char **av)
 {
@@ -88,8 +21,6 @@ int main(int ac, char **av)
 	std::ifstream input(av[1]);
 	if (!input)
 		return 1;
-
-
-
+	JSONParser parser(input);
 	return 0;
 }

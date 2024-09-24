@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:13:27 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 10:22:49 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/24 15:46:41 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,3 +19,5 @@
 #include <algorithm>
 #include <map>
 #include <utility>
+
+#include "parser.hpp"
