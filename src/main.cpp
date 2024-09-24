@@ -6,14 +6,14 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 13:19:26 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/24 17:20:57 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Epoll.hpp"
+#include "EventHandler.hpp"
 
 int main(void) {
-	Socket s;
-	Epoll e(s);
+	Server s;
+	EventHandler e(s);
 	return 0;
 }

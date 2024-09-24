@@ -1,30 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Epoll.hpp                                          :+:      :+:    :+:   */
+/*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 13:14:21 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/24 18:40:07 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#ifndef EPOLL_HPP
-# define EPOLL_HPP
+#ifndef EVENTHANDLER_HPP 
+# define EVENTHANDLER_HPP 
 
-#include "Socket.hpp"
+#include "Server.hpp"
+#include <vector>
 
-class Epoll
+class EventHandler
 {
 	private:
 		int _epollFd;
-		struct epoll_event _event;
+		std::vector<struct epoll_event> _events;
 
 	public:
-		Epoll (Socket& sock);
-		~Epoll ();
+		EventHandler (Server& s);
+		~EventHandler ();
 };
 
-#endif /* EPOLL_HPP */
+#endif /* EVENTHANDLER_HPP */

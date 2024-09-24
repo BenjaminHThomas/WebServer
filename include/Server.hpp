@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:07 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 13:10:26 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/24 17:36:35 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#ifndef SOCKET_HPP
-# define SOCKET_HPP
+#ifndef SERVER_HPP
+# define SERVER_HPP
 
 #include <iostream>
 #include <iostream>
@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <cstring>
 
-class Socket
+class Server
 {
 	private:
 		int _sockFd;
@@ -39,9 +39,14 @@ class Socket
 		int getMaxEvents() const;
 
 	public:
-		Socket (int port = 8080, int maxClients = 10, int maxEvents = 10);
-		Socket (const Socket &socket);
-		~Socket ();
+		class socketCreationFailure;
+		class socketBindFailure;
+		class socketListenFailure;
+
+	public:
+		Server (int port = 8080, int maxClients = 10, int maxEvents = 10);
+		Server (const Server &socket);
+		~Server ();
 };
 
-#endif /* SOCKET_HPP */
+#endif /* SERVER_HPP */
