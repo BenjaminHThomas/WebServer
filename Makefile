@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+         #
+#    By: okoca <okoca@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/23 15:21:45 by bthomas          ###   ########.fr        #
+#    Updated: 2024/09/23 22:05:13 by okoca            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,12 +15,16 @@ SRCDIR		= src
 OBJDIR		= obj
 INCS		= -I ./include
 SRC			= main.cpp
-CFLAGS		= -Wall -Werror -Wextra -std=c++98
+CFLAGS		= -Wall -Werror -Wextra -std=c++98 -MMD
 CPP			= c++
 
 vpath %.cpp src/
 
 OBJS		= $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
+
+DEPS = $(OBJS:%.o=%.d)
+
+-include $(DEPS)
 
 all: $(OBJDIR) $(NAME)
 
