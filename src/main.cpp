@@ -89,51 +89,7 @@ int main(int ac, char **av)
 	if (!input)
 		return 1;
 
-	std::string	_data;
-	std::string	_buf;
-	while (std::getline(input, _buf))
-	{
-		std::string::iterator _c = _buf.begin();
 
-		for (; _c < _buf.end(); _c++)
-		{
-			switch (*_c)
-			{
-				case '{':
-					std::cout << "LCURLY" << std::endl;
-					break;
-				case '}':
-					std::cout << "RCURLY" << std::endl;
-					break;
-				case '[':
-					std::cout << "LBRAC" << std::endl;
-					break;
-				case ']':
-					std::cout << "RBRAC" << std::endl;
-					break;
-				case ',':
-					std::cout << "COMMA" << std::endl;
-					break;
-				case ':':
-					std::cout << "COLON" << std::endl;
-					break;
-				case '"':
-					std::cout << "STRING(" << handle_string(_c, _buf.end()) << ")" << std::endl;
-					break;
-				case '\t':
-				case '\r':
-				case '\n':
-				case ' ':
-					break;
-				default:
-					if (!handle_complete(_c, _buf.end()))
-						return 1;
-					break;
-			}
-		}
-		_data += "line: " + _buf + "\n";
-	}
-	std::cout << _data << std::endl;
 
 	return 0;
 }

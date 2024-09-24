@@ -6,15 +6,16 @@
 #    By: okoca <okoca@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/23 22:05:13 by okoca            ###   ########.fr        #
+#    Updated: 2024/09/24 10:54:54 by okoca            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= webserv
 SRCDIR		= src
 OBJDIR		= obj
-INCS		= -I ./include
+INCS		= -I ./include -I ./include/parser
 SRC			= main.cpp
+SRC			+=  parser/parser.cpp
 CFLAGS		= -Wall -Werror -Wextra -std=c++98 -MMD
 CPP			= c++
 
