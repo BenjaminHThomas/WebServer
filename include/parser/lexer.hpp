@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 15:53:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/24 16:57:14 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/24 22:05:51 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,12 @@ class JSONLexer
 		~JSONLexer();
 	private:
 		void	loop(iter begin, iter end);
+
 	private:
 		Token handle_string(iter &begin, const iter& end);
 		Token handle_complete(iter &begin, const iter &end);
-		// std::string handle_complete(iter &begin, const iter& end);
+
+	public:
+		void		debug() const;
+		std::string	token_type_to_string(JSONLexer::TokenType::Value type) const;
 };
