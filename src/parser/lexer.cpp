@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/24 22:11:59 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/24 22:15:23 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,35 +52,15 @@ void	JSONLexer::loop(iter begin, iter end)
 	{
 		switch (*begin)
 		{
-			case '{':
-				_tokens.push_back(Token(JSONLexer::TokenType::LCURLY));
-				break;
-			case '}':
-				_tokens.push_back(Token(JSONLexer::TokenType::RCURLY));
-				break;
-			case '[':
-				_tokens.push_back(Token(JSONLexer::TokenType::LBRAC));
-				break;
-			case ']':
-				_tokens.push_back(Token(JSONLexer::TokenType::RBRAC));
-				break;
-			case ',':
-				_tokens.push_back(Token(JSONLexer::TokenType::COMMA));
-				break;
-			case ':':
-				_tokens.push_back(Token(JSONLexer::TokenType::COLON));
-				break;
-			case '"':
-				_tokens.push_back(handle_string(begin, end));
-				break;
-			case '\t':
-			case '\r':
-			case '\n':
-			case ' ':
-				break;
-			default:
-					_tokens.push_back(handle_complete(begin, end));
-				break;
+			case '{': _tokens.push_back(Token(TokenType::LCURLY)); break;
+			case '}': _tokens.push_back(Token(TokenType::RCURLY)); break;
+			case '[': _tokens.push_back(Token(TokenType::LBRAC)); break;
+			case ']': _tokens.push_back(Token(TokenType::RBRAC)); break;
+			case ',': _tokens.push_back(Token(TokenType::COMMA)); break;
+			case ':': _tokens.push_back(Token(TokenType::COLON)); break;
+			case '"': _tokens.push_back(handle_string(begin, end)); break;
+			case '\t': case '\r': case '\n': case ' ': break;
+			default: _tokens.push_back(handle_complete(begin, end)); break;
 		}
 	}
 }
@@ -176,17 +156,17 @@ std::string JSONLexer::token_type_to_string(JSONLexer::TokenType::Value type) co
 {
     switch (type)
     {
-    case TokenType::LCURLY: return "LCURLY";
-    case TokenType::RCURLY: return "RCURLY";
-    case TokenType::LBRAC: return "LBRAC";
-    case TokenType::RBRAC: return "RBRAC";
-    case TokenType::COMMA: return "COMMA";
-    case TokenType::COLON: return "COLON";
-    case TokenType::VTRUE: return "TRUE";
-    case TokenType::VFALSE: return "FALSE";
-    case TokenType::VNULL: return "NULL";
-    case TokenType::STRING: return "STRING";
-    case TokenType::DECIMAL: return "DECIMAL";
-    default: return "UNKNOWN";
+		case TokenType::LCURLY: return "LCURLY";
+		case TokenType::RCURLY: return "RCURLY";
+		case TokenType::LBRAC: return "LBRAC";
+		case TokenType::RBRAC: return "RBRAC";
+		case TokenType::COMMA: return "COMMA";
+		case TokenType::COLON: return "COLON";
+		case TokenType::VTRUE: return "TRUE";
+		case TokenType::VFALSE: return "FALSE";
+		case TokenType::VNULL: return "NULL";
+		case TokenType::STRING: return "STRING";
+		case TokenType::DECIMAL: return "DECIMAL";
+		default: return "UNKNOWN";
     }
 }
