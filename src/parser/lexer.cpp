@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/24 22:05:36 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/24 22:11:59 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,10 +164,10 @@ void	JSONLexer::debug() const
 	{
 		Token token = *it;
 		std::cout << token_type_to_string(token.type);
-		if (token.type == TokenType::STRING || token.type == TokenType::DECIMAL)
-		{
-			std::cout << " (\"" << token.value << "\")";
-		}
+		if (token.type == TokenType::STRING)
+			std::cout << "[\"" << token.value << "\"]";
+		else if (token.type == TokenType::DECIMAL)
+			std::cout << "[" << token.value << "]";
 		std::cout << "\n";
 	}
 }
