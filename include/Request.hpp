@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:00:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/25 11:19:31 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/25 12:10:04 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,11 @@
 # define REQUEST_HPP
 
 # include <iostream>
+# include <algorithm>
 # include <fstream>
 # include <string>
 # include <map>
+# include <vector>
 
 class Request
 {
@@ -29,6 +31,8 @@ private:
 	std::map<std::string, std::string>		_headers;
 	std::string		_body;
 	std::string		_raw;
+	/* static data */
+	static std::vector<std::string>	_allowdMethods;
 public:
 	/* constructors & destructors */
 	Request();
@@ -51,6 +55,8 @@ public:
 	void	setBody();
 
 	/* Utils */
+	void	printAll();
+	static std::vector<std::string>	initMethods();
 };
 
 #endif
