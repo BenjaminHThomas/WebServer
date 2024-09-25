@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/25 12:07:37 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/25 16:18:32 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,19 @@
 
 class	JsonValue
 {
+	public:
+		struct JsonType
+		{
+			enum Value
+			{
+				JARRAY,
+				JOBJECT,
+				JSTRING,
+				JDECIMAL,
+				JBOOLEAN,
+				JNULL
+			};
+		};
 	private:
 		union
 		{
@@ -27,8 +40,11 @@ class	JsonValue
 			double		_decimal;
 		};
 	protected:
-		JSONLexer::TokenType::Value _type;
+		JsonType::Value _type;
 	public:
+		JsonValue(bool data);
+		JsonValue(double data);
+		JsonValue(JsonType::Value type);
 		JsonValue();
 		~JsonValue();
 	protected:
@@ -44,6 +60,7 @@ class	JsonString : public JsonValue
 	private:
 		value_type	_data;
 	public:
+		JsonString(std::string data);
 		JsonString();
 		~JsonString();
 };
@@ -57,8 +74,12 @@ class	JsonObject : public JsonValue
 	private:
 		value_type _data;
 	public:
+		JsonObject(value_type data);
 		JsonObject();
 		~JsonObject();
+	public:
+		JsonObject& insert(std::string key, JsonValue *value);
+		JsonObject &insert(std::pair<std::string, JsonValue *>);
 };
 
 class	JsonArray : public JsonValue
@@ -70,6 +91,9 @@ class	JsonArray : public JsonValue
 	private:
 		value_type _data;
 	public:
+		JsonArray(value_type data);
 		JsonArray();
 		~JsonArray();
+	public:
+		JsonArray &insert(JsonValue *val);
 };
