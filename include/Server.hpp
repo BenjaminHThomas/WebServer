@@ -6,13 +6,16 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:07 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 17:36:35 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/25 15:37:26 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #ifndef SERVER_HPP
 # define SERVER_HPP
+
+#define MAX_EVENTS 1024
+#define MAX_CLIENTS 500
 
 #include <iostream>
 #include <iostream>
@@ -44,7 +47,7 @@ class Server
 		class socketListenFailure;
 
 	public:
-		Server (int port = 8080, int maxClients = 10, int maxEvents = 10);
+		Server (int port = 8080);
 		Server (const Server &socket);
 		~Server ();
 };

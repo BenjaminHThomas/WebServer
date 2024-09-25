@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:27 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 17:47:53 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/25 15:37:57 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,24 @@ class Server::socketListenFailure : public std::exception {
 		}
 };
 
-Server::Server(int port, int maxClients, int maxEvents) :
+Server::Server(int port) :
 	_port(port),
-	_maxClients(maxClients),
-	_maxEvents(maxEvents)
+	_maxClients(MAX_CLIENTS),
+	_maxEvents(MAX_EVENTS)
 {
 	// non-blocking TCP socket
 	_sockFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	if (_sockFd == -1) {
 		throw socketCreationFailure();
 	}
+	int enable = 1;
+	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1) {
+		throw socketCreationFailure();
+	}
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET; // IPv4
 	_addr.sin_port = htons(_port); // Converts port number to network byte order
-	_addr.sin_addr.s_addr = INADDR_ANY; // allows connection from any IP
+	_addr.sin_addr.s_addr = INADDR_ANY; // allows connection from any IP 
 
 	// attaches socket to port
 	if (bind(_sockFd, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
@@ -59,8 +63,34 @@ Server::Server(int port, int maxClients, int maxEvents) :
 	std::cout << "Server is listening on port " << _port << "...\n";
 }
 
-Server::Server(const Server &s) : Server(s._port, s._maxClients, s._maxEvents)
+Server::Server(const Server &s) : 
+	_port(s._port),
+	_maxClients(s._maxClients),
+	_maxEvents(s._maxEvents)
 {
+		// non-blocking TCP socket
+	_sockFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+	if (_sockFd == -1) {
+		throw socketCreationFailure();
+	}
+	int enable = 1;
+	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1) {
+		throw socketCreationFailure();
+	}
+	memset(&_addr, 0, sizeof(_addr));
+	_addr.sin_family = AF_INET; // IPv4
+	_addr.sin_port = htons(_port); // Converts port number to network byte order
+	_addr.sin_addr.s_addr = INADDR_ANY; // allows connection from any IP 
+
+	// attaches socket to port
+	if (bind(_sockFd, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
+		throw socketBindFailure();
+	}
+	// wait for incoming connections
+	if (listen(_sockFd, 5) < 0) {
+		throw socketListenFailure();
+	}
+	std::cout << "Server is listening on port " << _port << "...\n";
 }
 
 Server::~Server()
