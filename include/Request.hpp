@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:00:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/25 12:10:04 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/25 16:23:15 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,9 @@ public:
 	std::string const &getHttpVersion() const;
 	std::string const &getHeaderValue(std::string const &key) const;
 	std::string const &getBody() const;
-	/* setters */
-	void	setMethod();
-	void	setUrl();
-	void	setHttpVersion();
-	void	setHeaders();
-	void	setBody();
+	/* parser */
+	void	parseHead();
+	void	parseRest();
 
 	/* Utils */
 	void	printAll();

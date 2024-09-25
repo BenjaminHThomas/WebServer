@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/25 13:25:19 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/25 16:32:59 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,8 @@ Request::Request(std::string const &str) :
 	try
 	{
 		/* code */
-		this->setMethod();
-		this->setUrl();
-		this->setHttpVersion();
-		this->setHeaders();
-		this->setBody();
+		this->parseHead();
+		this->parseRest();
 	}
 	catch(const std::exception& e)
 	{
@@ -83,38 +80,58 @@ std::string const &Request::getBody() const {
 	return this->_body;
 }
 
-void	Request::setMethod() {
+void	Request::parseHead() {
+	/* Parse Method */
 	std::size_t	del = _raw.find_first_of(" ");
+	if (del == std::string::npos)
+		throw std::runtime_error("Not find");
 	std::string	mtd = _raw.substr(0, del);
 	if (std::count(_allowdMethods.begin(), _allowdMethods.end(), mtd))
 		this->_method = mtd;
 	else
 		throw std::runtime_error("Not allowed Method");
+	/* Parse URL */
+	std::size_t	start = _raw.find_first_not_of(" ", del + 1);
+	del = _raw.find_first_of(" ", start);
+	this->_url = _raw.substr(start, del - start);
+	/* Parse HTTP version */
+	start = _raw.find_first_of("HTTP/", del + 1);
+	del = _raw.find("\r\n", start);
+	this->_http_version = _raw.substr(start, del - start);
 	// std::string	url = _raw.substr(del + 1, _raw.find("HTTP/") - (del + 1));
 	// this->_url = url;
 }
 
-void	Request::setUrl() {
-	std::size_t del = _raw.find("HTTP/");
-	std::size_t start = _raw.find_first_of('/');
-	std::string url = _raw.substr(start, del - start);
-	this->_url = url;
-}
-
-void	Request::setHttpVersion() {
-	std::size_t del = _raw.find("\r\n");
-	std::size_t start = _raw.find("HTTP/");
-	std::string http = _raw.substr(start, del - start);
-	this->_http_version = http;
-}
-
-void	Request::setHeaders() {
+void	Request::parseRest() {
+	std::size_t	start = _raw.find("\r\n");
+	std::string	key;
+	std::string	value;
 	
+	/* Parse Headers (key, value)*/
+	// if (_raw[start + 2] == '\r' && _raw[start + 3] == '\n')
+
+	// Better to use iterator to go through _raw
+	while (_raw.find("\r\n", start + 1) - start > 2) {
+		start += 2;
+		// std::cout << start << "   " << _raw.find("\r\n", start) << std::endl;
+		std::string	line = _raw.substr(start, _raw.find("\r\n", start) - start);
+		// std::cout << "Line is: " << line << std::endl;
+		std::size_t	del = line.find(":");
+		key = line.substr(0, del);
+		value = line.substr(line.find_first_not_of(" ", del + 1), line.find_last_not_of(" ") + 1);
+		// std::cout << "Key is: " << key << "\t\tValue is: " << value << std::endl;
+		this->_headers.insert(std::pair<std::string, std::string>(key, value));
+		start += (_raw.find("\r\n", start) - start);
+		// std::cout << "start now is: " << start << std::endl;
+		// std::cout << "next rn is: " << _raw.find("\r\n", start + 1) << std::endl;
+	}
+	/* Parese Body if there is any*/
+	start += 4;
+	if (start < _raw.length()) {
+		this->_body = _raw.substr(start);
+	}
 }
 
-void	Request::setBody() {
-	
-}
 
 std::vector<std::string>	Request::initMethods() {
 	std::vector<std::string>	methods;
@@ -141,7 +158,7 @@ void	Request::printAll() {
 	std::cout << "\n------------------Headers------------------" << std::endl;
 	std::map<std::string, std::string>::iterator it;
 	for (it = this->_headers.begin(); it != this->_headers.end(); it++) {
-		std::cout << it->first << " : " << it->second << std::endl;
+		std::cout << "[" << it->first << "] : \"" << it->second << "\"" << std::endl;
 	}
 	std::cout << "\n---------------End of Headers---------------" << std::endl;
 	std::cout << "\n-------------------Body---------------------" << std::endl;
