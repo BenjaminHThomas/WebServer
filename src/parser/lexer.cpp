@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/24 22:15:23 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/25 08:55:36 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,4 +169,10 @@ std::string JSONLexer::token_type_to_string(JSONLexer::TokenType::Value type) co
 		case TokenType::DECIMAL: return "DECIMAL";
 		default: return "UNKNOWN";
     }
+}
+
+
+const std::vector<JSONLexer::Token> &JSONLexer::get_tokens() const
+{
+	return _tokens;
 }
