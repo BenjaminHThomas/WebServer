@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 16:34:55 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/26 18:02:19 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 class EventHandler::epollInitFailure : public std::exception {
 	public:
 		const char* what() const throw() {
-			return "Error: could not initialise epoll with server socket\n";
+			return "Error: could not initialise epoll\n";
 		}
 };
 
@@ -63,26 +63,16 @@ void EventHandler::changeToWrite(int clientFd) {
 	}
 }
 
-void EventHandler::addSocketToEpoll(Server & s) {
-	int sfd = s.getSockFd();
-	setNonBlock(sfd);
-	
-	struct epoll_event ev;
-	ev.data.fd = sfd;
-	ev.events = EPOLLIN | EPOLLET;
-	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, sfd, &ev) == -1) {
-		std::cerr << "Error: could not mark fd " << sfd << " as EPOLLIN\n";
-	}
-}
-
-void EventHandler::addSocketToEpoll(int fd) {
+bool EventHandler::addSocketToEpoll(int fd) {
 	setNonBlock(fd);
 	struct epoll_event ev;
 	ev.data.fd = fd;
 	ev.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, fd, &ev) == -1) {
 		std::cerr << "Error: could not mark fd " << fd << " as EPOLLIN\n";
+		return false;
 	}
+	return true;
 }
 
 void EventHandler::addClient(int clientFd) {
@@ -97,13 +87,15 @@ void EventHandler::handleNewConnection(Server & s) {
 	struct sockaddr_in clientAddr;
 	socklen_t clientAddrLen = sizeof(clientAddr);
 
-	//accept new connection
 	int clientFd = accept(serverFd, (struct sockaddr *)&clientAddr, &clientAddrLen);
 	if (clientFd == -1) {
 		std::cerr << "Error: could not accept new connection from fd " << serverFd << "\n";
 		return ;
 	}
-	addSocketToEpoll(clientFd);
+	if (!addSocketToEpoll(clientFd)) {
+		close(clientFd);
+		return ;
+	}
 	addClient(clientFd);
 }
 

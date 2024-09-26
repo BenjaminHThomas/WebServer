@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 14:46:22 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/26 17:58:59 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <map>
 #include <utility>
+#include <cerrno> //temp, just for testing
 #define BUFFER_SIZE 30720
 
 class ClientConnection;
@@ -42,8 +43,7 @@ class EventHandler
 	public:
 		class epollInitFailure;
 		void setNonBlock(int fd);
-		void addSocketToEpoll(Server & s);
-		void addSocketToEpoll(int fd);
+		bool addSocketToEpoll(int fd);
 		void addClient(int clientFd);
 		void handleNewConnection(Server & s);
 		void handleClientRequest(int clientFd);
