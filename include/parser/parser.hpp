@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 10:28:22 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/26 11:05:47 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/26 22:13:46 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ class JSONParser
 
 	private:
 		JsonValue	handle_tokens(iter &begin, const const_iter& end);
-		JsonObject*	handle_object(iter &begin, const const_iter &end);
+		JsonValue	handle_object(iter &begin, const const_iter &end);
+		JsonValue	handle_array(iter &begin, const const_iter &end);
 
-		Member handle_member(iter &begin, const const_iter &end);
+		JsonValue::member_type handle_member(iter &begin, const const_iter &end);
 };

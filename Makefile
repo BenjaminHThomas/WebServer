@@ -13,7 +13,7 @@
 NAME		=	webserv
 SRCDIR		=	src
 OBJDIR		=	obj
-CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -MMD -g
+CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -MMD -g3
 CPP			=	c++
 
 INCS		=	-I ./include

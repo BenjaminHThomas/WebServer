@@ -6,13 +6,15 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/26 11:03:11 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/26 22:45:06 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "json.hpp"
 #include "lexer.hpp"
 #include <cstddef>
+#include <cstdlib>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -54,6 +56,42 @@ JsonValue::JsonValue() : _type(JsonType::TNULL)
 
 JsonValue::JsonValue(JsonType::Value type) : _type(type)
 {
+	switch (_type)
+	{
+		case (JsonType::TSTRING):
+			_string = new string_type();
+			break;
+		case (JsonType::TARRAY):
+			_array = new array_type();
+			break;
+		case (JsonType::TOBJECT):
+			_object = new object_type();
+			break;
+		default:
+			break;
+	}
+}
+
+JsonValue::JsonValue(JSONLexer::Token token)
+{
+	switch (token.type)
+	{
+		case (JSONLexer::TokenType::STRING):
+			_type = JsonType::TSTRING;
+			_string = new std::string(token.value);
+			break;
+		case (JSONLexer::TokenType::VFALSE):
+		case (JSONLexer::TokenType::VTRUE):
+			_type = JsonType::TBOOLEAN;
+			_boolean = to_bool(token.value);
+			break;
+		case (JSONLexer::TokenType::DECIMAL):
+			_type = JsonType::TBOOLEAN;
+			_decimal = to_number(token.value);
+			break;
+		default:
+			break;
+	}
 }
 
 JsonValue::JsonValue(bool data) : _type(JsonType::TBOOLEAN)
@@ -68,7 +106,14 @@ JsonValue::JsonValue(double data) : _type(JsonType::TDECIMAL)
 
 JsonValue::JsonValue(const string_type &value) : _type(JsonType::TSTRING)
 {
+	try
+	{
 	_string = new std::string(value);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "no way its here: " << e.what() << std::endl;
+	}
 }
 
 JsonValue::JsonValue(const object_type &value) : _type(JsonType::TOBJECT)
@@ -99,15 +144,38 @@ JsonValue::JsonType::Value JsonValue::get_type() const
 
 JsonValue &JsonValue::push_back(JsonValue value)
 {
+	if (_type != JsonType::TARRAY)
+		throw std::runtime_error("invalid json type: expected array");
 	_array->push_back(value);
 	return *this;
 }
 
 JsonValue &JsonValue::insert(member_type value)
 {
+	if (_type != JsonType::TOBJECT)
+		throw std::runtime_error("invalid json type: expected object");
 	if (_object->find(value.first) != _object->end())
 		throw std::runtime_error("duplicate keys in object.");
+	try
+	{
 	this->_object->insert(value);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "i dont think so: " << e.what() << std::endl;
+	}
 
 	return *this;
+}
+
+bool JsonValue::to_bool(const std::string &str) const
+{
+	if (str != "true" || str != "false")
+		throw std::runtime_error("invalid conversion: trying to csat non-boolean string as boolean");
+	return str == "true" ? true : false;
+}
+
+double JsonValue::to_number(const std::string &str) const
+{
+	return std::atof(str.c_str());
 }

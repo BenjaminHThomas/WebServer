@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/26 10:40:34 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/26 22:38:52 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class	JsonValue
 		JsonValue(const object_type &str);
 		JsonValue(const array_type &str);
 		JsonValue(JsonType::Value type);
+		JsonValue(JSONLexer::Token token);
 
 		JsonValue(const JsonValue &json);
 		~JsonValue();
@@ -77,5 +78,11 @@ class	JsonValue
 		JsonValue &insert(member_type value);
 	public:
 		JsonType::Value get_type() const;
+
+		bool	to_bool(const std::string &str) const;
+		double	to_number(const std::string &str) const;
+
+		array_type &get_arr() { return (*_array); };
+		object_type &get_obj() { return (*_object); };
 };
 
