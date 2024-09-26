@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 16:32:58 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/26 16:34:55 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void EventHandler::epollLoop(Server & s) {
 	int serverFd = s.getSockFd();
 
 	while (1) {
-		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, -1);
+		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, 0);
 		if (numEvents == -1) {
 			std::cerr << "Failed to wait for events.\n";
 			break ;
