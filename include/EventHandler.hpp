@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 12:05:24 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/26 14:46:22 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ enum responseType {
 struct responseContent {
 	responseType type;
 	void * content;
-	char * responseText;
 };
 
 class EventHandler
@@ -50,7 +49,9 @@ class EventHandler
 		void handleClientRequest(int clientFd);
 		void handleResponse(int clientFd);
 		void epollLoop(Server & s);
-		ClientConnection* retrieveClient(int clientFd);
+		void changeToWrite(int clientFd);
+		void changeToRead(int clientFd);
+		bool isResponseComplete(int clientFd);
 
 	public:
 		EventHandler (void);
