@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   EventHandler.cpp                                          :+:      :+:    :+:   */
+/*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 13:18:57 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/26 14:16:33 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,12 @@ void EventHandler::addSocketToEpoll(int fd) {
 	}
 }
 
+void EventHandler::addClient(int clientFd) {
+	ClientConnection conn(clientFd);
+
+	_clients[clientFd] = conn;
+}
+
 void EventHandler::handleNewConnection(Server & s) {
 	int serverFd = s.getSockFd();
 	struct sockaddr_in clientAddr;
@@ -72,17 +78,18 @@ void EventHandler::handleNewConnection(Server & s) {
 		return ;
 	}
 	addSocketToEpoll(clientFd);
+	addClient(clientFd);
 }
 
 // Read all data from the client and process HTTP requests in Edge-Triggered mode
 void EventHandler::handleClientRequest(int clientFd) {
-	char buffer[1024];
+	char buffer[BUFFER_SIZE];
 	int bytes_read;
 
 	while (1) {
 		bytes_read = read(clientFd, buffer, sizeof(buffer) - 1);
 		if (bytes_read <= 0) {
-			if (bytes_read == 0)
+			if (bytes_read == 0) // this is wrong, need to check for "connection: close" header instead
 				close(clientFd);
 			break ;
 		}
@@ -114,10 +121,10 @@ void EventHandler::epollLoop(Server & s) {
 			if (eventQueue[i].data.fd == serverFd) {
 				handleNewConnection(s);
 			} else {
-				if (eventQueue[i].events & EPOLLIN)
+				//if (eventQueue[i].events & EPOLLIN)
 					handleClientRequest(eventQueue[i].data.fd);
-				else if (eventQueue[i].events & EPOLLOUT)
-					handleResponse(eventQueue[i].data.fd);
+				//else if (eventQueue[i].events & EPOLLOUT)
+					//handleResponse(eventQueue[i].data.fd);
 			}
 		}
 	}
