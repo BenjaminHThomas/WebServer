@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 18:02:19 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/26 19:08:23 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,13 @@ class EventHandler::epollInitFailure : public std::exception {
 	public:
 		const char* what() const throw() {
 			return "Error: could not initialise epoll\n";
+		}
+};
+
+class EventHandler::epollWaitFailure : public std::exception {
+	public:
+		const char* what() const throw() {
+			return "Error: epoll_wait failed\n";
 		}
 };
 
@@ -48,7 +55,7 @@ void EventHandler::setNonBlock(int fd) {
 void EventHandler::changeToRead(int clientFd) {
 	struct epoll_event ev;
 	ev.data.fd = clientFd;
-	ev.events = EPOLLIN | EPOLLET;
+	ev.events = EPOLLIN;
 	if (epoll_ctl(_epollFd, EPOLL_CTL_MOD, clientFd, &ev) == -1) {
 		std::cerr << "Error: could not mark fd " << clientFd << " as EPOLLIN\n";
 	}
@@ -57,7 +64,7 @@ void EventHandler::changeToRead(int clientFd) {
 void EventHandler::changeToWrite(int clientFd) {
 	struct epoll_event ev;
 	ev.data.fd = clientFd;
-	ev.events = EPOLLOUT | EPOLLET;
+	ev.events = EPOLLOUT;
 	if (epoll_ctl(_epollFd, EPOLL_CTL_MOD, clientFd, &ev) == -1) {
 		std::cerr << "Error: could not mark fd " << clientFd << " as EPOLLOUT\n";
 	}
@@ -67,7 +74,7 @@ bool EventHandler::addSocketToEpoll(int fd) {
 	setNonBlock(fd);
 	struct epoll_event ev;
 	ev.data.fd = fd;
-	ev.events = EPOLLIN | EPOLLET;
+	ev.events = EPOLLIN;
 	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, fd, &ev) == -1) {
 		std::cerr << "Error: could not mark fd " << fd << " as EPOLLIN\n";
 		return false;
@@ -113,19 +120,17 @@ void EventHandler::handleClientRequest(int clientFd) {
 	int bytes_read;
 
 	std::cout << "Handling client request from " << clientFd << "\n";
-
-	while (1) {
-		bytes_read = read(clientFd, buffer, sizeof(buffer) - 1);
-		if (bytes_read < 0) {
-			break ;
-		}
-		buffer[bytes_read] = 0;
-		_clients[clientFd]._requestBuffer += buffer;
-		if (isResponseComplete(clientFd)) {
-			std::cout << "Recieved request:\n" << _clients[clientFd]._requestBuffer << "\n";
-			changeToWrite(clientFd);
-			break ;
-		}
+	bytes_read = read(clientFd, buffer, sizeof(buffer) - 1);
+	if (bytes_read <= 0) {
+		std::cerr << "Error: failed to read or client closed connection.\n";
+		close(clientFd);
+		return ;
+	}
+	buffer[bytes_read] = 0;
+	_clients[clientFd]._requestBuffer += buffer;
+	if (isResponseComplete(clientFd)) {
+		std::cout << "Recieved request:\n" << _clients[clientFd]._requestBuffer << "\n";
+		changeToWrite(clientFd);
 	}
 }
 
@@ -148,10 +153,10 @@ void EventHandler::epollLoop(Server & s) {
 	int serverFd = s.getSockFd();
 
 	while (1) {
-		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, 0);
+		// change from -1 after bug is fixed
+		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, -1);
 		if (numEvents == -1) {
-			std::cerr << "Failed to wait for events.\n";
-			break ;
+			throw epollWaitFailure();
 		}
 		if (numEvents != 0)
 			std::cout << "Num events: " << numEvents << "\n";

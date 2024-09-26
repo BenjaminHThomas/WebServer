@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 17:58:59 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/26 18:17:39 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,9 @@ class EventHandler
 		void changeToWrite(int clientFd);
 		void changeToRead(int clientFd);
 		bool isResponseComplete(int clientFd);
+
+	public:
+		class epollWaitFailure;
 
 	public:
 		EventHandler (void);
