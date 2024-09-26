@@ -13,14 +13,14 @@
 NAME		=	webserv
 SRCDIR		=	src
 OBJDIR		=	obj
-CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -MMD
+CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -MMD -g
 CPP			=	c++
 
 INCS		=	-I ./include
 INCS		+=	-I ./include/parser
 
 SRC			=	main.cpp
-SRC			+=	parser.cpp lexer.cpp
+SRC			+=	parser.cpp lexer.cpp json.cpp
 
 vpath %.cpp src/
 vpath %.cpp src/parser
