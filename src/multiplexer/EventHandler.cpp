@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/27 13:49:45 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/27 14:05:53 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,13 +75,21 @@ void EventHandler::changeToWrite(int clientFd) {
 	}
 }
 
-bool EventHandler::addSocketToEpoll(int fd) {
+bool EventHandler::addToEpoll(int fd) {
 	setNonBlock(fd);
 	struct epoll_event ev;
 	ev.data.fd = fd;
 	ev.events = EPOLLIN;
 	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, fd, &ev) == -1) {
 		std::cerr << "Error: could not mark fd " << fd << " as EPOLLIN\n";
+		return false;
+	}
+	return true;
+}
+
+bool EventHandler::deleteFromEpoll(int fd) {
+	if (epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, NULL) == -1) {
+		std::cerr << "Error: could not delete fd " << fd << "\n";
 		return false;
 	}
 	return true;
@@ -104,7 +112,7 @@ void EventHandler::handleNewConnection(Server & s) {
 		std::cerr << "Error: could not accept new connection from fd " << serverFd << "\n";
 		return ;
 	}
-	if (!addSocketToEpoll(clientFd)) {
+	if (!addToEpoll(clientFd)) {
 		close(clientFd);
 		return ;
 	}
@@ -128,7 +136,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 	bytes_read = read(clientFd, buffer, sizeof(buffer) - 1);
 	if (bytes_read <= 0) {
 		std::cerr << "Error: failed to read or client closed connection.\n";
-		close(clientFd);
+		deleteFromEpoll(clientFd);
+		delete _clients[clientFd];
 		return ;
 	}
 	buffer[bytes_read] = 0;
