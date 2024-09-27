@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/27 14:03:24 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/27 16:31:29 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <map>
 #include <utility>
 #include <cerrno> //temp, just for testing
+#include <cstdlib>
 #define BUFFER_SIZE 30720
 
 class ClientConnection;
