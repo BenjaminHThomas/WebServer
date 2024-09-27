@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 12:03:51 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/27 13:44:19 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,18 @@ ClientConnection::ClientConnection(void) :
 {
 }
 
+ ClientConnection::ClientConnection(const ClientConnection& other) :
+		_clientFd(other._clientFd),
+		_requestBuffer(other._requestBuffer),
+		_responseBuffer(other._responseBuffer),
+		_bytesSent(other._bytesSent),
+		_responseReady(other._responseReady)
+{
+}
+
 ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 	if (this != &other) {
+		closeConnection();
 		_clientFd = other._clientFd;
 		_requestBuffer = other._requestBuffer;
 		_responseBuffer = other._responseBuffer;
@@ -44,7 +54,11 @@ void ClientConnection::resetData() {
 }
 
 void ClientConnection::closeConnection() {
-	close(_clientFd);
+	if (_clientFd != -1) {
+		std::cout << "Closing connection.\n";
+		close(_clientFd);
+		_clientFd = -1;
+	}
 }
 
 ClientConnection::~ClientConnection() {

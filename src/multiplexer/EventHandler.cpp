@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 19:08:23 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/27 13:49:45 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,11 @@ EventHandler::~EventHandler()
 	if (_epollFd != -1) {
 		close(_epollFd);
 	}
+	std::map<int, ClientConnection*>::iterator it;
+	for (it = _clients.begin(); it != _clients.end(); ++it) {
+		delete it->second;
+	}
+	_clients.clear();
 }
 
 void EventHandler::setNonBlock(int fd) {
@@ -83,7 +88,7 @@ bool EventHandler::addSocketToEpoll(int fd) {
 }
 
 void EventHandler::addClient(int clientFd) {
-	ClientConnection conn(clientFd);
+	ClientConnection* conn = new ClientConnection(clientFd);
 	_clients[clientFd] = conn;
 }
 
@@ -107,7 +112,7 @@ void EventHandler::handleNewConnection(Server & s) {
 }
 
 bool EventHandler::isResponseComplete(int clientFd) {
-	std::string buff = _clients[clientFd]._requestBuffer;
+	std::string buff = _clients[clientFd]->_requestBuffer;
 	size_t pos = buff.find("\r\n\r\n");
 	if (pos != std::string::npos)
 		return true;
@@ -127,9 +132,9 @@ void EventHandler::handleClientRequest(int clientFd) {
 		return ;
 	}
 	buffer[bytes_read] = 0;
-	_clients[clientFd]._requestBuffer += buffer;
+	_clients[clientFd]->_requestBuffer += buffer;
 	if (isResponseComplete(clientFd)) {
-		std::cout << "Recieved request:\n" << _clients[clientFd]._requestBuffer << "\n";
+		std::cout << "Recieved request:\n" << _clients[clientFd]->_requestBuffer << "\n";
 		changeToWrite(clientFd);
 	}
 }
@@ -137,7 +142,7 @@ void EventHandler::handleClientRequest(int clientFd) {
 void EventHandler::handleResponse(int clientFd) {
 	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
-	_clients[clientFd].resetData();
+	_clients[clientFd]->resetData();
 	const char* response =
 		"HTTP/1.1 200 OK\r\n"
 		"Content-Type: text/plain\r\n"

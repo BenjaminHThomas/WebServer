@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 18:17:39 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/27 13:44:53 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ class EventHandler
 {
 	private:
 		int _epollFd;
-		std::map<int, ClientConnection> _clients;
+		std::map<int, ClientConnection*> _clients;
 
 	public:
 		class epollInitFailure;

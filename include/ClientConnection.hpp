@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/26 14:34:42 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/27 13:44:25 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class ClientConnection
 	public:
 		ClientConnection(void);
 		ClientConnection (int fd);
+		ClientConnection(const ClientConnection&);
 		ClientConnection& operator=(const ClientConnection& other);
 		~ClientConnection ();
 };
