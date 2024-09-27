@@ -6,7 +6,7 @@
 #    By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/27 15:00:49 by tsuchen          ###   ########.fr        #
+#    Updated: 2024/09/27 19:26:36 by tsuchen          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,11 +18,12 @@ SRC			= main.cpp \
 				EventHandler.cpp \
 				Server.cpp \
 				ClientConnection.cpp \
-				Request.cpp
+				Request.cpp \
+				AHttpData.cpp
 CFLAGS		= -Wall -Werror -Wextra -std=c++98 -MMD
 CPP			= c++
 
-vpath %.cpp src/ src/multiplexer
+vpath %.cpp src/ src/multiplexer src/http_parser
 
 OBJS		= $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
