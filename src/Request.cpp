@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/25 16:32:59 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/27 18:44:55 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,56 +82,65 @@ std::string const &Request::getBody() const {
 
 void	Request::parseHead() {
 	/* Parse Method */
-	std::size_t	del = _raw.find_first_of(" ");
-	if (del == std::string::npos)
-		throw std::runtime_error("Not find");
-	std::string	mtd = _raw.substr(0, del);
-	if (std::count(_allowdMethods.begin(), _allowdMethods.end(), mtd))
-		this->_method = mtd;
-	else
+	std::size_t	mtd_end = _raw.find(" ");
+	if (mtd_end == std::string::npos)
+		throw std::runtime_error("Method Not Found");
+	_method = _raw.substr(0, mtd_end);
+	if (!std::count(_allowdMethods.begin(), _allowdMethods.end(), _method))
 		throw std::runtime_error("Not allowed Method");
 	/* Parse URL */
-	std::size_t	start = _raw.find_first_not_of(" ", del + 1);
-	del = _raw.find_first_of(" ", start);
-	this->_url = _raw.substr(start, del - start);
+	std::size_t	url_start = _raw.find_first_not_of(" ", mtd_end + 1);
+	if (url_start == std::string::npos)
+		throw std::runtime_error("URL Not Found");
+	std::size_t url_end = _raw.find(" ", url_start);
+	if (url_end == std::string::npos)
+		throw std::runtime_error("URL Not Found");
+	_url = _raw.substr(url_start, url_end - url_start);
 	/* Parse HTTP version */
-	start = _raw.find_first_of("HTTP/", del + 1);
-	del = _raw.find("\r\n", start);
-	this->_http_version = _raw.substr(start, del - start);
-	// std::string	url = _raw.substr(del + 1, _raw.find("HTTP/") - (del + 1));
-	// this->_url = url;
+	std::size_t http_start = _raw.find_first_of("HTTP/", url_end + 1);
+	if (http_start == std::string::npos)
+		throw std::runtime_error("HTTP version Not Found");
+	std::size_t http_end = _raw.find('\n', http_start);
+	if (http_end == std::string::npos)
+		throw std::runtime_error("HTTP version Not Found");
+	_http_version = _raw.substr(http_start, http_end - http_start);
+	if (!_http_version.empty() && _http_version[_http_version.length() - 1] == '\r')
+		_http_version.erase(_http_version.length() - 1);
 }
 
 void	Request::parseRest() {
-	std::size_t	start = _raw.find("\r\n");
-	std::string	key;
-	std::string	value;
-	
 	/* Parse Headers (key, value)*/
-	// if (_raw[start + 2] == '\r' && _raw[start + 3] == '\n')
-
-	// Better to use iterator to go through _raw
-	while (_raw.find("\r\n", start + 1) - start > 2) {
-		start += 2;
-		// std::cout << start << "   " << _raw.find("\r\n", start) << std::endl;
-		std::string	line = _raw.substr(start, _raw.find("\r\n", start) - start);
-		// std::cout << "Line is: " << line << std::endl;
-		std::size_t	del = line.find(":");
-		key = line.substr(0, del);
-		value = line.substr(line.find_first_not_of(" ", del + 1), line.find_last_not_of(" ") + 1);
-		// std::cout << "Key is: " << key << "\t\tValue is: " << value << std::endl;
-		this->_headers.insert(std::pair<std::string, std::string>(key, value));
-		start += (_raw.find("\r\n", start) - start);
-		// std::cout << "start now is: " << start << std::endl;
-		// std::cout << "next rn is: " << _raw.find("\r\n", start + 1) << std::endl;
+	std::string::const_iterator	it = _raw.begin();
+	std::string::const_iterator end = _raw.end();
+	it = std::find(it, end, '\n');	// first move to the end of first line
+	if (it == end) return ;
+	++it;
+	
+	while (it != end) {
+		std::string::const_iterator	line_end = std::find(it, end, '\n');	// the end of next line
+		if (line_end == it || (line_end != end && *(line_end - 1) == '\r' && line_end - 1 == it))
+			break ;
+		std::string::const_iterator colon = std::find(it, line_end, ':');
+		if (colon == line_end) {
+			// invalid header format, skip and continue
+			it = line_end + 1;
+			continue ;
+		}
+		std::string key(it, colon);
+		std::string value(colon + 1, line_end);
+		key = trim(key);
+		value = trim(value);
+		if (!value.empty() && value[value.length() - 1] == '\r')
+			value.erase(value.length() - 1);
+		if (!key.empty())
+			_headers[key] = value;
+		// std::cout << "Key: [" << key << "] | Value: [" << value << "]" << std::endl; 
+		it = line_end + 1;
 	}
 	/* Parese Body if there is any*/
-	start += 4;
-	if (start < _raw.length()) {
-		this->_body = _raw.substr(start);
-	}
+	if (it != end && std::find(it, end, '\n') != end)
+		_body.assign(std::find(it, end, '\n') + 1, end);
 }
-
 
 std::vector<std::string>	Request::initMethods() {
 	std::vector<std::string>	methods;
@@ -147,6 +156,12 @@ std::vector<std::string>	Request::initMethods() {
 	methods.push_back("PATCH");
 
 	return methods;
+}
+
+std::string	Request::trim(std::string const & str) {
+	std::string::const_iterator	start = std::find_if(str.begin(), str.end(), std::not1(std::ptr_fun<int, int>(isspace)));
+	std::string::const_iterator	end = std::find_if(str.rbegin(), str.rend(), std::not1(std::ptr_fun<int, int>(isspace))).base();
+	return start < end ? std::string(start, end) : std::string();
 }
 
 std::vector<std::string>	Request::_allowdMethods = Request::initMethods();

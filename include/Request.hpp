@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:00:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/25 16:23:15 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/27 18:31:54 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ public:
 	/* Utils */
 	void	printAll();
 	static std::vector<std::string>	initMethods();
+	static std::string	trim(std::string const & str);
 };
 
 #endif
