@@ -6,7 +6,7 @@
 #    By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/25 11:23:11 by tsuchen          ###   ########.fr        #
+#    Updated: 2024/09/27 15:00:49 by tsuchen          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,13 +15,14 @@ SRCDIR		= src
 OBJDIR		= obj
 INCS		= -I ./include
 SRC			= main.cpp \
-				Epoll.cpp \
-				Socket.cpp \
+				EventHandler.cpp \
+				Server.cpp \
+				ClientConnection.cpp \
 				Request.cpp
 CFLAGS		= -Wall -Werror -Wextra -std=c++98 -MMD
 CPP			= c++
 
-vpath %.cpp src/
+vpath %.cpp src/ src/multiplexer
 
 OBJS		= $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
