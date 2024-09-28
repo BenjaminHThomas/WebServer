@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 21:59:49 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 22:37:56 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,8 @@ JSONLexer::JSONLexer(std::ifstream &stream)
 		_data += "line: " + _buf + "\n";
 		line_counter++;
 	}
-	std::cout << _data << std::endl;
-	debug();
+	// std::cout << _data << std::endl;
+	// debug();
 }
 
 JSONLexer::~JSONLexer()

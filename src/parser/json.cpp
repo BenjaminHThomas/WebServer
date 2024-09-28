@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 21:52:22 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 22:02:28 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,12 +219,12 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 			{
 				for (int i = 0; i < level; i++)
 					s << "    ";
-				s << *it << ",";
+				s << *it << ",\n";
 			}
 			level--;
 			for (int i = 0; i < level; i++)
 				s << "    ";
-			s << "\n]";
+			s << "]";
 			break;
 	}
 	return s;
