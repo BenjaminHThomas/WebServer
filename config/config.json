@@ -1,0 +1,29 @@
+{
+	"first_server": {
+		"host": "localhost",
+		"port": 8080,
+		"error": {
+				"404": "/error-pages/not_found.html"
+		},
+		"max_body": 10000,
+		"routes": [
+			{
+				"methods": ["GET", "POST", "DELETE"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "../website",
+				"upload": "../upload",
+				"cgi": ["python"]
+			},
+			{
+				"methods": ["GET"],
+				"route": "/about",
+				"dir_listing": false,
+				"index": "index.html",
+				"directory": "../website/about",
+				"upload": "../upload"
+			}
+		]
+	}
+}
