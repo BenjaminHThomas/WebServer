@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 10:53:32 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 16:28:08 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 22:00:42 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,9 @@ JsonValue::member_type JSONParser::handle_member(iter &begin, const const_iter &
 		throw std::runtime_error("invalid object: [2] missing syntax in member");
 	if (++begin == end)
 		throw std::runtime_error("invalid object: [3] missing syntax in member");
-	// std::cerr << "[val] type: " << begin->type << ", value: \"" << begin->value << "\"" << std::endl;
 	JsonValue val = handle_tokens(begin, end);
 	return JsonValue::member_type(str, val);
 }
-
-// LCURLY -> STRING -> COLON -> STRING -> COMMA -> STRING -> COLON -> BOOLEAN -> RCURLY
 
 JsonValue JSONParser::handle_object(iter &begin, const const_iter &end)
 {
@@ -94,9 +91,7 @@ JsonValue	JSONParser::handle_tokens(iter &begin, const const_iter& end)
 	catch (const std::exception &e)
 	{
 		std::cerr << "error: " << e.what() << std::endl;
-		std::cerr << "[token] type: " << begin->type << ", value: \"" << begin->value << "\"" << std::endl;
 	}
-	std::cerr << "[MAJOR] type: " << begin->type << ", value: \"" << begin->value << "\"" << std::endl;
 	throw std::runtime_error("bad token");
 }
 
@@ -112,7 +107,6 @@ JSONParser::JSONParser(std::ifstream &stream)
 	{
 		JsonValue val = handle_tokens(it, tokens.end());
 		std::cout << val << std::endl;
-		// std::cout << val.get_type() << std::endl;;
 	}
 	catch (const std::exception &e)
 	{

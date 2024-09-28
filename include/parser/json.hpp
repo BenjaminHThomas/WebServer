@@ -6,16 +6,18 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 16:27:48 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 21:51:56 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "lexer.hpp"
+#include <cstddef>
 #include <map>
 #include <ostream>
 #include <string>
+#include <sys/types.h>
 #include <utility>
 #include <vector>
 
@@ -52,7 +54,7 @@ class	JsonValue
 		union
 		{
 			bool			_boolean;
-			double			_decimal;
+			// double			_decimal;
 			string_type*	_string;
 			object_type*	_object;
 			array_type*		_array;
@@ -62,12 +64,13 @@ class	JsonValue
 	public:
 		JsonValue();
 		JsonValue(bool data);
-		JsonValue(double data);
+		// JsonValue(double data);
 		JsonValue(const string_type &str);
 		JsonValue(const object_type &str);
 		JsonValue(const array_type &str);
 		JsonValue(JsonType::Value type);
 		JsonValue(JSONLexer::Token token);
+		JsonValue(const string_type& data, JsonType::Value type);
 
 		JsonValue(const JsonValue &json);
 		~JsonValue();
@@ -81,7 +84,8 @@ class	JsonValue
 		JsonType::Value get_type() const;
 
 		bool	to_bool(const std::string &str) const;
-		double	to_number(const std::string &str) const;
+		double	to_double(const std::string &str) const;
+		int64_t	to_number(const std::string &str) const;
 
 		array_type &get_arr() { return (*_array); };
 		object_type &get_obj() { return (*_object); };

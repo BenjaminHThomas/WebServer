@@ -6,15 +6,17 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 21:17:05 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 21:52:22 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "json.hpp"
 #include "lexer.hpp"
+#include <cmath>
 #include <cstddef>
 #include <cstdlib>
 #include <iomanip>
+#include <ios>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
@@ -30,7 +32,7 @@ JsonValue &JsonValue::operator=(const JsonValue &json)
 		switch (_type)
 		{
 			case (JsonType::TBOOLEAN): _boolean = json._boolean; break;
-			case (JsonType::TDECIMAL): _decimal = json._decimal; break;
+			case (JsonType::TDECIMAL): // _decimal = json._decimal; break;
 			case (JsonType::TSTRING):
 				_string = new string_type(*json._string);
 				break;
@@ -91,8 +93,12 @@ JsonValue::JsonValue(JSONLexer::Token token)
 			_boolean = true;
 			break;
 		case (JSONLexer::TokenType::DECIMAL):
-			_type = JsonType::TBOOLEAN;
-			_decimal = to_number(token.value);
+			_type = JsonType::TDECIMAL;
+			// if (token.value.find('.') == std::string::npos)
+			// 	_decimal = std::atoll(token.value.c_str());
+			// else
+			// _decimal = std::atof(token.value.c_str());
+			_string = new std::string(token.value);
 			break;
 		default:
 			break;
@@ -104,21 +110,14 @@ JsonValue::JsonValue(bool data) : _type(JsonType::TBOOLEAN)
 	_boolean = data;
 }
 
-JsonValue::JsonValue(double data) : _type(JsonType::TDECIMAL)
+JsonValue::JsonValue(const string_type& data, JsonType::Value type) : _type(type)
 {
-	_decimal = data;
+	_string = new std::string(data);
 }
 
 JsonValue::JsonValue(const string_type &value) : _type(JsonType::TSTRING)
 {
-	try
-	{
 	_string = new std::string(value);
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "no way its here: " << e.what() << std::endl;
-	}
 }
 
 JsonValue::JsonValue(const object_type &value) : _type(JsonType::TOBJECT)
@@ -172,9 +171,14 @@ bool JsonValue::to_bool(const std::string &str) const
 	return str == "true" ? true : false;
 }
 
-double JsonValue::to_number(const std::string &str) const
+double JsonValue::to_double(const std::string &str) const
 {
 	return std::atof(str.c_str());
+}
+
+int64_t JsonValue::to_number(const std::string &str) const
+{
+	return std::atoll(str.c_str());
 }
 
 std::ostream &operator<<(std::ostream &s, const JsonValue &json)
@@ -186,8 +190,8 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 			s << (json._boolean ? "true" : "false");
 			break;
 		case (JsonValue::JsonType::TDECIMAL):
-			s << json._decimal;
-			break;
+			s << *json._string;
+			break ;
 		case (JsonValue::JsonType::TSTRING):
 			s << '"' << *json._string << '"';
 			break;
@@ -210,10 +214,16 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 			break;
 		case (JsonValue::JsonType::TARRAY):
 			s << "[\n";
+			level++;
 			for (JsonValue::const_iter_arr	it = json._array->begin(); it < json._array->end(); it++)
 			{
-				s << "    " << *it << ",";
+				for (int i = 0; i < level; i++)
+					s << "    ";
+				s << *it << ",";
 			}
+			level--;
+			for (int i = 0; i < level; i++)
+				s << "    ";
 			s << "\n]";
 			break;
 	}
