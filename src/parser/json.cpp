@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 16:30:39 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 21:17:05 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "lexer.hpp"
 #include <cstddef>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
@@ -178,6 +179,7 @@ double JsonValue::to_number(const std::string &str) const
 
 std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 {
+	static int	level = 0;
 	switch (json._type)
 	{
 		case (JsonValue::JsonType::TBOOLEAN):
@@ -194,18 +196,23 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 			break;
 		case (JsonValue::JsonType::TOBJECT):
 			s << "{\n";
+			level++;
 			for (JsonValue::const_iter_obj	it = json._object->begin(); it != json._object->end(); it++)
 			{
-				s << "\t" << it->first << ": ";
-				s << it->second << ",";
+				for (int i = 0; i < level; i++)
+					s << "    ";
+				s << it->first << ": " << it->second << ",\n";
 			}
-			s << "\n}";
+			level--;
+			for (int i = 0; i < level; i++)
+				s << "    ";
+			s << "}";
 			break;
 		case (JsonValue::JsonType::TARRAY):
 			s << "[\n";
 			for (JsonValue::const_iter_arr	it = json._array->begin(); it < json._array->end(); it++)
 			{
-				s << "\t" << *it << ",";
+				s << "    " << *it << ",";
 			}
 			s << "\n]";
 			break;
