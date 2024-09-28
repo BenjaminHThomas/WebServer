@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/26 22:45:06 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 11:52:36 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ JsonValue &JsonValue::operator=(const JsonValue &json)
 {
 	if (this != &json)
 	{
+		_type = json._type;
 		switch (_type)
 		{
 			case (JsonType::TBOOLEAN): _boolean = json._boolean; break;
@@ -40,7 +41,6 @@ JsonValue &JsonValue::operator=(const JsonValue &json)
 			default:
 				break;
 		}
-		_type = json._type;
 	}
 	return *this;
 }
@@ -81,9 +81,12 @@ JsonValue::JsonValue(JSONLexer::Token token)
 			_string = new std::string(token.value);
 			break;
 		case (JSONLexer::TokenType::VFALSE):
+			_type = JsonType::TBOOLEAN;
+			_boolean = false;
+			break;
 		case (JSONLexer::TokenType::VTRUE):
 			_type = JsonType::TBOOLEAN;
-			_boolean = to_bool(token.value);
+			_boolean = true;
 			break;
 		case (JSONLexer::TokenType::DECIMAL):
 			_type = JsonType::TBOOLEAN;
@@ -156,21 +159,13 @@ JsonValue &JsonValue::insert(member_type value)
 		throw std::runtime_error("invalid json type: expected object");
 	if (_object->find(value.first) != _object->end())
 		throw std::runtime_error("duplicate keys in object.");
-	try
-	{
 	this->_object->insert(value);
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "i dont think so: " << e.what() << std::endl;
-	}
-
 	return *this;
 }
 
 bool JsonValue::to_bool(const std::string &str) const
 {
-	if (str != "true" || str != "false")
+	if (str != "true" && str != "false")
 		throw std::runtime_error("invalid conversion: trying to csat non-boolean string as boolean");
 	return str == "true" ? true : false;
 }

@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/25 08:55:36 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 11:44:40 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,8 +110,8 @@ JSONLexer::Token JSONLexer::handle_complete(iter &begin, const iter &end)
 	Token token;
 
 	std::string::iterator end_word = std::find_first_of(begin, end, all_chars.begin(), all_chars.end());
-	if (end_word == end)
-		throw std::runtime_error("error syntax: syntax [handle_complete()]");
+	// if (end_word == end)
+	// 	throw std::runtime_error("error syntax: syntax [handle_complete()]");
 
 	std::string word;
 	for (; begin < end_word; begin++)

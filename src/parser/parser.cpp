@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 10:53:32 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/26 22:46:37 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 11:56:47 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
-
 
 JsonValue::member_type JSONParser::handle_member(iter &begin, const const_iter &end)
 {
@@ -32,26 +31,15 @@ JsonValue::member_type JSONParser::handle_member(iter &begin, const const_iter &
 JsonValue JSONParser::handle_object(iter &begin, const const_iter &end)
 {
 	JsonValue obj(JsonValue::JsonType::TOBJECT);
-	for (; begin < end; begin++)
+	for (begin++; begin < end; begin++)
 	{
 		if (begin->type == JSONLexer::TokenType::RCURLY)
 			break ;
-		// obj.insert(handle_member(begin, end));
-		// obj[begin->value] =
-		try
-		{
-			// obj.get_obj()[begin->value] = JsonValue(*(++(++begin)));
-			JsonValue::member_type member(begin->value, JsonValue(*(++(++begin))));
-			// obj.get_obj().insert(member);
-			// obj.insert(std::make_pair(begin->value, handle_tokens(++(++begin), end)));
-		}
-		catch (const std::exception &e)
-		{
-			std::cerr << "HHerrorHH: " << e.what() << std::endl;
-		}
-		// obj.insert(std::make_pair(begin->value, handle_tokens(++(++begin), end)));
-		if ((++begin) == end || (begin->type != JSONLexer::TokenType::RCURLY && begin->type != JSONLexer::TokenType::COMMA))
-			throw std::runtime_error("invalid object: missing syntax");
+		obj.insert(handle_member(begin, end));
+		if (++begin == end)
+			throw std::runtime_error("invalid object: [1] missing syntax");
+		else if (begin->type != JSONLexer::TokenType::RCURLY && begin->type != JSONLexer::TokenType::COMMA)
+			throw std::runtime_error("invalid object: [2] missing syntax");
 	}
 	return obj;
 }
@@ -59,7 +47,7 @@ JsonValue JSONParser::handle_object(iter &begin, const const_iter &end)
 JsonValue JSONParser::handle_array(iter &begin, const const_iter &end)
 {
 	JsonValue arr(JsonValue::JsonType::TARRAY);
-	for (; begin < end; begin++)
+	for (begin++; begin < end; begin++)
 	{
 		if (begin->type == JSONLexer::TokenType::RBRAC)
 			break ;
@@ -72,21 +60,29 @@ JsonValue JSONParser::handle_array(iter &begin, const const_iter &end)
 
 JsonValue	JSONParser::handle_tokens(iter &begin, const const_iter& end)
 {
-	switch (begin->type)
+	try
 	{
-		case JSONLexer::TokenType::LCURLY:
-			return handle_object(++begin, end);
-		case JSONLexer::TokenType::LBRAC:
-			return handle_array(++begin, end);
-		case JSONLexer::TokenType::STRING:
-		case JSONLexer::TokenType::DECIMAL:
-		case JSONLexer::TokenType::VTRUE:
-		case JSONLexer::TokenType::VFALSE:
-			return JsonValue(*begin);
-		case JSONLexer::TokenType::VNULL:
-			return JsonValue();
-		default:
-			break;
+		switch (begin->type)
+		{
+			case JSONLexer::TokenType::LCURLY:
+				return handle_object(begin, end);
+			case JSONLexer::TokenType::LBRAC:
+				return handle_array(begin, end);
+			case JSONLexer::TokenType::STRING:
+			case JSONLexer::TokenType::DECIMAL:
+			case JSONLexer::TokenType::VTRUE:
+			case JSONLexer::TokenType::VFALSE:
+				return JsonValue(*begin);
+			case JSONLexer::TokenType::VNULL:
+				return JsonValue();
+			default:
+				break;
+		}
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "error: " << e.what() << std::endl;
+		std::cerr << "[token] type: " << begin->type << ", value: \"" << begin->value << "\"" << std::endl;
 	}
 	throw std::runtime_error("bad token");
 }
