@@ -1,5 +1,8 @@
 {
 	"another": "hello",
 	"key": true,
-	"some_string": "some_other_string"
+	"some_string": "some_other_string",
+	"object_val": {
+		"inside_key": "inside_val"
+	}
 }
