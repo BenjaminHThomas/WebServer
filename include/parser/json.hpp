@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/26 22:38:52 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 16:27:48 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "lexer.hpp"
 #include <map>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -84,5 +85,7 @@ class	JsonValue
 
 		array_type &get_arr() { return (*_array); };
 		object_type &get_obj() { return (*_object); };
+
+	friend std::ostream & operator << (std::ostream &s, const JsonValue &json);
 };
 

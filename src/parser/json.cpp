@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 11:52:36 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 16:30:39 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -173,4 +174,41 @@ bool JsonValue::to_bool(const std::string &str) const
 double JsonValue::to_number(const std::string &str) const
 {
 	return std::atof(str.c_str());
+}
+
+std::ostream &operator<<(std::ostream &s, const JsonValue &json)
+{
+	switch (json._type)
+	{
+		case (JsonValue::JsonType::TBOOLEAN):
+			s << (json._boolean ? "true" : "false");
+			break;
+		case (JsonValue::JsonType::TDECIMAL):
+			s << json._decimal;
+			break;
+		case (JsonValue::JsonType::TSTRING):
+			s << '"' << *json._string << '"';
+			break;
+		case (JsonValue::JsonType::TNULL):
+			s << "null";
+			break;
+		case (JsonValue::JsonType::TOBJECT):
+			s << "{\n";
+			for (JsonValue::const_iter_obj	it = json._object->begin(); it != json._object->end(); it++)
+			{
+				s << "\t" << it->first << ": ";
+				s << it->second << ",";
+			}
+			s << "\n}";
+			break;
+		case (JsonValue::JsonType::TARRAY):
+			s << "[\n";
+			for (JsonValue::const_iter_arr	it = json._array->begin(); it < json._array->end(); it++)
+			{
+				s << "\t" << *it << ",";
+			}
+			s << "\n]";
+			break;
+	}
+	return s;
 }

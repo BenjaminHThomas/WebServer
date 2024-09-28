@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 10:53:32 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 15:20:42 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 16:28:08 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,8 @@ JSONParser::JSONParser(std::ifstream &stream)
 	try
 	{
 		JsonValue val = handle_tokens(it, tokens.end());
-		std::cout << val.get_type() << std::endl;;
+		std::cout << val << std::endl;
+		// std::cout << val.get_type() << std::endl;;
 	}
 	catch (const std::exception &e)
 	{
