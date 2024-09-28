@@ -6,7 +6,7 @@
 #    By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/26 11:39:06 by bthomas          ###   ########.fr        #
+#    Updated: 2024/09/28 16:07:35 by bthomas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,8 @@ INCS		= -I ./include
 SRC			= main.cpp \
 				EventHandler.cpp \
 				Server.cpp \
-				ClientConnection.cpp
+				ClientConnection.cpp \
+				EventHandler_cgi.cpp
 CFLAGS		= -Wall -Werror -Wextra -std=c++98 -MMD
 CPP			= c++
 

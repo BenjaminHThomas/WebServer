@@ -6,11 +6,13 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/27 16:29:25 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/28 16:07:11 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
+
+void cgiOut(int clientFd, char **av, char **env);
 
 class EventHandler::epollInitFailure : public std::exception {
 	public:
@@ -26,12 +28,14 @@ class EventHandler::epollWaitFailure : public std::exception {
 		}
 };
 
-EventHandler::EventHandler(void)
+EventHandler::EventHandler(char **av, char **env)
 {
 	_epollFd = epoll_create1(0);
 	if (_epollFd == -1) {
 		throw epollInitFailure();
 	}
+	_av = av;
+	_env = env;
 }
 
 EventHandler::~EventHandler()
@@ -53,7 +57,7 @@ void EventHandler::setNonBlock(int fd) {
 		return ;
 	}
 	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-		std::cerr << "Error: couldn't set fd to non-blocking\n";
+		std::cerr << "Error: couldn't set fd to non-blocking\n"; 
 	}
 }
 
@@ -161,13 +165,14 @@ void EventHandler::handleResponse(int clientFd) {
 	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
 	_clients[clientFd]->resetData();
-	const char* response =
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/plain\r\n"
-		"Content-Length: 13\r\n"
-		"\r\n"
-		"Hello, World!";
-	write(clientFd, response, strlen(response));
+	//const char* response =
+	//	"HTTP/1.1 200 OK\r\n"
+	//	"Content-Type: text/plain\r\n"
+	//	"Content-Length: 13\r\n"
+	//	"\r\n"
+	//	"Hello, World!";
+	//write(clientFd, response, strlen(response));
+	cgiOut(clientFd, "cgi_bin/tester.cgi");
 	changeToRead(clientFd);
 }
 
