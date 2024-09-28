@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 14:40:54 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 21:59:49 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,8 @@ JSONLexer::JSONLexer(std::ifstream &stream)
 JSONLexer::~JSONLexer()
 {}
 
+
+
 JSONLexer::Token JSONLexer::handle_string(std::string::iterator &begin, const std::string::iterator &end)
 {
 	std::string s;
@@ -125,7 +127,9 @@ JSONLexer::Token JSONLexer::handle_complete(iter &begin, const iter &end)
 	else if (word == "null")
 		token.type = JSONLexer::TokenType::VNULL;
 	else if (!word.empty() && word.find_first_not_of("0123456789.-") == std::string::npos
-			&& std::count(word.begin(), word.end(), '-') < 2)
+			&& std::count(word.begin(), word.end(), '-') < 2
+			&& std::count(word.begin(), word.end(), '.') < 2
+			&& *word.begin() != '.' && *--word.end() != '.')
 	{
 		token.type = JSONLexer::TokenType::DECIMAL;
 		token.value = word;
