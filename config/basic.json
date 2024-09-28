@@ -1,3 +1,5 @@
 {
-	"key": true
+	"another": "hello",
+	"key": true,
+	"some_string": "some_other_string"
 }

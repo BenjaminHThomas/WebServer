@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 11:44:40 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/28 14:40:54 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,10 @@ void	JSONLexer::loop(iter begin, iter end)
 			case ':': _tokens.push_back(Token(TokenType::COLON)); break;
 			case '"': _tokens.push_back(handle_string(begin, end)); break;
 			case '\t': case '\r': case '\n': case ' ': break;
-			default: _tokens.push_back(handle_complete(begin, end)); break;
+			default:
+				_tokens.push_back(handle_complete(begin, end));
+				begin--;
+				break;
 		}
 	}
 }
@@ -110,14 +113,10 @@ JSONLexer::Token JSONLexer::handle_complete(iter &begin, const iter &end)
 	Token token;
 
 	std::string::iterator end_word = std::find_first_of(begin, end, all_chars.begin(), all_chars.end());
-	// if (end_word == end)
-	// 	throw std::runtime_error("error syntax: syntax [handle_complete()]");
 
 	std::string word;
-	for (; begin < end_word; begin++)
-	{
+	for (; begin < end_word; ++begin)
 		word.push_back(*begin);
-	}
 
 	if (word == "true")
 		token.type = JSONLexer::TokenType::VTRUE;
@@ -143,11 +142,11 @@ void	JSONLexer::debug() const
 	for (it = _tokens.begin(); it < _tokens.end(); it++)
 	{
 		Token token = *it;
-		std::cout << token_type_to_string(token.type);
+		std::cout << "[" << token.type << "] " << token_type_to_string(token.type);
 		if (token.type == TokenType::STRING)
-			std::cout << "[\"" << token.value << "\"]";
+			std::cout << "(\"" << token.value << "\")";
 		else if (token.type == TokenType::DECIMAL)
-			std::cout << "[" << token.value << "]";
+			std::cout << "(" << token.value << ")";
 		std::cout << "\n";
 	}
 }
