@@ -6,7 +6,7 @@
 #    By: okoca <okoca@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/29 14:40:07 by okoca            ###   ########.fr        #
+#    Updated: 2024/09/29 15:15:22 by okoca            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ INCS		=	-I ./include
 INCS		+=	-I ./include/parser
 
 SRC			=	main.cpp
-SRC			+=	parser.cpp lexer.cpp json.cpp
+SRC			+=	parser.cpp lexer.cpp json.cpp config.cpp
 SRC			+=	EventHandler.cpp Server.cpp ClientConnection.cpp
 
 vpath %.cpp src/
