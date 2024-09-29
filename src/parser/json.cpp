@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 15:29:15 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 16:41:29 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,3 +227,46 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 	return s;
 }
 
+JsonValue &JsonValue::operator[](size_t idx) const
+{
+	if (_type != JsonType::TARRAY)
+		throw std::runtime_error("invalid type, expected array");
+	JsonValue &val = _array->at(idx);
+	return val;
+}
+
+JsonValue &JsonValue::operator[](const char *str) const
+{
+	if (_type != JsonType::TOBJECT)
+		throw std::runtime_error("invalid type, expected object");
+	JsonValue &val = _object->at(str);
+	return val;
+}
+
+JsonValue &JsonValue::operator[](const std::string &s) const
+{
+	if (_type != JsonType::TOBJECT)
+		throw std::runtime_error("invalid type, expected object");
+	JsonValue &val = _object->at(s);
+	return val;
+}
+
+const std::string &JsonValue::as_string() const
+{
+	if (_type != JsonType::TSTRING && _type != JsonType::TDECIMAL)
+		throw std::runtime_error("invalid type, expected string/number");
+	return *_string;
+}
+
+int64_t	JsonValue::as_number() const
+{
+	if (_type != JsonType::TDECIMAL)
+		throw std::runtime_error("invalid type, expected number");
+	return to_number(*_string);
+}
+double	JsonValue::as_decimal() const
+{
+	if (_type != JsonType::TDECIMAL)
+		throw std::runtime_error("invalid type, expected number");
+	return to_double(*_string);
+}

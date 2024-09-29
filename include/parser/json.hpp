@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 15:26:27 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 16:41:04 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,16 @@ class	JsonValue
 
 	public:
 		JsonValue &operator=(const JsonValue &json);
+
+		JsonValue &operator[](const char *str) const;
+		JsonValue &operator[](const std::string &s) const;
+		JsonValue &operator[](size_t idx) const;
+
+		const std::string &as_string() const;
+		int64_t	as_number() const;
+		double	as_decimal() const;
+
+
 	public:
 		JsonValue &push_back(JsonValue value);
 		JsonValue &insert(member_type value);
