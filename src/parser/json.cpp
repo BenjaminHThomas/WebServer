@@ -6,23 +6,19 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 22:02:28 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 15:29:15 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "json.hpp"
 #include "lexer.hpp"
 #include <cmath>
-#include <cstddef>
 #include <cstdlib>
-#include <iomanip>
-#include <ios>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <vector>
 
 JsonValue &JsonValue::operator=(const JsonValue &json)
 {
@@ -135,8 +131,9 @@ JsonValue::~JsonValue()
 	switch (_type)
 	{
 		case (JsonType::TARRAY):	delete _array;	break;
-		case (JsonType::TSTRING):	delete _string;	break;
 		case (JsonType::TOBJECT):	delete _object;	break;
+		case (JsonType::TDECIMAL):
+		case (JsonType::TSTRING):	delete _string;	break;
 		default: break;
 	}
 }
@@ -229,3 +226,4 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 	}
 	return s;
 }
+
