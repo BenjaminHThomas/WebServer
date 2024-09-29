@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 22:37:56 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 14:19:40 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 static const std::string whitespace = "\t\r\n ";
 
 static const std::string all_chars = "{}[];,\"" + whitespace;
+
+JSONLexer::Tokens JSONLexer::_tokens;
 
 struct Keywords
 {
@@ -43,9 +45,6 @@ std::map<Keywords::Value, std::string> init_keywords()
 
 static const std::map<Keywords::Value, std::string> keywords = init_keywords();
 
-JSONLexer::JSONLexer()
-{}
-
 void	JSONLexer::loop(iter begin, iter end)
 {
 	for (; begin < end; begin++)
@@ -68,7 +67,7 @@ void	JSONLexer::loop(iter begin, iter end)
 	}
 }
 
-JSONLexer::JSONLexer(std::ifstream &stream)
+JSONLexer::Tokens JSONLexer::lex(std::ifstream &stream)
 {
 	std::string	_data;
 	std::string	_buf;
@@ -88,12 +87,8 @@ JSONLexer::JSONLexer(std::ifstream &stream)
 	}
 	// std::cout << _data << std::endl;
 	// debug();
+	return _tokens;
 }
-
-JSONLexer::~JSONLexer()
-{}
-
-
 
 JSONLexer::Token JSONLexer::handle_string(std::string::iterator &begin, const std::string::iterator &end)
 {
@@ -139,7 +134,7 @@ JSONLexer::Token JSONLexer::handle_complete(iter &begin, const iter &end)
 	return token;
 }
 
-void	JSONLexer::debug() const
+void	JSONLexer::debug()
 {
 	std::cout << "Tokens:\n";
 	std::vector<Token>::const_iterator it;
@@ -155,7 +150,7 @@ void	JSONLexer::debug() const
 	}
 }
 
-std::string JSONLexer::token_type_to_string(JSONLexer::TokenType::Value type) const
+std::string JSONLexer::token_type_to_string(JSONLexer::TokenType::Value type)
 {
     switch (type)
     {
@@ -172,10 +167,4 @@ std::string JSONLexer::token_type_to_string(JSONLexer::TokenType::Value type) co
 		case TokenType::DECIMAL: return "DECIMAL";
 		default: return "UNKNOWN";
     }
-}
-
-
-const std::vector<JSONLexer::Token> &JSONLexer::get_tokens() const
-{
-	return _tokens;
 }

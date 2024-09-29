@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "json.hpp"
+#include "parser.hpp"
 #include <temp.hpp>
 
 
@@ -21,6 +23,9 @@ int main(int ac, char **av)
 	std::ifstream input(av[1]);
 	if (!input)
 		return 1;
-	JSONParser parser(input);
+	JsonValue json  = JSONParser::parse(input);
+
+	std::cout << json << std::endl;
+
 	return 0;
 }

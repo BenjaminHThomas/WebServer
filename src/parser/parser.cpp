@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 10:53:32 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/28 22:00:42 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 14:15:33 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <vector>
 
-JsonValue::member_type JSONParser::handle_member(iter &begin, const const_iter &end)
+JsonValue::member_type JSONParser::handle_member(const_iter &begin, const const_iter &end)
 {
 	if (begin->type != JSONLexer::TokenType::STRING)
 		throw std::runtime_error("invalid object: 'key' member is invalid");
@@ -31,7 +31,7 @@ JsonValue::member_type JSONParser::handle_member(iter &begin, const const_iter &
 	return JsonValue::member_type(str, val);
 }
 
-JsonValue JSONParser::handle_object(iter &begin, const const_iter &end)
+JsonValue JSONParser::handle_object(const_iter &begin, const const_iter &end)
 {
 	JsonValue obj(JsonValue::JsonType::TOBJECT);
 	for (begin++; begin < end; begin++)
@@ -49,7 +49,7 @@ JsonValue JSONParser::handle_object(iter &begin, const const_iter &end)
 	return obj;
 }
 
-JsonValue JSONParser::handle_array(iter &begin, const const_iter &end)
+JsonValue JSONParser::handle_array(const_iter &begin, const const_iter &end)
 {
 	JsonValue arr(JsonValue::JsonType::TARRAY);
 	for (begin++; begin < end; begin++)
@@ -67,7 +67,7 @@ JsonValue JSONParser::handle_array(iter &begin, const const_iter &end)
 	return arr;
 }
 
-JsonValue	JSONParser::handle_tokens(iter &begin, const const_iter& end)
+JsonValue	JSONParser::handle_tokens(const_iter &begin, const const_iter& end)
 {
 	try
 	{
@@ -95,24 +95,18 @@ JsonValue	JSONParser::handle_tokens(iter &begin, const const_iter& end)
 	throw std::runtime_error("bad token");
 }
 
-JSONParser::JSONParser(std::ifstream &stream)
+JsonValue JSONParser::parse(std::ifstream &stream)
 {
-	JSONLexer lex(stream);
-
-	JSONLexer::Tokens tokens = lex.get_tokens();
-
-
-	JSONLexer::Tokens::iterator it = tokens.begin();
+	JSONLexer::Tokens tokens = JSONLexer::lex(stream);
+	JSONLexer::Tokens::const_iterator it = tokens.begin();
+	JsonValue val;
 	try
 	{
-		JsonValue val = handle_tokens(it, tokens.end());
-		std::cout << val << std::endl;
+		val = handle_tokens(it, tokens.end());
 	}
 	catch (const std::exception &e)
 	{
 		std::cerr << "error: " << e.what() << std::endl;
 	}
+	return val;
 }
-
-JSONParser::~JSONParser()
-{}

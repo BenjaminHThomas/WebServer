@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 10:28:22 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/26 22:13:46 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 14:15:23 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "json.hpp"
 #include "lexer.hpp"
+#include <fstream>
 #include <temp.hpp>
 
 class JSONParser
@@ -24,13 +25,12 @@ class JSONParser
 		typedef JSONLexer::Tokens::iterator			iter;
 		typedef JSONLexer::Tokens::const_iterator	const_iter;
 	public:
-		JSONParser(std::ifstream &stream);
-		~JSONParser();
+		static JsonValue parse(std::ifstream &stream);
 
 	private:
-		JsonValue	handle_tokens(iter &begin, const const_iter& end);
-		JsonValue	handle_object(iter &begin, const const_iter &end);
-		JsonValue	handle_array(iter &begin, const const_iter &end);
+		static JsonValue	handle_tokens(const_iter &begin, const const_iter& end);
+		static JsonValue	handle_object(const_iter &begin, const const_iter &end);
+		static JsonValue	handle_array(const_iter &begin, const const_iter &end);
 
-		JsonValue::member_type handle_member(iter &begin, const const_iter &end);
+		static JsonValue::member_type handle_member(const_iter &begin, const const_iter &end);
 };
