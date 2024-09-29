@@ -6,9 +6,11 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/24 08:46:39okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 14:37:15 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "EventHandler.hpp"
 
 #include "json.hpp"
 #include "parser.hpp"
@@ -26,6 +28,16 @@ int main(int ac, char **av)
 	JsonValue json  = JSONParser::parse(input);
 
 	std::cout << json << std::endl;
+
+	try {
+		Server s;
+		EventHandler e;
+		if (!e.addToEpoll(s.getSockFd()))
+			return 1;
+		e.epollLoop(s);
+	} catch (std::exception &e) {
+		std::cerr << e.what();
+	}
 
 	return 0;
 }
