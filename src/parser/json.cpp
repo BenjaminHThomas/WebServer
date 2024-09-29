@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 16:41:29 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 17:05:05 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,46 +227,79 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 	return s;
 }
 
-JsonValue &JsonValue::operator[](size_t idx) const
+const JsonValue &JsonValue::validate(JsonValue::JsonType::Value t) const
 {
-	if (_type != JsonType::TARRAY)
-		throw std::runtime_error("invalid type, expected array");
+	if (t != _type)
+		throw std::runtime_error("invalid type, expected");
+	return *this;
+}
+
+JsonValue &JsonValue::operator[](int idx) const
+{
+	validate(JsonType::TARRAY);
 	JsonValue &val = _array->at(idx);
 	return val;
 }
 
 JsonValue &JsonValue::operator[](const char *str) const
 {
-	if (_type != JsonType::TOBJECT)
-		throw std::runtime_error("invalid type, expected object");
+	validate(JsonType::TOBJECT);
 	JsonValue &val = _object->at(str);
 	return val;
 }
 
 JsonValue &JsonValue::operator[](const std::string &s) const
 {
-	if (_type != JsonType::TOBJECT)
-		throw std::runtime_error("invalid type, expected object");
+	validate(JsonType::TOBJECT);
 	JsonValue &val = _object->at(s);
 	return val;
 }
 
 const std::string &JsonValue::as_string() const
 {
-	if (_type != JsonType::TSTRING && _type != JsonType::TDECIMAL)
-		throw std::runtime_error("invalid type, expected string/number");
+	try
+	{
+		validate(JsonType::TSTRING);
+	}
+	catch (const std::exception &e)
+	{
+		validate(JsonType::TDECIMAL);
+	}
 	return *_string;
 }
 
 int64_t	JsonValue::as_number() const
 {
-	if (_type != JsonType::TDECIMAL)
-		throw std::runtime_error("invalid type, expected number");
+	validate(JsonType::TDECIMAL);
 	return to_number(*_string);
 }
 double	JsonValue::as_decimal() const
 {
-	if (_type != JsonType::TDECIMAL)
-		throw std::runtime_error("invalid type, expected number");
+	validate(JsonType::TDECIMAL);
 	return to_double(*_string);
+}
+
+
+JsonValue::const_iter_arr	JsonValue::begin_arr() const
+{
+	validate(JsonType::TARRAY);
+	return _array->begin();
+}
+
+JsonValue::const_iter_arr	JsonValue::end_arr() const
+{
+	validate(JsonType::TARRAY);
+	return _array->end();
+}
+
+JsonValue::const_iter_obj	JsonValue::begin_obj() const
+{
+	validate(JsonType::TOBJECT);
+	return _object->begin();
+}
+
+JsonValue::const_iter_obj	JsonValue::end_obj() const
+{
+	validate(JsonType::TOBJECT);
+	return _object->end();
 }

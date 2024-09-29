@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 16:41:04 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/29 17:02:11 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ class	JsonValue
 			object_type*	_object;
 			array_type*		_array;
 		};
+
+		const JsonValue &validate(JsonValue::JsonType::Value t) const;
 	protected:
 		JsonType::Value _type;
 	public:
@@ -79,11 +81,18 @@ class	JsonValue
 
 		JsonValue &operator[](const char *str) const;
 		JsonValue &operator[](const std::string &s) const;
-		JsonValue &operator[](size_t idx) const;
+		JsonValue &operator[](int idx) const;
+		// JsonValue &operator[](size_t idx) const;
 
 		const std::string &as_string() const;
 		int64_t	as_number() const;
 		double	as_decimal() const;
+
+		const_iter_arr	begin_arr() const;
+		const_iter_arr	end_arr() const;
+
+		const_iter_obj	begin_obj() const;
+		const_iter_obj	end_obj() const;
 
 
 	public:
