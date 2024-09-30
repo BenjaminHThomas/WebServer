@@ -6,7 +6,7 @@
 #    By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/30 08:57:23 by bthomas          ###   ########.fr        #
+#    Updated: 2024/09/30 09:01:08 by bthomas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,10 +18,11 @@ CPP			=	c++
 
 INCS		=	-I ./include
 INCS		+=	-I ./include/parser
+INCS		+=	-I ./include/multiplexer
 
 SRC			=	main.cpp
 SRC			+=	parser.cpp lexer.cpp json.cpp
-SRC			+=	EventHandler.cpp Server.cpp ClientConnection.cpp
+SRC			+=	EventHandler.cpp Server.cpp ClientConnection.cpp EventHandler_cgi.cpp
 
 vpath %.cpp src/
 vpath %.cpp src/multiplexer

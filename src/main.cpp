@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/30 08:57:08 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/30 08:58:26 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <temp.hpp>
 
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
 	if (ac != 2)
 		return 1;
