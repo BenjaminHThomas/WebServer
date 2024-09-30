@@ -6,6 +6,7 @@
 ######### Webserv #########
 webserv
 compile_commands.json
+.vscode
 
 
 # User-specific files
