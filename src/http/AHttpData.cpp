@@ -6,14 +6,14 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/27 19:03:45 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/27 19:31:45 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/30 14:22:07 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AHttpData.hpp"
 
 AHttpData::AHttpData(std::string const & str) : _raw(str) {
-	std::cout << "HttpData constructed" << std::endl;
+	// std::cout << "HttpData constructed" << std::endl;
 	try
 	{
 		/* code */
@@ -26,7 +26,7 @@ AHttpData::AHttpData(std::string const & str) : _raw(str) {
 }
 
 AHttpData::AHttpData(AHttpData const & other) : _raw(other._raw) {
-	std::cout << "HttpData object copied" << std::endl;
+	// std::cout << "HttpData object copied" << std::endl;
 	*this = other;
 }
 
@@ -39,7 +39,7 @@ AHttpData&	AHttpData::operator=(AHttpData const & other) {
 }
 
 AHttpData::~AHttpData() {
-	std::cout << "An HttpData is destroyed" << std::endl;
+	// std::cout << "An HttpData is destroyed" << std::endl;
 }
 
 std::string const &AHttpData::getHeaderValue(std::string const &key) const{

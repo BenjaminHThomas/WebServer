@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/28 16:07:11 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/30 14:37:09 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
+#include "Request.hpp"
 
 void cgiOut(int clientFd, char **av, char **env);
 
@@ -164,14 +165,23 @@ void EventHandler::handleClientRequest(int clientFd) {
 void EventHandler::handleResponse(int clientFd) {
 	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
+	// HTTP Parse the reqesut Buffer
+	Request	r(_clients[clientFd]->_requestBuffer);
+	// Generate Response based on Request object
+	/* A Response object to be created */
+	// clear the buff in this clientFD
 	_clients[clientFd]->resetData();
-	//const char* response =
-	//	"HTTP/1.1 200 OK\r\n"
-	//	"Content-Type: text/plain\r\n"
-	//	"Content-Length: 13\r\n"
-	//	"\r\n"
-	//	"Hello, World!";
-	//write(clientFd, response, strlen(response));
+	// Write to the clientFD with reponse string
+	/* wirte(clendFd, Response.getOutput(), Response.getOutput.length()) */
+	
+	
+	// const char* response =
+	// 	"HTTP/1.1 200 OK\r\n"
+	// 	"Content-Type: text/plain\r\n"
+	// 	"Content-Length: 13\r\n"
+	// 	"\r\n"
+	// 	"Hello, World!";
+	// write(clientFd, response, strlen(response));
 	cgiOut(clientFd, "cgi_bin/tester.cgi");
 	changeToRead(clientFd);
 }

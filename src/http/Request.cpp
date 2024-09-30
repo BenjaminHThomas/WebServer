@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/27 19:30:49 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/30 14:21:46 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 // }
 
 Request::Request(std::string const &str) : AHttpData(str) {
-	std::cout << "Request object construced" << std::endl;
+	// std::cout << "Request object construced" << std::endl;
 	try
 	{
 		/* code */
@@ -33,7 +33,7 @@ Request::Request(std::string const &str) : AHttpData(str) {
 }
 
 Request::Request(const Request &other) : AHttpData(other.getRaw()) {
-	std::cout << "Request Object copied" << std::endl;
+	// std::cout << "Request Object copied" << std::endl;
 	*this = other;
 }
 
@@ -48,7 +48,7 @@ Request&	Request::operator=(const Request &other) {
 }
 
 Request::~Request() {
-	std::cout << "A Request object is destroyed" << std::endl;
+	// std::cout << "A Request object is destroyed" << std::endl;
 }
 
 std::string const &Request::getMethod() const{
