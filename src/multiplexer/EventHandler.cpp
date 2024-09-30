@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/30 14:37:09 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/30 14:42:50 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,13 +167,15 @@ void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	// HTTP Parse the reqesut Buffer
 	Request	r(_clients[clientFd]->_requestBuffer);
+	
 	// Generate Response based on Request object
-	/* A Response object to be created */
-	// clear the buff in this clientFD
-	_clients[clientFd]->resetData();
+	/* A Response object to be created and feed output */
+	/* _clients[clientFD]->_responseBuffer += Response.getOutput() */
+	
 	// Write to the clientFD with reponse string
 	/* wirte(clendFd, Response.getOutput(), Response.getOutput.length()) */
-	
+	// clear the buff in this clientFD
+	_clients[clientFd]->resetData();
 	
 	// const char* response =
 	// 	"HTTP/1.1 200 OK\r\n"
