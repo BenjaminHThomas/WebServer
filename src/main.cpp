@@ -6,12 +6,13 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/29 14:37:15 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/30 10:37:50 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 
+#include "config.hpp"
 #include "json.hpp"
 #include "parser.hpp"
 #include <temp.hpp>
@@ -27,17 +28,19 @@ int main(int ac, char **av)
 		return 1;
 	JsonValue json  = JSONParser::parse(input);
 
-	std::cout << json << std::endl;
+	std::cout << json << "\n\n##################################\n\n" << std::endl;
 
-	try {
-		Server s;
-		EventHandler e;
-		if (!e.addToEpoll(s.getSockFd()))
-			return 1;
-		e.epollLoop(s);
-	} catch (std::exception &e) {
-		std::cerr << e.what();
-	}
+	Config::init(json);
+
+	// try {
+	// 	Server s;
+	// 	EventHandler e;
+	// 	if (!e.addToEpoll(s.getSockFd()))
+	// 		return 1;
+	// 	e.epollLoop(s);
+	// } catch (std::exception &e) {
+	// 	std::cerr << e.what();
+	// }
 
 	return 0;
 }
