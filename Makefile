@@ -6,7 +6,7 @@
 #    By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/30 09:01:08 by bthomas          ###   ########.fr        #
+#    Updated: 2024/09/30 19:14:23 by tsuchen          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ INCS		+=  -I ./include/http
 SRC			=	main.cpp
 SRC			+=	parser.cpp lexer.cpp json.cpp
 SRC			+=	EventHandler.cpp Server.cpp ClientConnection.cpp EventHandler_cgi.cpp
-SRC			+=	AHttpData.cpp Request.cpp
+SRC			+=	AHttpData.cpp Request.cpp Response.cpp
 
 vpath %.cpp src/
 vpath %.cpp src/multiplexer

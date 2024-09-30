@@ -6,12 +6,13 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/30 14:42:50 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/09/30 19:26:20 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 
 void cgiOut(int clientFd, char **av, char **env);
 
@@ -165,16 +166,21 @@ void EventHandler::handleClientRequest(int clientFd) {
 void EventHandler::handleResponse(int clientFd) {
 	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
-	// HTTP Parse the reqesut Buffer
-	Request	r(_clients[clientFd]->_requestBuffer);
+	// 1. HTTP Parse the reqesut Buffer
+	Request	rqs(_clients[clientFd]->_requestBuffer);
 	
-	// Generate Response based on Request object
+	// 2. Check if it is a cgi or not
+	
+	// 3. Generate Response based on Request object
 	/* A Response object to be created and feed output */
 	/* _clients[clientFD]->_responseBuffer += Response.getOutput() */
+	Response rsp(rqs);
+	_clients[clientFd]->_responseBuffer += rsp.generateResponse();
 	
-	// Write to the clientFD with reponse string
-	/* wirte(clendFd, Response.getOutput(), Response.getOutput.length()) */
-	// clear the buff in this clientFD
+	// 4. Write to the clientFD with reponse string
+	std::cout << _clients[clientFd]->_responseBuffer << std::endl;
+	write(clientFd, _clients[clientFd]->_responseBuffer.c_str(), _clients[clientFd]->_responseBuffer.length());
+	// 5. clear the buff in this clientFD
 	_clients[clientFd]->resetData();
 	
 	// const char* response =
@@ -184,7 +190,9 @@ void EventHandler::handleResponse(int clientFd) {
 	// 	"\r\n"
 	// 	"Hello, World!";
 	// write(clientFd, response, strlen(response));
-	cgiOut(clientFd, "cgi_bin/tester.cgi");
+	
+	
+	// cgiOut(clientFd, "cgi_bin/tester.cgi");
 	changeToRead(clientFd);
 }
 
