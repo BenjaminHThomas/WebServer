@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/30 11:57:32 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/30 16:32:39 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,39 +35,31 @@ std::vector<Config> Config::init(JsonValue json)
 			e._port = j["port"].as_number();
 			e._max_body_size = j["max_body"].as_number();
 
-			struct addrinfo hints, *result, *rp;
+			struct addrinfo hints, *r;
 			int status;
 
 			memset(&hints, 0, sizeof(struct addrinfo));
 			hints.ai_family = AF_INET;
 			hints.ai_socktype = SOCK_STREAM;
 
-			status = getaddrinfo(e._host.c_str(), j["port"].as_string().c_str(), &hints, &result);
-			if (status != 0) {
-					std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
+			status = getaddrinfo(e._host.c_str(), j["port"].as_string().c_str(), &hints, &r);
+			if (status != 0)
 					throw std::runtime_error("invalid host in config");
-			}
 
-			for (rp = result; rp != NULL; rp = rp->ai_next)
-			{
-				std::cout << "Address family: " << rp->ai_family << std::endl;
+			// socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+			// bind(sockfd, res->ai_addr, res->ai_addrlen);
 
-				struct sockaddr_in *ipv4 = (struct sockaddr_in *)rp->ai_addr;
+			// struct sockaddr_in *ipv4 = (struct sockaddr_in *)r->ai_addr;
+			// char buf[100];
+			// inet_ntop(AF_INET, &(ipv4->sin_addr), buf, sizeof(buf));
+			// std::cout << "buf: " << buf << std::endl;
 
-				char buf[100];
-				inet_ntop(AF_INET, &(ipv4->sin_addr), buf, sizeof(buf));
-				std::cout << "buf: " << buf << std::endl;
-			}
-
-			freeaddrinfo(result);
-
-			// if (getaddrinfo() != 0)
-			// 	throw std::runtime_error("invalid host in config");
+			freeaddrinfo(r);
 
 			std::cout << (*it)["name"] << "\n";
 			std::cout << (*it)["host"] << "\n";
 			std::cout << (*it)["port"] << "\n";
-			// std::cout << (*it)["routes"][0]["index"] << "\n";
+			std::cout << (*it)["routes"][0]["index"] << "\n";
 			std::cout << "--------" << std::endl;
 		}
 	}
