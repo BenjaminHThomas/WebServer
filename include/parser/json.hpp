@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 17:02:11 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/30 10:34:16 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,9 @@ class	JsonValue
 		JsonType::Value _type;
 	public:
 		JsonValue();
-		JsonValue(bool data);
 		// JsonValue(double data);
 		JsonValue(const string_type &str);
+		JsonValue(const char *str);
 		JsonValue(const object_type &str);
 		JsonValue(const array_type &str);
 		JsonValue(JsonType::Value type);
@@ -74,6 +74,7 @@ class	JsonValue
 		JsonValue(const string_type& data, JsonType::Value type);
 
 		JsonValue(const JsonValue &json);
+		JsonValue(bool data);
 		~JsonValue();
 
 	public:

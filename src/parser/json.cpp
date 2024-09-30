@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 17:05:05 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/30 10:34:45 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,12 @@ JsonValue::JsonValue(const string_type& data, JsonType::Value type) : _type(type
 JsonValue::JsonValue(const string_type &value) : _type(JsonType::TSTRING)
 {
 	_string = new std::string(value);
+}
+
+
+JsonValue::JsonValue(const char *str) : _type(JsonType::TSTRING)
+{
+	_string = new std::string(str);
 }
 
 JsonValue::JsonValue(const object_type &value) : _type(JsonType::TOBJECT)

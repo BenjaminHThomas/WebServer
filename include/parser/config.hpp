@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/30 10:01:56 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/30 10:19:43 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,6 @@ public:
 	};
 public:
 	typedef std::vector<Config>			config_list;
-	// typedef std::vector<Routes>			routes_list;
-
-	// typedef routes_list::iterator		iter;
-	// typedef routes_list::const_iterator	const_iter;
 private:
 	std::string	_name;
 	std::string	_host;
@@ -74,7 +70,10 @@ private:
 
 
 public:
+	Config();
 	~Config();
+
+	Config &operator=(const Config& data);
 public:
 	static config_list init(JsonValue json);
 };
