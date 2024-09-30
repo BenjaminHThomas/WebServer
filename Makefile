@@ -19,14 +19,17 @@ CPP			=	c++
 INCS		=	-I ./include
 INCS		+=	-I ./include/parser
 INCS		+=	-I ./include/multiplexer
+INCS		+=  -I ./include/http
 
 SRC			=	main.cpp
 SRC			+=	parser.cpp lexer.cpp json.cpp
 SRC			+=	EventHandler.cpp Server.cpp ClientConnection.cpp EventHandler_cgi.cpp
+SRC			+=	AHttpData.cpp Request.cpp
 
 vpath %.cpp src/
 vpath %.cpp src/multiplexer
 vpath %.cpp src/parser
+vpath %.cpp src/http
 
 OBJS		= $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
