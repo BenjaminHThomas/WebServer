@@ -6,14 +6,29 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/28 16:06:36 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/30 08:57:08 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 
-int main(int ac, char **av, char **env) {
-	(void)ac;
+#include "json.hpp"
+#include "parser.hpp"
+#include <temp.hpp>
+
+
+int main(int ac, char **av)
+{
+	if (ac != 2)
+		return 1;
+
+	std::ifstream input(av[1]);
+	if (!input)
+		return 1;
+	JsonValue json  = JSONParser::parse(input);
+
+	std::cout << json << std::endl;
+
 	try {
 		Server s;
 		EventHandler e(av, env);
@@ -23,6 +38,6 @@ int main(int ac, char **av, char **env) {
 	} catch (std::exception &e) {
 		std::cerr << e.what();
 	}
-	
+
 	return 0;
 }
