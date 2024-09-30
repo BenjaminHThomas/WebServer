@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/29 14:37:15 by okoca            ###   ########.fr       */
+/*   Updated: 2024/09/30 08:58:26 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <temp.hpp>
 
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
 	if (ac != 2)
 		return 1;
@@ -31,7 +31,7 @@ int main(int ac, char **av)
 
 	try {
 		Server s;
-		EventHandler e;
+		EventHandler e(av, env);
 		if (!e.addToEpoll(s.getSockFd()))
 			return 1;
 		e.epollLoop(s);
