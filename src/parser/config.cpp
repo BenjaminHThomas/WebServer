@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 14:31:16 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 14:41:33 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,22 @@ std::vector<Config> Config::init(JsonValue json)
 				route.dir_listing = routes["dir_listing"].as_bool();
 				route.directory = routes["directory"].as_string();
 				route.upload = routes["upload"].as_string();
+
+				for (JsonValue::const_iter_arr it_method = routes["methods"].begin_arr(); it_method < routes["methods"].end_arr(); it_method++)
+					route.methods.insert(it_method->as_string());
+
+				try
+				{
+					for (JsonValue::const_iter_obj it_cgi = routes["cgi"].begin_obj(); it_cgi != routes["cgi"].end_obj(); it_cgi++)
+					{
+						std::pair<std::string, std::string> el(it_cgi->first, it_cgi->second.as_string());
+						route.cgi.insert(el);
+					}
+				}
+				catch (const std::exception &e)
+				{
+					std::cerr << "error: " << e.what() << std::endl;
+				}
 			}
 
 			e._addr = init_addrinfo(e._host, j["port"].as_string());
