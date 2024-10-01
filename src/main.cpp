@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 14:46:12 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 17:08:28 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,8 @@ int main(int ac, char **av, char **env)
 	try {
 		Server s;
 		EventHandler e(av, env);
-		if (!e.addToEpoll(s.getSockFd()))
-			return 1;
-		e.epollLoop(s);
+		e.addServer(s);
+		e.epollLoop();
 	} catch (std::exception &e) {
 		std::cerr << e.what();
 	}

@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:27 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/25 15:37:57 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 15:58:19 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,19 @@ Server::Server(const Server &s) :
 		throw socketListenFailure();
 	}
 	std::cout << "Server is listening on port " << _port << "...\n";
+}
+
+Server & Server::operator=(const Server &other) {
+	if (this != &other) {
+		_sockFd = other._sockFd;
+		_port = other._port;
+		_maxClients = other._maxClients;
+		memset(&_addr, 0, sizeof(_addr));
+		_addr.sin_family = AF_INET; // IPv4
+		_addr.sin_port = htons(_port); // Converts port number to network byte order
+		_addr.sin_addr.s_addr = INADDR_ANY; // allows connection from any IP 
+	}
+	return *this;
 }
 
 Server::~Server()

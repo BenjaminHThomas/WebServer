@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/30 19:26:20 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/01 17:08:15 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,17 @@ void EventHandler::addClient(int clientFd) {
 	_clients[clientFd] = conn;
 }
 
+void EventHandler::addServer(Server & s) {
+	int serverFd = s.getSockFd();
+	std::map<int, Server*>::iterator it = _servers.find(serverFd);
+	if (it == _servers.end()) {
+		if (!addToEpoll(serverFd)) {
+			return ;
+		}
+		_servers[serverFd] = &s;
+	}
+}
+
 void EventHandler::handleNewConnection(Server & s) {
 	int serverFd = s.getSockFd();
 	std::cout << "New connection from " << serverFd << "\n";
@@ -164,7 +175,6 @@ void EventHandler::handleClientRequest(int clientFd) {
 }
 
 void EventHandler::handleResponse(int clientFd) {
-	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
 	// 1. HTTP Parse the reqesut Buffer
 	Request	rqs(_clients[clientFd]->_requestBuffer);
@@ -196,26 +206,45 @@ void EventHandler::handleResponse(int clientFd) {
 	changeToRead(clientFd);
 }
 
-void EventHandler::epollLoop(Server & s) {
+void EventHandler::checkCompleteCGIProcesses(void) {
+	std::map<int, CGIInfo*>::iterator it;
+	for (it = _cgiManager._cgiProcesses.begin();
+			it != _cgiManager._cgiProcesses.end();
+			++it) {
+		if (it->second->isFinished) {
+			CGIInfo *info = it->second;
+			int clientFd = info->clientFd;
+			_clients[clientFd]->_responseBuffer = info->output;
+			deleteFromEpoll(info->pipeFd);
+			_cgiManager.deleteFromCGI(info->pipeFd);
+			changeToWrite(clientFd);
+		}
+	}
+}
+
+void EventHandler::epollLoop(void) {
 	struct epoll_event eventQueue[MAX_EVENTS];
-	int serverFd = s.getSockFd();
 
 	while (1) {
-		// change from -1 after bug is fixed
-		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, -1);
+		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, 0);
 		if (numEvents == -1) {
 			throw epollWaitFailure();
 		}
-		if (numEvents != 0)
-			std::cout << "Num events: " << numEvents << "\n";
 		for (int i = 0; i < numEvents; ++i) {
-			if (eventQueue[i].data.fd == serverFd) {
-				handleNewConnection(s);
+			// New connection from server
+			if (_servers.find(eventQueue[i].data.fd) != _servers.end()) {
+				handleNewConnection(*_servers[eventQueue[i].data.fd]);
+			// Output from CGI needs to be read in
+			} else if (_cgiManager.isInManager(eventQueue[i].data.fd)) {
+				_cgiManager.readCGIOutput(eventQueue[i].data.fd);
+			// Parse client request
 			} else if (eventQueue[i].events & EPOLLIN) {
 				handleClientRequest(eventQueue[i].data.fd);
+			// Send response to client
 			} else if (eventQueue[i].events & EPOLLOUT) {
 				handleResponse(eventQueue[i].data.fd);
 			}
 		}
+		checkCompleteCGIProcesses();
 	}
 }
