@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/01 13:31:50 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/01 14:35:07 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ void	Request::parseHead() {
 	if (mtd_end == std::string::npos)
 		throw std::runtime_error("Method Not Found");
 	_method = _raw.substr(0, mtd_end);
+	//if (!std::count(Config.methods.begin(), Config.method.end(), _method))
 	if (!std::count(_allowdMethods.begin(), _allowdMethods.end(), _method))
 		throw std::runtime_error("Not allowed Method");
 	/* Parse URL */

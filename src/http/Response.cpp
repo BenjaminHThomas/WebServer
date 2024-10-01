@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/30 19:13:02 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/01 14:37:15 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Response::Response(Request const &request) {
     _statusCode = "200 OK";
     _contentType = "text/html";
+    
     if (request.getUrl() == "/") {
         _content = "<html><body><h1>Welcome to My C++ Web Server!</h1></body></html>";
     } else if (request.getUrl() == "/about") {
