@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 14:41:33 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 16:39:52 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ addrinfo *Config::init_addrinfo(const std::string &host, const std::string &port
 
 std::vector<Config> Config::init(JsonValue json)
 {
-	Config::config_list cfg;
+	std::vector<Config> cfg;
 	try
 	{
 		for (JsonValue::const_iter_arr it = json.begin_arr(); it < json.end_arr(); it++)

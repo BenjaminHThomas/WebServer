@@ -104,6 +104,11 @@
     "span": "cpp",
     "stdexcept": "cpp",
     "streambuf": "cpp",
-    "typeinfo": "cpp"
+    "typeinfo": "cpp",
+    "ctime": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "fstream": "cpp",
+    "sstream": "cpp"
   }
 }
