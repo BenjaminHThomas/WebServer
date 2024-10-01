@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 13:27:04 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 17:02:08 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,17 @@ void EventHandler::addClient(int clientFd) {
 	_clients[clientFd] = conn;
 }
 
+void EventHandler::addServer(Server & s) {
+	int serverFd = s.getSockFd();
+	std::map<int, Server*>::iterator it = _servers.find(serverFd);
+	if (it == _servers.end()) {
+		if (!addToEpoll(serverFd)) {
+			return ;
+		}
+		_servers[serverFd] = &s;
+	}
+}
+
 void EventHandler::handleNewConnection(Server & s) {
 	int serverFd = s.getSockFd();
 	std::cout << "New connection from " << serverFd << "\n";
@@ -160,11 +171,18 @@ void EventHandler::handleClientRequest(int clientFd) {
 }
 
 void EventHandler::handleResponse(int clientFd) {
-	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
-	// once finished:
-	//_clients[clientFd]->resetData();
-	//changeToRead(clientFd);
+
+	// Replace the below:
+	_clients[clientFd]->_responseBuffer =
+	 	"HTTP/1.1 200 OK\r\n"
+	 	"Content-Type: text/plain\r\n"
+	 	"Content-Length: 13\r\n"
+	 	"\r\n"
+	 	"Hello, World!";
+	 write(clientFd, _clients[clientFd]->_responseBuffer.c_str(), strlen(_clients[clientFd]->_responseBuffer.c_str()));
+	_clients[clientFd]->resetData();
+	changeToRead(clientFd);
 }
 
 void EventHandler::checkCompleteCGIProcesses(void) {
@@ -192,13 +210,20 @@ void EventHandler::epollLoop(void) {
 			throw epollWaitFailure();
 		}
 		for (int i = 0; i < numEvents; ++i) {
-			if (_cgiManager.isInManager(eventQueue[i].data.fd)) {
+			// New connection from server
+			if (_servers.find(eventQueue[i].data.fd) != _servers.end()) {
+				handleNewConnection(*_servers[eventQueue[i].data.fd]);
+			// Output from CGI needs to be read in
+			} else if (_cgiManager.isInManager(eventQueue[i].data.fd)) {
 				_cgiManager.readCGIOutput(eventQueue[i].data.fd);
+			// Parse client request
 			} else if (eventQueue[i].events & EPOLLIN) {
 				handleClientRequest(eventQueue[i].data.fd);
+			// Send response to client
 			} else if (eventQueue[i].events & EPOLLOUT) {
 				handleResponse(eventQueue[i].data.fd);
 			}
 		}
+		checkCompleteCGIProcesses();
 	}
 }

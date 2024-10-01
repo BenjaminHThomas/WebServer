@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 12:06:58 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 13:20:58 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 16:54:22 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,12 @@
 #ifndef CGIMANAGER_HPP
 # define CGIMANAGER_HPP
 
+#define BUFFER_SIZE 30720
+
 #include <iostream>
-#include "EventHandler.hpp"
+#include <map>
+#include <unistd.h>
+#include <cstdlib>
 
 struct CGIInfo {
 			int clientFd;

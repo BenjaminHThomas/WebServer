@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 13:04:28 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 16:51:05 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,12 @@
 #ifndef EVENTHANDLER_HPP 
 # define EVENTHANDLER_HPP 
 
+#include "CGIManager.hpp"
 #include "Server.hpp"
 #include "ClientConnection.hpp"
-#include "CGIManager.hpp"
 #include <fcntl.h>
 #include <map>
+#include <set>
 #include <utility>
 #include <cerrno> //temp, just for testing
 #include <cstdlib>
@@ -27,11 +28,13 @@
 #define BUFFER_SIZE 30720
 
 class ClientConnection;
+class CGIManager;
 
 class EventHandler
 {
 	private:
 		int _epollFd;
+		std::map<int, Server*> _servers;
 		std::map<int, ClientConnection*> _clients;
 		CGIManager _cgiManager;
 		char** _av;
@@ -43,6 +46,7 @@ class EventHandler
 		bool addToEpoll(int fd);
 		bool deleteFromEpoll(int fd);
 		void addClient(int clientFd);
+		void addServer(Server & s);
 		void handleNewConnection(Server & s);
 		void handleClientRequest(int clientFd);
 		void handleResponse(int clientFd);
@@ -51,7 +55,6 @@ class EventHandler
 		void changeToRead(int clientFd);
 		bool isResponseComplete(int clientFd);
 		void startCGI(int clientFd, std::string fname);
-		void sendCGIOutput(int fd);
 		void checkCompleteCGIProcesses(void);
 
 	public:
