@@ -6,13 +6,11 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/28 16:07:11 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 13:21:43 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
-
-void cgiOut(int clientFd, char **av, char **env);
 
 class EventHandler::epollInitFailure : public std::exception {
 	public:
@@ -164,33 +162,42 @@ void EventHandler::handleClientRequest(int clientFd) {
 void EventHandler::handleResponse(int clientFd) {
 	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
-	_clients[clientFd]->resetData();
-	//const char* response =
-	//	"HTTP/1.1 200 OK\r\n"
-	//	"Content-Type: text/plain\r\n"
-	//	"Content-Length: 13\r\n"
-	//	"\r\n"
-	//	"Hello, World!";
-	//write(clientFd, response, strlen(response));
-	cgiOut(clientFd, "cgi_bin/tester.cgi");
-	changeToRead(clientFd);
+	// once finished:
+	//_clients[clientFd]->resetData();
+	//changeToRead(clientFd);
 }
 
-void EventHandler::epollLoop(Server & s) {
+void EventHandler::checkCompleteCGIProcesses(void) {
+	std::map<int, CGIInfo*>::iterator it;
+	for (it = _cgiManager._cgiProcesses.begin();
+			it != _cgiManager._cgiProcesses.end();
+			++it) {
+		if (it->second->isFinished) {
+			CGIInfo *info = it->second;
+			int clientFd = info->clientFd;
+			_clients[clientFd]->_responseBuffer = info->output;
+			deleteFromEpoll(info->pipeFd);
+			_cgiManager.deleteFromCGI(info->pipeFd);
+			changeToWrite(clientFd);
+		}
+	}
+}
+
+void EventHandler::sendCGIOutput(int fd) {
+	
+}
+
+void EventHandler::epollLoop(void) {
 	struct epoll_event eventQueue[MAX_EVENTS];
-	int serverFd = s.getSockFd();
 
 	while (1) {
-		// change from -1 after bug is fixed
-		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, -1);
+		int numEvents = epoll_wait(_epollFd, eventQueue, MAX_EVENTS, 0);
 		if (numEvents == -1) {
 			throw epollWaitFailure();
 		}
-		if (numEvents != 0)
-			std::cout << "Num events: " << numEvents << "\n";
 		for (int i = 0; i < numEvents; ++i) {
-			if (eventQueue[i].data.fd == serverFd) {
-				handleNewConnection(s);
+			if (_cgiManager.isInManager(eventQueue[i].data.fd)) {
+				_cgiManager.readCGIOutput(eventQueue[i].data.fd);
 			} else if (eventQueue[i].events & EPOLLIN) {
 				handleClientRequest(eventQueue[i].data.fd);
 			} else if (eventQueue[i].events & EPOLLOUT) {

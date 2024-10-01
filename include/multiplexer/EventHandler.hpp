@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/28 16:06:59 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 13:04:28 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 #include "Server.hpp"
 #include "ClientConnection.hpp"
+#include "CGIManager.hpp"
 #include <fcntl.h>
 #include <map>
 #include <utility>
@@ -27,21 +28,12 @@
 
 class ClientConnection;
 
-enum responseType {
-	TEXT,
-	NONTEXT
-};
-
-struct responseContent {
-	responseType type;
-	void * content;
-};
-
 class EventHandler
 {
 	private:
 		int _epollFd;
 		std::map<int, ClientConnection*> _clients;
+		CGIManager _cgiManager;
 		char** _av;
 		char** _env;
 
@@ -54,12 +46,13 @@ class EventHandler
 		void handleNewConnection(Server & s);
 		void handleClientRequest(int clientFd);
 		void handleResponse(int clientFd);
-		void epollLoop(Server & s);
+		void epollLoop(void);
 		void changeToWrite(int clientFd);
 		void changeToRead(int clientFd);
 		bool isResponseComplete(int clientFd);
-		void cgiOut(int clientFd, std::string fname = "cgi_bin/tester.cgi");
-		void setPipe(int *fd, int end);
+		void startCGI(int clientFd, std::string fname);
+		void sendCGIOutput(int fd);
+		void checkCompleteCGIProcesses(void);
 
 	public:
 		class epollWaitFailure;
