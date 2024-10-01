@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 10:16:14 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 13:24:45 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,17 +38,10 @@ public:
 	virtual ~BadValue() throw() {}
 };
 
-Config::ERROR_PAGES::Value Config::match_error_page(const std::string &page)
+void Config::check_error_page(const std::string &page)
 {
-	if (page == "400")
-		return Config::ERROR_PAGES::E400;
-	else if (page == "404")
-		return Config::ERROR_PAGES::E404;
-	else if (page == "405")
-		return Config::ERROR_PAGES::E405;
-	else if (page == "500")
-		return Config::ERROR_PAGES::E500;
-	throw Config::BadValue();
+	if (page != "400" && page != "404" && page != "405" && page != "500")
+		throw Config::BadValue();
 }
 
 std::vector<Config> Config::init(JsonValue json)
@@ -69,9 +62,10 @@ std::vector<Config> Config::init(JsonValue json)
 			{
 				for (JsonValue::const_iter_obj err = j["error"].begin_obj(); err != j["error"].end_obj(); err++)
 				{
-					std::pair<ERROR_PAGES::Value, std::string> pair(match_error_page(err->first), err->second.as_string());
+					check_error_page(err->first);
+					std::pair<std::string, std::string> pair(err->first, err->second.as_string());
 					e._error_pages.insert(pair);
-					std::cout << match_error_page(err->first) << ", second" << err->second.as_string() << std::endl;
+					std::cout << err->first << ", second" << err->second.as_string() << std::endl;
 				}
 			}
 			catch (const Config::BadValue &e)

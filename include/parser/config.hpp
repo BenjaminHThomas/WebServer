@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 09:57:46 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 13:24:59 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,27 +26,6 @@ class Config
 public:
 	class BadValue;
 public:
-	struct HTTP_METHODS
-	{
-		enum Value
-		{
-			GET,
-			POST,
-			DELETE
-		};
-	};
-
-	struct ERROR_PAGES
-	{
-		enum Value
-		{
-			E400,
-			E404,
-			E405,
-			E500,
-		};
-	};
-
 	struct Routes
 	{
 		std::string	path;
@@ -56,7 +35,7 @@ public:
 		bool		dir_listing;
 		bool		has_cgi;
 
-		std::set<HTTP_METHODS::Value>		methods;
+		std::set<std::string>		methods;
 		std::map<std::string, std::string>	cgi;
 
 		Routes();
@@ -71,7 +50,7 @@ private:
 	int			_port;
 	addrinfo	*_addr;
 
-	std::map<ERROR_PAGES::Value, std::string>	_error_pages;
+	std::map<std::string, std::string>	_error_pages;
 
 	std::vector<Routes>	routes;
 
@@ -85,5 +64,5 @@ public:
 	static config_list init(JsonValue json);
 
 private:
-	static ERROR_PAGES::Value match_error_page(const std::string &page);
+	static void check_error_page(const std::string &page);
 };
