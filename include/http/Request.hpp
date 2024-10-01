@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:00:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/27 19:28:31 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/01 13:33:25 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,10 @@ private:
 	std::string		_method;
 	std::string		_url;
 	std::string		_http_version;
-	// std::map<std::string, std::string>		_headers;
-	// std::string		_body;
-	// std::string		_raw;
 	/* static data */
 	static std::vector<std::string>	_allowdMethods;
 public:
 	/* constructors & destructors */
-	// Request();
 	Request(std::string const &str);
 	Request(const Request &other);
 	virtual ~Request();
@@ -46,8 +42,6 @@ public:
 	std::string const &getMethod() const;
 	std::string const &getUrl() const;
 	std::string const &getHttpVersion() const;
-	// std::string const &getHeaderValue(std::string const &key) const;
-	// std::string const &getBody() const;
 	/* parser */
 	void	parseHead();
 	// void	parseRest();
@@ -55,7 +49,6 @@ public:
 	/* Utils */
 	void	printAll();
 	static std::vector<std::string>	initMethods();
-	// static std::string	trim(std::string const & str);
 };
 
 #endif

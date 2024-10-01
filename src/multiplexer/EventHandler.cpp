@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 12:15:17 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/01 13:17:56 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,7 @@ void EventHandler::handleClientRequest(int clientFd) {
 	}
 }
 
+// Write response to the client
 void EventHandler::handleResponse(int clientFd) {
 	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
