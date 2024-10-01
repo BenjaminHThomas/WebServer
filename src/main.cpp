@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/30 17:58:02 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/01 14:46:12 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 
+#include "config.hpp"
 #include "json.hpp"
 #include "parser.hpp"
 #include <temp.hpp>
@@ -33,7 +34,9 @@ int main(int ac, char **av, char **env)
 		return 1;
 	JsonValue json  = JSONParser::parse(input);
 
-	std::cout << json << std::endl;
+	std::cout << json << "\n\n##################################\n\n" << std::endl;
+
+	Config::init(json);
 
 	try {
 		Server s;

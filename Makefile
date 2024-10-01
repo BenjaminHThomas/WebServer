@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+         #
+#    By: okoca <okoca@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/09/30 19:14:23 by tsuchen          ###   ########.fr        #
+#    Updated: 2024/10/01 14:46:49 by okoca            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ INCS		+=	-I ./include/multiplexer
 INCS		+=  -I ./include/http
 
 SRC			=	main.cpp
-SRC			+=	parser.cpp lexer.cpp json.cpp
+SRC			+=	parser.cpp lexer.cpp json.cpp config.cpp
 SRC			+=	EventHandler.cpp Server.cpp ClientConnection.cpp EventHandler_cgi.cpp
 SRC			+=	AHttpData.cpp Request.cpp Response.cpp
 

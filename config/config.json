@@ -1,11 +1,13 @@
-{
-	"first_server": {
+[
+	{
+		"name": "first server",
 		"host": "localhost",
 		"port": 8080,
-		"error": {
-				"404": "/error-pages/not_found.html"
-		},
 		"max_body": 10000,
+		"error": {
+				"404": "/error-pages/not_found.html",
+				"405": "/error-pages/error_405.html"
+		},
 		"routes": [
 			{
 				"methods": ["GET", "POST", "DELETE"],
@@ -14,7 +16,10 @@
 				"dir_listing": true,
 				"directory": "../website",
 				"upload": "../upload",
-				"cgi": ["python"]
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3"},
+					{ "extension": "php", "exec": "/usr/bin/php"}
+				]
 			},
 			{
 				"methods": ["GET"],
@@ -25,5 +30,27 @@
 				"upload": "../upload"
 			}
 		]
+	},
+	{
+		"name": "second server",
+		"host": "localhost",
+		"port": 8081,
+		"error": {
+				"404": "/error-pages/not_found.html"
+		},
+		"max_body": 2000,
+		"routes": [
+			{
+				"methods": ["GET", "POST"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "../website",
+				"upload": "../upload",
+				"cgi": [
+					{ "extension": "cpp", "exec": "/usr/bin/c++"}
+				]
+			}
+		]
 	}
-}
+]
