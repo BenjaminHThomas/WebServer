@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 15:29:15 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 14:30:34 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,21 @@
 #include "lexer.hpp"
 #include <cmath>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
+
+
+class JsonValue::BadType : public std::exception
+{
+	const char * what() const throw()
+	{
+		return "bad type";
+	}
+};
 
 JsonValue &JsonValue::operator=(const JsonValue &json)
 {
@@ -114,6 +124,12 @@ JsonValue::JsonValue(const string_type& data, JsonType::Value type) : _type(type
 JsonValue::JsonValue(const string_type &value) : _type(JsonType::TSTRING)
 {
 	_string = new std::string(value);
+}
+
+
+JsonValue::JsonValue(const char *str) : _type(JsonType::TSTRING)
+{
+	_string = new std::string(str);
 }
 
 JsonValue::JsonValue(const object_type &value) : _type(JsonType::TOBJECT)
@@ -227,3 +243,84 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 	return s;
 }
 
+const JsonValue &JsonValue::validate(JsonValue::JsonType::Value t) const
+{
+	if (t != _type)
+		throw JsonValue::BadType();
+	return *this;
+}
+
+JsonValue &JsonValue::operator[](int idx) const
+{
+	validate(JsonType::TARRAY);
+	JsonValue &val = _array->at(idx);
+	return val;
+}
+
+JsonValue &JsonValue::operator[](const char *str) const
+{
+	validate(JsonType::TOBJECT);
+	JsonValue &val = _object->at(str);
+	return val;
+}
+
+JsonValue &JsonValue::operator[](const std::string &s) const
+{
+	validate(JsonType::TOBJECT);
+	JsonValue &val = _object->at(s);
+	return val;
+}
+
+const std::string &JsonValue::as_string() const
+{
+	try
+	{
+		validate(JsonType::TSTRING);
+	}
+	catch (const std::exception &e)
+	{
+		validate(JsonType::TDECIMAL);
+	}
+	return *_string;
+}
+
+int64_t	JsonValue::as_number() const
+{
+	validate(JsonType::TDECIMAL);
+	return to_number(*_string);
+}
+double	JsonValue::as_decimal() const
+{
+	validate(JsonType::TDECIMAL);
+	return to_double(*_string);
+}
+
+bool	JsonValue::as_bool() const
+{
+	validate(JsonType::TBOOLEAN);
+	return _boolean;
+}
+
+JsonValue::const_iter_arr	JsonValue::begin_arr() const
+{
+	validate(JsonType::TARRAY);
+	return _array->begin();
+}
+
+JsonValue::const_iter_arr	JsonValue::end_arr() const
+{
+	validate(JsonType::TARRAY);
+	return _array->end();
+}
+
+JsonValue::const_iter_obj	JsonValue::begin_obj() const
+{
+	validate(JsonType::TOBJECT);
+	return _object->begin();
+}
+
+JsonValue::const_iter_obj	JsonValue::end_obj() const
+{
+	validate(JsonType::TOBJECT);
+	return _object->end();
+}

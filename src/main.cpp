@@ -6,13 +6,14 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 12:03:36 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/01 15:20:44 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 
+#include "config.hpp"
 #include "json.hpp"
 #include "parser.hpp"
 #include <temp.hpp>
@@ -28,7 +29,9 @@ int main(int ac, char **av, char **env)
 		return 1;
 	JsonValue json  = JSONParser::parse(input);
 
-	std::cout << json << std::endl;
+	std::cout << json << "\n\n##################################\n\n" << std::endl;
+
+	Config::init(json);
 
 	try {
 		Server s;
