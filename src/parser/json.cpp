@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 09:27:29 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 14:30:34 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -295,6 +295,11 @@ double	JsonValue::as_decimal() const
 	return to_double(*_string);
 }
 
+bool	JsonValue::as_bool() const
+{
+	validate(JsonType::TBOOLEAN);
+	return _boolean;
+}
 
 JsonValue::const_iter_arr	JsonValue::begin_arr() const
 {

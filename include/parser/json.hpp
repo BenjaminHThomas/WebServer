@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 09:23:41 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 14:30:31 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,9 +87,10 @@ public:
 	JsonValue &operator[](int idx) const;
 	// JsonValue &operator[](size_t idx) const;
 
-	const std::string &as_string() const;
-	int64_t	as_number() const;
-	double	as_decimal() const;
+	const std::string	&as_string() const;
+	int64_t				as_number() const;
+	double				as_decimal() const;
+	bool				as_bool() const;
 
 	const_iter_arr	begin_arr() const;
 	const_iter_arr	end_arr() const;

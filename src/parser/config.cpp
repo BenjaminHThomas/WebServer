@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 13:38:42 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 14:31:16 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,12 +93,24 @@ std::vector<Config> Config::init(JsonValue json)
 				std::cerr << "IN HERE, IGNORE, ITS GOOD THAT IT THROWS: " << e.what() << std::endl;
 			}
 
+			for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)
+			{
+				Routes route;
+
+				const JsonValue &routes = *it_route;
+				route.path = routes["route"].as_string();
+				route.index = routes["index"].as_string();
+				route.dir_listing = routes["dir_listing"].as_bool();
+				route.directory = routes["directory"].as_string();
+				route.upload = routes["upload"].as_string();
+			}
+
 			e._addr = init_addrinfo(e._host, j["port"].as_string());
 
-			std::cout << (*it)["name"] << "\n";
-			std::cout << (*it)["host"] << "\n";
-			std::cout << (*it)["port"] << "\n";
-			std::cout << (*it)["routes"][0]["index"] << "\n";
+			std::cout << j["name"] << "\n";
+			std::cout << j["host"] << "\n";
+			std::cout << j["port"] << "\n";
+			std::cout << j["routes"][0]["index"] << "\n";
 			std::cout << "--------" << std::endl;
 		}
 	}
@@ -134,5 +146,4 @@ Config::~Config()
 }
 
 Config::Routes::Routes() : dir_listing(true), has_cgi(false)
-{
-}
+{}
