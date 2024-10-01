@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 13:24:45 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 13:38:42 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,22 @@ void Config::check_error_page(const std::string &page)
 		throw Config::BadValue();
 }
 
+addrinfo *Config::init_addrinfo(const std::string &host, const std::string &port)
+{
+	struct addrinfo hints, *r;
+	std::memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+
+	if (getaddrinfo(host.c_str(), port.c_str(), &hints, &r) != 0)
+			throw std::runtime_error("invalid host in config");
+	// to init socket and bind it:
+
+	// socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	// bind(sockfd, res->ai_addr, res->ai_addrlen);
+	return r;
+}
+
 std::vector<Config> Config::init(JsonValue json)
 {
 	Config::config_list cfg;
@@ -77,17 +93,7 @@ std::vector<Config> Config::init(JsonValue json)
 				std::cerr << "IN HERE, IGNORE, ITS GOOD THAT IT THROWS: " << e.what() << std::endl;
 			}
 
-
-			struct addrinfo hints, *r;
-			std::memset(&hints, 0, sizeof(struct addrinfo));
-			hints.ai_family = AF_INET;
-			hints.ai_socktype = SOCK_STREAM;
-
-			if (getaddrinfo(e._host.c_str(), j["port"].as_string().c_str(), &hints, &r) != 0)
-					throw std::runtime_error("invalid host in config");
-			e._addr = r;
-			// socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-			// bind(sockfd, res->ai_addr, res->ai_addrlen);
+			e._addr = init_addrinfo(e._host, j["port"].as_string());
 
 			std::cout << (*it)["name"] << "\n";
 			std::cout << (*it)["host"] << "\n";

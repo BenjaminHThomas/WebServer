@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 13:24:59 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 13:37:01 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,6 @@ public:
 	static config_list init(JsonValue json);
 
 private:
-	static void check_error_page(const std::string &page);
+	static void			check_error_page(const std::string &page);
+	static addrinfo*	init_addrinfo(const std::string &host, const std::string &port);
 };
