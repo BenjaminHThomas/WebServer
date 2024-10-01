@@ -3,14 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/27 14:05:53 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/09/30 19:26:20 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+
+void cgiOut(int clientFd, char **av, char **env);
 
 class EventHandler::epollInitFailure : public std::exception {
 	public:
@@ -26,12 +30,14 @@ class EventHandler::epollWaitFailure : public std::exception {
 		}
 };
 
-EventHandler::EventHandler(void)
+EventHandler::EventHandler(char **av, char **env)
 {
 	_epollFd = epoll_create1(0);
 	if (_epollFd == -1) {
 		throw epollInitFailure();
 	}
+	_av = av;
+	_env = env;
 }
 
 EventHandler::~EventHandler()
@@ -53,7 +59,7 @@ void EventHandler::setNonBlock(int fd) {
 		return ;
 	}
 	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-		std::cerr << "Error: couldn't set fd to non-blocking\n";
+		std::cerr << "Error: couldn't set fd to non-blocking\n"; 
 	}
 }
 
@@ -122,9 +128,18 @@ void EventHandler::handleNewConnection(Server & s) {
 bool EventHandler::isResponseComplete(int clientFd) {
 	std::string buff = _clients[clientFd]->_requestBuffer;
 	size_t pos = buff.find("\r\n\r\n");
-	if (pos != std::string::npos)
-		return true;
-	return false;
+	if (pos == std::string::npos)
+		return false;
+	
+	//Check if it's a POST request with a body
+	size_t content_len_pos = buff.find("Content-Length: ");
+	if (content_len_pos != std::string::npos) {
+		size_t content_len_end = buff.find("\r\n", content_len_pos);
+		std::string content_len_str = buff.substr(content_len_pos + 16, content_len_end - (content_len_pos + 16));
+		int content_length = std::atoi(content_len_str.c_str());
+		return buff.length() >= (pos + 4 + content_length);
+	}
+	return true;
 }
 
 // Read all data from the client
@@ -151,14 +166,33 @@ void EventHandler::handleClientRequest(int clientFd) {
 void EventHandler::handleResponse(int clientFd) {
 	// replace the below
 	std::cout << "Sending response to client " << clientFd << "\n";
+	// 1. HTTP Parse the reqesut Buffer
+	Request	rqs(_clients[clientFd]->_requestBuffer);
+	
+	// 2. Check if it is a cgi or not
+	
+	// 3. Generate Response based on Request object
+	/* A Response object to be created and feed output */
+	/* _clients[clientFD]->_responseBuffer += Response.getOutput() */
+	Response rsp(rqs);
+	_clients[clientFd]->_responseBuffer += rsp.generateResponse();
+	
+	// 4. Write to the clientFD with reponse string
+	std::cout << _clients[clientFd]->_responseBuffer << std::endl;
+	write(clientFd, _clients[clientFd]->_responseBuffer.c_str(), _clients[clientFd]->_responseBuffer.length());
+	// 5. clear the buff in this clientFD
 	_clients[clientFd]->resetData();
-	const char* response =
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/plain\r\n"
-		"Content-Length: 13\r\n"
-		"\r\n"
-		"Hello, World!";
-	write(clientFd, response, strlen(response));
+	
+	// const char* response =
+	// 	"HTTP/1.1 200 OK\r\n"
+	// 	"Content-Type: text/plain\r\n"
+	// 	"Content-Length: 13\r\n"
+	// 	"\r\n"
+	// 	"Hello, World!";
+	// write(clientFd, response, strlen(response));
+	
+	
+	// cgiOut(clientFd, "cgi_bin/tester.cgi");
 	changeToRead(clientFd);
 }
 
