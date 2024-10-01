@@ -6,7 +6,7 @@
 #    By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/10/01 16:31:47 by bthomas          ###   ########.fr        #
+#    Updated: 2024/10/01 17:08:58 by bthomas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,18 +19,21 @@ CPP			=	c++
 INCS		=	-I ./include
 INCS		+=	-I ./include/parser
 INCS		+=	-I ./include/multiplexer
+INCS		+=  -I ./include/http
 
 SRC			=	main.cpp
-SRC			+=	parser.cpp lexer.cpp json.cpp
+SRC			+=	parser.cpp lexer.cpp json.cpp config.cpp
 SRC			+=	EventHandler.cpp \
 				Server.cpp \
 				ClientConnection.cpp \
 				EventHandler_cgi.cpp \
 				CGIManager.cpp
+SRC			+=	AHttpData.cpp Request.cpp Response.cpp
 
 vpath %.cpp src/
 vpath %.cpp src/multiplexer
 vpath %.cpp src/parser
+vpath %.cpp src/http
 
 OBJS		= $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
