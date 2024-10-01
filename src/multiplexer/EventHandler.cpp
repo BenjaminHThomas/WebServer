@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 13:21:43 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 13:27:04 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,10 +181,6 @@ void EventHandler::checkCompleteCGIProcesses(void) {
 			changeToWrite(clientFd);
 		}
 	}
-}
-
-void EventHandler::sendCGIOutput(int fd) {
-	
 }
 
 void EventHandler::epollLoop(void) {
