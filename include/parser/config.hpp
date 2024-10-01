@@ -6,13 +6,14 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/30 10:19:43 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 09:57:46 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "json.hpp"
+#include <netdb.h>
 #include <stdint.h>
 #include <stdint.h>
 #include <map>
@@ -22,6 +23,8 @@
 
 class Config
 {
+public:
+	class BadValue;
 public:
 	struct HTTP_METHODS
 	{
@@ -51,9 +54,12 @@ public:
 		std::string	directory;
 		std::string	upload;
 		bool		dir_listing;
+		bool		has_cgi;
 
 		std::set<HTTP_METHODS::Value>		methods;
 		std::map<std::string, std::string>	cgi;
+
+		Routes();
 	};
 public:
 	typedef std::vector<Config>			config_list;
@@ -63,8 +69,9 @@ private:
 	uint64_t	_address;
 	uint64_t	_max_body_size;
 	int			_port;
+	addrinfo	*_addr;
 
-	std::map<ERROR_PAGES, std::string>	_error_pages;
+	std::map<ERROR_PAGES::Value, std::string>	_error_pages;
 
 	std::vector<Routes>	routes;
 
@@ -76,4 +83,7 @@ public:
 	Config &operator=(const Config& data);
 public:
 	static config_list init(JsonValue json);
+
+private:
+	static ERROR_PAGES::Value match_error_page(const std::string &page);
 };

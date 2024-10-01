@@ -5,7 +5,8 @@
 		"port": 8080,
 		"max_body": 10000,
 		"error": {
-				"404": "/error-pages/not_found.html"
+				"404": "/error-pages/not_found.html",
+				"403": "/error-pages/wrong.html"
 		},
 		"routes": [
 			{
@@ -16,7 +17,8 @@
 				"directory": "../website",
 				"upload": "../upload",
 				"cgi": [
-					{ "extension": "py", "exec": "/usr/bin/python3"}
+					{ "extension": "py", "exec": "/usr/bin/python3"},
+					{ "extension": "php", "exec": "/usr/bin/php"}
 				]
 			},
 			{

@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/30 10:34:45 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/01 09:27:29 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,21 @@
 #include "lexer.hpp"
 #include <cmath>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
+
+
+class JsonValue::BadType : public std::exception
+{
+	const char * what() const throw()
+	{
+		return "bad type";
+	}
+};
 
 JsonValue &JsonValue::operator=(const JsonValue &json)
 {
@@ -236,7 +246,7 @@ std::ostream &operator<<(std::ostream &s, const JsonValue &json)
 const JsonValue &JsonValue::validate(JsonValue::JsonType::Value t) const
 {
 	if (t != _type)
-		throw std::runtime_error("invalid type, expected");
+		throw JsonValue::BadType();
 	return *this;
 }
 
