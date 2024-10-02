@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/01 15:03:45 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 11:55:24 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,22 @@ class Response
 private:
 	/* data */
 	std::string		_content;
-	std::string		_statusCode;
+	int				_statusCode;
 	std::string		_contentType;
 	std::string		getContent();
+	
+	/* init utils */
+	int				initResponse(Request const &request);
+	
+	/* static functions */
 	static std::string	getCurrentTime();
+	static const std::map<int, std::string>	_statusCodes;
 public:
 	Response(Request const &request);
 	~Response();
 
 	std::string		generateResponse();
+	static std::map<int, std::string>	initStatusCodes();
 };
 
 
