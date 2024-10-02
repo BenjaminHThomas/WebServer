@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 10:05:24 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 14:19:45 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,8 @@ bool EventHandler::deleteFromEpoll(int fd) {
 	return true;
 }
 
-void EventHandler::addClient(int clientFd) {
-	ClientConnection* conn = new ClientConnection(clientFd);
+void EventHandler::addClient(int clientFd, const Config &config) {
+	ClientConnection* conn = new ClientConnection(clientFd, config);
 	_clients[clientFd] = conn;
 }
 
@@ -132,7 +132,7 @@ void EventHandler::handleNewConnection(Server & s) {
 		close(clientFd);
 		return ;
 	}
-	addClient(clientFd);
+	addClient(clientFd, s.getConfig());
 }
 
 bool EventHandler::isResponseComplete(int clientFd) {

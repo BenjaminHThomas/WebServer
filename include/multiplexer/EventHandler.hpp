@@ -6,11 +6,12 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 11:02:24 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 14:17:37 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "config.hpp"
 #ifndef EVENTHANDLER_HPP
 # define EVENTHANDLER_HPP
 
@@ -43,7 +44,7 @@ class EventHandler
 		void setNonBlock(int fd);
 		bool addToEpoll(int fd);
 		bool deleteFromEpoll(int fd);
-		void addClient(int clientFd);
+		void addClient(int clientFd, const Config &config);
 		void addServer(Server & s);
 		void handleNewConnection(Server & s);
 		void handleClientRequest(int clientFd);
