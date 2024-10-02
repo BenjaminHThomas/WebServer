@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler_cgi.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 11:39:22 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 13:49:57 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ void EventHandler::startCGI(int clientFd, std::string fname) {
 		close(fd[1]);
 		addToEpoll(fd[0]);
 		_cgiManager.addCgiProcess(clientFd, fd[0], pid);
+		_openConns[fd[0]] = EP_CGI;
 	}
 	waitpid(pid, NULL, 0);
 	std::cout << "Response sent to client.\n";
