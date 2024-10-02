@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:27 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 11:17:43 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 14:17:10 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,4 +96,8 @@ int Server::getMaxClients() const {
 
 int Server::getMaxEvents() const {
 	return _maxEvents;
+}
+
+const Config& Server::getConfig() const {
+	return _config;
 }

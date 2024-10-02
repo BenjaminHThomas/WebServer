@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 13:19:13 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:07:07 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,11 @@ addrinfo *Config::init_addrinfo(const std::string &host, const std::string &port
 	hints.ai_socktype = SOCK_STREAM;
 
 	if (getaddrinfo(host.c_str(), port.c_str(), &hints, &r) != 0)
-			throw std::runtime_error("invalid host in config");
+			throw Config::BadValue("invalid host in config");
 	return r;
 }
 
-Config::Config(const JsonValue &j)
+Config::Config(const JsonValue &j) : _addr(NULL)
 {
 	_name = j["name"].as_string();
 	_host = j["host"].as_string();

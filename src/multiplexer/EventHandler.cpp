@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 15:01:25 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:09:49 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,9 +100,10 @@ bool EventHandler::deleteFromEpoll(int fd) {
 	return true;
 }
 
-void EventHandler::addClient(int clientFd) {
-	ClientConnection* conn = new ClientConnection(clientFd);
+void EventHandler::addClient(int clientFd, const Config &config) {
+	ClientConnection* conn = new ClientConnection(clientFd, config);
 	_clients[clientFd] = conn;
+	_openConns[clientFd] = EP_CLIENT;
 }
 
 void EventHandler::addServer(Server & s) {
@@ -113,6 +114,7 @@ void EventHandler::addServer(Server & s) {
 			return ;
 		}
 		_servers[serverFd] = &s;
+		_openConns[serverFd] = EP_SERVER;
 	}
 }
 
@@ -132,7 +134,7 @@ void EventHandler::handleNewConnection(Server & s) {
 		close(clientFd);
 		return ;
 	}
-	addClient(clientFd);
+	addClient(clientFd, s.getConfig());
 }
 
 bool EventHandler::isResponseComplete(int clientFd) {
@@ -163,6 +165,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 		std::cerr << "Error: failed to read or client closed connection.\n";
 		deleteFromEpoll(clientFd);
 		delete _clients.at(clientFd);
+		_openConns.erase(clientFd);
+		_clients.erase(clientFd);
 		return ;
 	}
 	buffer[bytes_read] = 0;
@@ -192,9 +196,6 @@ void EventHandler::handleResponse(int clientFd) {
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	// 5. clear the buff in this clientFD
 	_clients.at(clientFd)->resetData();
-	
-	
-	// cgiOut(clientFd, "cgi_bin/tester.cgi");
 	changeToRead(clientFd);
 }
 
@@ -209,6 +210,7 @@ void EventHandler::checkCompleteCGIProcesses(void) {
 			_clients[clientFd]->_responseBuffer = info->output;
 			deleteFromEpoll(info->pipeFd);
 			_cgiManager.deleteFromCGI(info->pipeFd);
+			_openConns.erase(info->pipeFd);
 			changeToWrite(clientFd);
 		}
 	}
@@ -223,18 +225,20 @@ void EventHandler::epollLoop(void) {
 			throw epollWaitFailure();
 		}
 		for (int i = 0; i < numEvents; ++i) {
-			// New connection from server
-			if (_servers.find(eventQueue[i].data.fd) != _servers.end()) {
-				handleNewConnection(*_servers[eventQueue[i].data.fd]);
-			// Output from CGI needs to be read in
-			} else if (_cgiManager.isInManager(eventQueue[i].data.fd)) {
-				_cgiManager.readCGIOutput(eventQueue[i].data.fd);
-			// Parse client request
-			} else if (eventQueue[i].events & EPOLLIN) {
-				handleClientRequest(eventQueue[i].data.fd);
-			// Send response to client
-			} else if (eventQueue[i].events & EPOLLOUT) {
-				handleResponse(eventQueue[i].data.fd);
+			int fd = eventQueue[i].data.fd;
+			switch (_openConns[fd]) {
+				case EP_SERVER:
+					handleNewConnection(*_servers[fd]);
+					break ;
+				case EP_CGI:
+					_cgiManager.readCGIOutput(fd);
+					break ;
+				case EP_CLIENT:
+					if (eventQueue[i].events & EPOLLIN)
+						handleClientRequest(fd);
+					else if (eventQueue[i].events & EPOLLOUT)
+						handleResponse(fd);
+					break ;
 			}
 		}
 		checkCompleteCGIProcesses();

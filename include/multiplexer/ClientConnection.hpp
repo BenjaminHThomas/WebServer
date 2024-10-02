@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/27 13:44:25 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/02 14:19:06 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,14 @@ class ClientConnection
 		size_t	_bytesSent;
 		bool _responseReady;
 
+		const Config &_config;
+
 	public:
 		void resetData();
 		void closeConnection();
 
 	public:
-		ClientConnection(void);
-		ClientConnection (int fd);
+		ClientConnection (int fd, const Config &config);
 		ClientConnection(const ClientConnection&);
 		ClientConnection& operator=(const ClientConnection& other);
 		~ClientConnection ();

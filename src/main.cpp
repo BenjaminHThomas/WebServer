@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 13:27:39 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:10:14 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ int main(int ac, char **av)
 	if (ac != 2)
 		return 1;
 
+	std::ifstream input(av[1]);
+	if (!input)
+		return 1;
 	try
 	{
-		std::ifstream input(av[1]);
-		if (!input)
-			return 1;
 		JsonValue json  = JSONParser::parse(input);
 		Cluster cluster(json);
 		signal(SIGINT, handle_sigint);
