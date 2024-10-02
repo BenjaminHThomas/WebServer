@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 16:50:38 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 19:01:25 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ private:
 	Config::Routes	const &find_match(std::string const &url);
 	std::string		readFile(const std::string &filename);
 	std::string		getErrorContent(int errCode);
+	std::string		toLower(std::string s);
+	bool			check_cgi(std::string const &url);
 	
 	/* static functions */
 	static std::string	getCurrentTime();
