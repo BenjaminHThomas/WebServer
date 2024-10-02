@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 13:58:09 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:31:41 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "EventHandler.hpp"
 #include "Server.hpp"
 #include "config.hpp"
+#include "json.hpp"
 #include <vector>
 
 Cluster::Cluster(const JsonValue &json)
@@ -27,9 +28,18 @@ Cluster::Cluster(const JsonValue &json)
 			_servers.push_back(new Server(*current));
 		}
 	}
+	catch (const JsonValue::BadType &e)
+	{
+		throw Config::BadValue("bad config");
+	}
+	catch (const Config::BadValue &e)
+	{
+		throw Config::BadValue("bad config");
+	}
 	catch (const std::exception &e)
 	{
 		std::cerr << "CLUSTER ERROR: " << e.what() << std::endl;
+		throw e;
 	}
 }
 

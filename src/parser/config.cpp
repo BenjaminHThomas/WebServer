@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 11:47:55 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:29:48 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,21 +24,6 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <utility>
-
-class Config::BadValue : public std::exception
-{
-private:
-	std::string _message;
-public:
-	BadValue() : _message("bad value in config") {}
-	BadValue(const std::string &s) : _message(s) {}
-
-	const char * what() const throw()
-	{
-		return _message.c_str();
-	}
-	virtual ~BadValue() throw() {}
-};
 
 void Config::check_error_page(const std::string &page)
 {

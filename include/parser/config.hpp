@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 11:40:39 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:29:45 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,20 @@
 class Config
 {
 public:
-	class BadValue;
+	class BadValue: public std::exception
+	{
+	private:
+		std::string _message;
+	public:
+		BadValue() : _message("bad value in config") {}
+		BadValue(const std::string &s) : _message(s) {}
+
+		const char * what() const throw()
+		{
+			return _message.c_str();
+		}
+		virtual ~BadValue() throw() {}
+	};
 public:
 	struct Routes
 	{
