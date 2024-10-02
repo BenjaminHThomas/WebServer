@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:43:34 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 14:30:34 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:32:06 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,6 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
-
-
-class JsonValue::BadType : public std::exception
-{
-	const char * what() const throw()
-	{
-		return "bad type";
-	}
-};
 
 JsonValue &JsonValue::operator=(const JsonValue &json)
 {

@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 13:52:19 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:32:33 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ int main(int ac, char **av)
 	}
 	catch (std::exception &e)
 	{
-		std::cerr << "ERROR ERROR" << e.what();
+		std::cerr << "error: " << e.what();
 	}
 
 	return 0;

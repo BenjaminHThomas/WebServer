@@ -80,5 +80,27 @@
 				]
 			}
 		]
+	},
+	{
+		"name": "haha server",
+		"host": "localhost",
+		"port": 65534,
+		"error": {
+				"404": "/error-pages/not_found.html"
+		},
+		"max_body": 2000,
+		"routes": [
+			{
+				"methods": ["get", "post"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "../website",
+				"upload": "../upload",
+				"cgi": [
+					{ "extension": "cpp", "exec": "/usr/bin/c++"}
+				]
+			}
+		]
 	}
 ]

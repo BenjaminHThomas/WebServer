@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 14:30:31 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:32:08 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,13 @@
 class	JsonValue
 {
 public:
-	class BadType;
+	class BadType : public std::exception
+	{
+		const char * what() const throw()
+		{
+			return "bad type";
+		}
+	};
 public:
 	struct JsonType
 	{
