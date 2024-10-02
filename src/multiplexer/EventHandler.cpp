@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 13:58:39 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/02 14:09:28 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,6 +166,7 @@ void EventHandler::handleClientRequest(int clientFd) {
 		deleteFromEpoll(clientFd);
 		delete _clients[clientFd];
 		_openConns.erase(clientFd);
+		_clients.erase(clientFd);
 		return ;
 	}
 	buffer[bytes_read] = 0;
