@@ -6,17 +6,20 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 15:07:07 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 16:04:19 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config.hpp"
 #include "json.hpp"
+#include <cstdlib>
+#include <stdint.h>
 #include <cstdio>
 #include <cstring>
 #include <exception>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <stdexcept>
 #include <sys/types.h>
@@ -25,24 +28,9 @@
 #include <arpa/inet.h>
 #include <utility>
 
-class Config::BadValue : public std::exception
+void Config::check_error_page(int page)
 {
-private:
-	std::string _message;
-public:
-	BadValue() : _message("bad value in config") {}
-	BadValue(const std::string &s) : _message(s) {}
-
-	const char * what() const throw()
-	{
-		return _message.c_str();
-	}
-	virtual ~BadValue() throw() {}
-};
-
-void Config::check_error_page(const std::string &page)
-{
-	if (page != "400" && page != "404" && page != "405" && page != "500")
+	if (page != 400 && page != 404 && page != 405 && page != 500)
 		throw Config::BadValue();
 }
 
@@ -62,15 +50,19 @@ Config::Config(const JsonValue &j) : _addr(NULL)
 {
 	_name = j["name"].as_string();
 	_host = j["host"].as_string();
+	if (j["port"].as_number() < 0 || j["port"].as_number() > std::numeric_limits<uint16_t>::max())
+		throw Config::BadValue();
 	_port = j["port"].as_number();
+	if (j["max_body"].as_number() < 0)
+		throw Config::BadValue();
 	_max_body_size = j["max_body"].as_number();
 
 	try
 	{
 		for (JsonValue::const_iter_obj err = j["error"].begin_obj(); err != j["error"].end_obj(); err++)
 		{
-			check_error_page(err->first);
-			std::pair<std::string, std::string> pair(err->first, err->second.as_string());
+			check_error_page(std::atoi(err->first.c_str()));
+			std::pair<int, std::string> pair(std::atoi(err->first.c_str()), err->second.as_string());
 			_error_pages.insert(pair);
 			std::cout << err->first << ", second" << err->second.as_string() << std::endl;
 		}
@@ -160,7 +152,7 @@ int Config::get_port() const
 const addrinfo* Config::get_addr() const
 {return _addr; }
 
-const std::map<std::string, std::string>& Config::get_error_pages() const
+const std::map<int, std::string>& Config::get_error_pages() const
 {return _error_pages; }
 
 const std::vector<Config::Routes>& Config::get_routes() const

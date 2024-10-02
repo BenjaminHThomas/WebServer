@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 13:19:54 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 16:03:03 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,20 @@
 class Config
 {
 public:
-	class BadValue;
+	class BadValue: public std::exception
+	{
+	private:
+		std::string _message;
+	public:
+		BadValue() : _message("bad value in config") {}
+		BadValue(const std::string &s) : _message(s) {}
+
+		const char * what() const throw()
+		{
+			return _message.c_str();
+		}
+		virtual ~BadValue() throw() {}
+	};
 public:
 	struct Routes
 	{
@@ -50,14 +63,14 @@ private:
 	int			_port;
 	addrinfo	*_addr;
 
-	std::map<std::string, std::string>	_error_pages;
-	std::vector<Routes>					_routes;
+	std::map<int, std::string>	_error_pages;
+	std::vector<Routes>			_routes;
 public:
 	Config(const JsonValue &j);
 	~Config();
 
 public:
-	static void			check_error_page(const std::string &page);
+	static void			check_error_page(int page);
 	static addrinfo*	init_addrinfo(const std::string &host, const std::string &port);
 
 // GETTERS
@@ -69,6 +82,6 @@ public:
 	int					get_port() const;
 	const addrinfo*		get_addr() const;
 
-	const std::map<std::string, std::string>&	get_error_pages() const;
-	const std::vector<Routes>&					get_routes() const;
+	const std::map<int, std::string>&	get_error_pages() const;
+	const std::vector<Routes>&			get_routes() const;
 };
