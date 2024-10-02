@@ -6,17 +6,19 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 15:29:48 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:48:09 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config.hpp"
 #include "json.hpp"
+#include <stdint.h>
 #include <cstdio>
 #include <cstring>
 #include <exception>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <stdexcept>
 #include <sys/types.h>
@@ -47,7 +49,11 @@ Config::Config(const JsonValue &j) : _addr(NULL)
 {
 	_name = j["name"].as_string();
 	_host = j["host"].as_string();
+	if (j["port"].as_number() < 0 || j["port"].as_number() > std::numeric_limits<uint16_t>::max())
+		throw Config::BadValue();
 	_port = j["port"].as_number();
+	if (j["max_body"].as_number() < 0)
+		throw Config::BadValue();
 	_max_body_size = j["max_body"].as_number();
 
 	try
