@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 08:54:23 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 11:18:25 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,119 +55,86 @@ addrinfo *Config::init_addrinfo(const std::string &host, const std::string &port
 
 	if (getaddrinfo(host.c_str(), port.c_str(), &hints, &r) != 0)
 			throw std::runtime_error("invalid host in config");
-	// to init socket and bind it:
-
-	// socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-	// bind(sockfd, res->ai_addr, res->ai_addrlen);
 	return r;
 }
 
-std::vector<Config> Config::init(JsonValue json)
+Config::Config(const JsonValue &j)
 {
-	Config::config_list cfg;
+	_name = j["name"].as_string();
+	_host = j["host"].as_string();
+	_port = j["port"].as_number();
+	_max_body_size = j["max_body"].as_number();
+
 	try
 	{
-		for (JsonValue::const_iter_arr it = json.begin_arr(); it < json.end_arr(); it++)
+		for (JsonValue::const_iter_obj err = j["error"].begin_obj(); err != j["error"].end_obj(); err++)
 		{
-			Config e;
-			const JsonValue &j = (*it);
-			e._name = j["name"].as_string();
-			e._host = j["host"].as_string();
-			e._port = j["port"].as_number();
-			e._max_body_size = j["max_body"].as_number();
-
-			try
-			{
-				for (JsonValue::const_iter_obj err = j["error"].begin_obj(); err != j["error"].end_obj(); err++)
-				{
-					check_error_page(err->first);
-					std::pair<std::string, std::string> pair(err->first, err->second.as_string());
-					e._error_pages.insert(pair);
-					std::cout << err->first << ", second" << err->second.as_string() << std::endl;
-				}
-			}
-			catch (const Config::BadValue &e)
-			{
-				throw Config::BadValue();
-			}
-			catch (const std::exception &e)
-			{
-				std::cerr << "IN HERE, IGNORE, ITS GOOD THAT IT THROWS: " << e.what() << std::endl;
-			}
-
-			for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)
-			{
-				Routes route;
-
-				const JsonValue &routes = *it_route;
-				route.path = routes["route"].as_string();
-				route.index = routes["index"].as_string();
-				route.dir_listing = routes["dir_listing"].as_bool();
-				route.directory = routes["directory"].as_string();
-				route.upload = routes["upload"].as_string();
-
-				for (JsonValue::const_iter_arr it_method = routes["methods"].begin_arr(); it_method < routes["methods"].end_arr(); it_method++)
-					route.methods.insert(it_method->as_string());
-
-				try
-				{
-					const JsonValue &rt = routes["cgi"];
-
-					for (JsonValue::const_iter_arr it_cgi = rt.begin_arr(); it_cgi != rt.end_arr(); it_cgi++)
-					{
-						const JsonValue &c = (*it_cgi);
-						if (std::distance(c.begin_obj(), c.end_obj()) != 2)
-							throw Config::BadValue("too many cgi arguments");
-						std::pair<std::string, std::string> el(c["extension"].as_string(), c["exec"].as_string());
-						std::cout << "CGI: " << el.first << ", exec: " << el.second << std::endl;
-						route.cgi.insert(el);
-					}
-				}
-				catch (const std::out_of_range &e)
-				{
-					std::cerr << "IGNORE -> route doesnt contain any CGI: " << e.what() << std::endl;
-				}
-				catch (const std::exception &e)
-				{
-					std::cerr << "CGI: " << e.what() << std::endl;
-					throw e;
-				}
-			}
-
-			e._addr = init_addrinfo(e._host, j["port"].as_string());
-
-			std::cout << j["name"] << "\n";
-			std::cout << j["host"] << "\n";
-			std::cout << j["port"] << "\n";
-			std::cout << j["routes"][0]["index"] << "\n";
-			std::cout << "--------" << std::endl;
-			cfg.push_back(e);
+			check_error_page(err->first);
+			std::pair<std::string, std::string> pair(err->first, err->second.as_string());
+			_error_pages.insert(pair);
+			std::cout << err->first << ", second" << err->second.as_string() << std::endl;
 		}
+	}
+	catch (const Config::BadValue &e)
+	{
+		throw Config::BadValue();
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "config error: " << e.what() << std::endl;
+		std::cerr << "IN HERE, IGNORE, ITS GOOD THAT IT THROWS: " << e.what() << std::endl;
 	}
 
-	return cfg;
+	for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)
+	{
+		Routes route;
+
+		const JsonValue &routes = *it_route;
+		route.path = routes["route"].as_string();
+		route.index = routes["index"].as_string();
+		route.dir_listing = routes["dir_listing"].as_bool();
+		route.directory = routes["directory"].as_string();
+		route.upload = routes["upload"].as_string();
+
+		for (JsonValue::const_iter_arr it_method = routes["methods"].begin_arr(); it_method < routes["methods"].end_arr(); it_method++)
+			route.methods.insert(it_method->as_string());
+
+		try
+		{
+			const JsonValue &rt = routes["cgi"];
+
+			for (JsonValue::const_iter_arr it_cgi = rt.begin_arr(); it_cgi != rt.end_arr(); it_cgi++)
+			{
+				const JsonValue &c = (*it_cgi);
+				if (std::distance(c.begin_obj(), c.end_obj()) != 2)
+					throw Config::BadValue("too many cgi arguments");
+				std::pair<std::string, std::string> el(c["extension"].as_string(), c["exec"].as_string());
+				std::cout << "CGI: " << el.first << ", exec: " << el.second << std::endl;
+				route.cgi.insert(el);
+			}
+		}
+		catch (const std::out_of_range &e)
+		{
+			std::cerr << "IGNORE -> route doesnt contain any CGI: " << e.what() << std::endl;
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << "CGI: " << e.what() << std::endl;
+			throw e;
+		}
+		_routes.push_back(route);
+	}
+
+	_addr = init_addrinfo(_host, j["port"].as_string());
+
+	std::cout << j["name"] << "\n";
+	std::cout << j["host"] << "\n";
+	std::cout << j["port"] << "\n";
+	std::cout << j["routes"][0]["index"] << "\n";
+	std::cout << "--------" << std::endl;
 }
 
 Config::Config() : _address(0), _max_body_size(0), _port(0), _addr(NULL)
 {}
-
-Config &Config::operator=(const Config& data)
-{
-	if (this != &data)
-	{
-		_address = data._address;
-		_error_pages = data._error_pages;
-		_host = data._host;
-		_max_body_size = data._max_body_size;
-		_name = data._name;
-		_port = data._port;
-	}
-	return *this;
-}
 
 Config::~Config()
 {
@@ -177,3 +144,27 @@ Config::~Config()
 
 Config::Routes::Routes() : dir_listing(true), has_cgi(false)
 {}
+
+const std::string& Config::get_name() const
+{return _name; }
+
+const std::string& Config::get_host() const
+{return _host; }
+
+uint64_t Config::get_address() const
+{return _address; }
+
+uint64_t Config::get_max_body_size() const
+{return _max_body_size; }
+
+int Config::get_port() const
+{return _port; }
+
+const addrinfo* Config::get_addr() const
+{return _addr; }
+
+const std::map<std::string, std::string>& Config::get_error_pages() const
+{return _error_pages; }
+
+const std::vector<Config::Routes>& Config::get_routes() const
+{return _routes; }

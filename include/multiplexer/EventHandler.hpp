@@ -3,29 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 16:51:05 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/02 11:02:24 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#ifndef EVENTHANDLER_HPP 
-# define EVENTHANDLER_HPP 
+#ifndef EVENTHANDLER_HPP
+# define EVENTHANDLER_HPP
 
 #include "CGIManager.hpp"
 #include "Server.hpp"
 #include "ClientConnection.hpp"
 #include <fcntl.h>
 #include <map>
-#include <set>
-#include <utility>
 #include <cerrno> //temp, just for testing
 #include <cstdlib>
 #include <sys/wait.h>
 
 #define BUFFER_SIZE 30720
+
+extern char **environ;
 
 class ClientConnection;
 class CGIManager;
@@ -37,8 +37,6 @@ class EventHandler
 		std::map<int, Server*> _servers;
 		std::map<int, ClientConnection*> _clients;
 		CGIManager _cgiManager;
-		char** _av;
-		char** _env;
 
 	public:
 		class epollInitFailure;
@@ -61,7 +59,7 @@ class EventHandler
 		class epollWaitFailure;
 
 	public:
-		EventHandler (char **av, char **env);
+		EventHandler ();
 		~EventHandler ();
 };
 
