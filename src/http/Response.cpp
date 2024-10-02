@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 19:08:55 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 19:52:15 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ Response::Response(Request const &request, Config const &config) :
 		}
 		else {
 			// read normal file and get content
+			_content = getFileContent(request.getUrl());
 		}
 	}
 	// if (request.getUrl() == "/") {
@@ -41,23 +42,13 @@ Response::Response(Request const &request, Config const &config) :
 
 Response::~Response() {}
 
-int	Response::initResponse(Request const &request) {
-	
-	
-	// Check for CGI
-	//if (check_cgi(route.cgi, request.getURL()) == true)
-	//		//trigger CGI loop to get content;
-	
-	return 200;
-}
-
 Config::Routes const & Response::find_match(std::string const &url) {
 	std::vector<Config::Routes>::const_iterator found = _config.get_routes().begin();
 	for (std::vector<Config::Routes>::const_iterator
 	it = _config.get_routes().begin(); it != _config.get_routes().end(); ++it) {
 		if (it->path.compare(0, it->path.length(), url) == 0) {
-			if (url.at(it->path.length()) == std::string::npos ||
-				url.at(it->path.length()) == '/') {
+			if (it->path.length() >= url.length() ||
+				(it->path.length() < url.length() && url[it->path.length()] == '/')) {
 					found = it;
 			}
 		}
@@ -114,7 +105,7 @@ std::string		Response::getErrorContent(int errCode) {
 		}
 		catch(const std::exception& e)
 		{
-			std::cerr << e.what() << '\n';
+			std::cerr << "No Error pages: " << e.what() << '\n';
 			content.append("<html><body><h1>");
 			content.append(_statusCodes.at(_statusCode));
 			content.append("</h1></body></html>");
@@ -140,6 +131,28 @@ bool	Response::check_cgi(std::string const &url) {
 	return it != _route.cgi.end();
 }
 
+std::string		Response::getFileContent(std::string const &url) {
+	std::string filename;
+	std::string	file = url.substr(_route.path.length());
+	if (file == "/" || file.empty()) {
+		filename = _route.directory + _route.index;
+	} else {
+		filename = _route.directory + file;
+	}
+	std::string content;
+	try
+	{
+		content = readFile(filename);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Error 404: " << e.what() << '\n';
+		_statusCode = 404;
+		content = getErrorContent(_statusCode);
+	}
+	return content;
+}
+
 std::map<int, std::string> Response::initStatusCodes() {
 	std::map<int, std::string>	tmp;
 	tmp[200] = "200 OK";
@@ -159,6 +172,7 @@ std::map<int, std::string> Response::initStatusCodes() {
 	tmp[502] = "502 Bad Gateway";
 	tmp[504] = "504 Gateway Timeout";
 	tmp[505] = "505 HTTP Version Not Supported";
+	return tmp;
 }
 
 const std::map<int, std::string> Response::_statusCodes = Response::initStatusCodes();
