@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 15:09:49 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:20:58 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,7 +187,7 @@ void EventHandler::handleResponse(int clientFd) {
 		
 	// 3. Generate Response based on Request object
 	/* A Response object to be created and feed output */
-	Response rsp(rqs, _servers.at(0)->_config.get_routes());
+	Response rsp(rqs, _clients.at(clientFd)->_config);
 	_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
 	
 	// 4. Write to the clientFD with reponse string

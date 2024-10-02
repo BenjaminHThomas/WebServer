@@ -6,16 +6,16 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 15:05:29 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:45:52 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-Response::Response(Request const &request, const std::vector<Config::Routes> &routes) : 
-	_statusCode(200), _contentType("text/html")
+Response::Response(Request const &request, Config const &config) : 
+	_statusCode(200), _contentType("text/html"), _config(config)
 {
-	_route = find_match(request.getUrl(), routes);
+	_route = find_match(request.getUrl());
 	// if (request.getUrl() == "/") {
 	// 	_content = "<html><body><h1>Welcome to My C++ Web Server!</h1></body></html>";
 	// } else if (request.getUrl() == "/about") {
@@ -43,16 +43,19 @@ int	Response::initResponse(Request const &request) {
 	return 200;
 }
 
-Config::Routes const & Response::find_match(std::string const &url, std::vector<Config::Routes> const &routes) {
-	std::vector<Config::Routes>::const_iterator found = routes.begin();
-	for (std::vector<Config::Routes>::const_iterator it = routes.begin(); it != routes.end(); ++it) {
+Config::Routes const & Response::find_match(std::string const &url) {
+	std::vector<Config::Routes>::const_iterator found = _config.get_routes().begin();
+	for (std::vector<Config::Routes>::const_iterator
+	it = _config.get_routes().begin(); it != _config.get_routes().end(); ++it) {
 		if (it->path.compare(0, it->path.length(), url) == 0) {
-			found = it;
+			if (url.at(it->path.length() + 1) == std::string::npos ||
+				url.at(it->path.length() + 1) == '/') {
+					found = it;
+			}
 		}
 	}
 	return *found;
 }
-
 
 std::string Response::getCurrentTime() {
 	time_t  now = time(0);
