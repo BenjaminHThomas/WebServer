@@ -6,15 +6,11 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 15:32:33 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 20:47:26 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "EventHandler.hpp"
-#include "Request.hpp"
-
 #include "cluster.hpp"
-#include "config.hpp"
 #include "json.hpp"
 #include "parser.hpp"
 #include <csignal>

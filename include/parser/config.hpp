@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 15:58:36 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 16:03:03 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,12 +41,12 @@ public:
 public:
 	struct Routes
 	{
-		std::string	path;
-		std::string	index;
-		std::string	directory;
-		std::string	upload;
-		bool		dir_listing;
-		bool		has_cgi;
+		std::string	path;			// correspond to "route" in the config "routes". Use this to find the most matched routes to URL
+		std::string	index;			// default file to open if there is file path is empty
+		std::string	directory;		// default redirected directory Methods except for POST
+		std::string	upload;			// default redirected directory for POST Method
+		bool		dir_listing;	// flag to see if the output is a listing of directories
+		bool		has_cgi;		// could use cgi.size() instead to check if there is any cgi
 
 		std::set<std::string>		methods;
 		std::map<std::string, std::string>	cgi;

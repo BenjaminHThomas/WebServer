@@ -6,25 +6,16 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/30 14:21:46 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 09:54:48 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-// Request::Request() :
-// 	_method(""), _url(""), _http_version(""), _body(""), _raw("")
-// {
-// 	std::cout << "Default Request object constructed" << std::endl;
-// }
-
 Request::Request(std::string const &str) : AHttpData(str) {
-	// std::cout << "Request object construced" << std::endl;
 	try
 	{
-		/* code */
 		this->parseHead();
-		// this->parseRest();
 	}
 	catch(const std::exception& e)
 	{
@@ -33,7 +24,6 @@ Request::Request(std::string const &str) : AHttpData(str) {
 }
 
 Request::Request(const Request &other) : AHttpData(other.getRaw()) {
-	// std::cout << "Request Object copied" << std::endl;
 	*this = other;
 }
 
@@ -47,9 +37,7 @@ Request&	Request::operator=(const Request &other) {
 	return *this;
 }
 
-Request::~Request() {
-	// std::cout << "A Request object is destroyed" << std::endl;
-}
+Request::~Request() {}
 
 std::string const &Request::getMethod() const{
 	return this->_method;
@@ -63,26 +51,12 @@ std::string const &Request::getHttpVersion() const{
 	return this->_http_version;
 }
 
-// std::string const &Request::getHeaderValue(std::string const &key) const{
-// 	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
-// 	if (it != this->_headers.end()) {
-// 		return it->second;
-// 	}
-// 	throw std::runtime_error("Key not found in _headers");
-// }
-
-// std::string const &Request::getBody() const {
-// 	return this->_body;
-// }
-
 void	Request::parseHead() {
 	/* Parse Method */
 	std::size_t	mtd_end = _raw.find(" ");
 	if (mtd_end == std::string::npos)
 		throw std::runtime_error("Method Not Found");
 	_method = _raw.substr(0, mtd_end);
-	if (!std::count(_allowdMethods.begin(), _allowdMethods.end(), _method))
-		throw std::runtime_error("Not allowed Method");
 	/* Parse URL */
 	std::size_t	url_start = _raw.find_first_not_of(" ", mtd_end + 1);
 	if (url_start == std::string::npos)
@@ -102,6 +76,55 @@ void	Request::parseHead() {
 	if (!_http_version.empty() && _http_version[_http_version.length() - 1] == '\r')
 		_http_version.erase(_http_version.length() - 1);
 }
+
+// Debug function to print all elements in Request class
+void	Request::printAll() {
+	std::cout << "Method:\t" << this->getMethod() << std::endl;
+	std::cout << "Url:\t" << this->getUrl() << std::endl;
+	std::cout << "Http:\t" << this->getHttpVersion() << std::endl;
+	std::cout << "\n------------------Headers------------------" << std::endl;
+	std::map<std::string, std::string>::iterator it;
+	for (it = this->_headers.begin(); it != this->_headers.end(); it++) {
+		std::cout << "[" << it->first << "] : \"" << it->second << "\"" << std::endl;
+	}
+	std::cout << "\n---------------End of Headers---------------" << std::endl;
+	std::cout << "\n-------------------Body---------------------" << std::endl;
+	std::cout << this->getBody() << std::endl;
+	std::cout << "\n--------------------Raw---------------------" << std::endl;
+	std::cout << this->_raw << std::endl;
+}
+
+/* This part could be deleted after having merged with Config classes */
+// std::vector<std::string>	Request::initMethods() {
+// 	std::vector<std::string>	methods;
+	
+// 	methods.push_back("GET");
+// 	methods.push_back("HEAD");
+// 	methods.push_back("POST");
+// 	methods.push_back("PUT");
+// 	methods.push_back("DELETE");
+// 	methods.push_back("CONNECT");
+// 	methods.push_back("OPTIONS");
+// 	methods.push_back("TRACE");
+// 	methods.push_back("PATCH");
+
+// 	return methods;
+// }
+
+// std::vector<std::string>	Request::_allowdMethods = Request::initMethods();
+
+/* The following part is separated to Abstract class AHTTP */
+// std::string const &Request::getHeaderValue(std::string const &key) const{
+// 	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
+// 	if (it != this->_headers.end()) {
+// 		return it->second;
+// 	}
+// 	throw std::runtime_error("Key not found in _headers");
+// }
+
+// std::string const &Request::getBody() const {
+// 	return this->_body;
+// }
 
 // void	Request::parseRest() {
 // 	/* Parse Headers (key, value)*/
@@ -137,42 +160,8 @@ void	Request::parseHead() {
 // 		_body.assign(std::find(it, end, '\n') + 1, end);
 // }
 
-std::vector<std::string>	Request::initMethods() {
-	std::vector<std::string>	methods;
-	
-	methods.push_back("GET");
-	methods.push_back("HEAD");
-	methods.push_back("POST");
-	methods.push_back("PUT");
-	methods.push_back("DELETE");
-	methods.push_back("CONNECT");
-	methods.push_back("OPTIONS");
-	methods.push_back("TRACE");
-	methods.push_back("PATCH");
-
-	return methods;
-}
-
 // std::string	Request::trim(std::string const & str) {
 // 	std::string::const_iterator	start = std::find_if(str.begin(), str.end(), std::not1(std::ptr_fun<int, int>(isspace)));
 // 	std::string::const_iterator	end = std::find_if(str.rbegin(), str.rend(), std::not1(std::ptr_fun<int, int>(isspace))).base();
 // 	return start < end ? std::string(start, end) : std::string();
 // }
-
-std::vector<std::string>	Request::_allowdMethods = Request::initMethods();
-
-void	Request::printAll() {
-	std::cout << "Method:\t" << this->getMethod() << std::endl;
-	std::cout << "Url:\t" << this->getUrl() << std::endl;
-	std::cout << "Http:\t" << this->getHttpVersion() << std::endl;
-	std::cout << "\n------------------Headers------------------" << std::endl;
-	std::map<std::string, std::string>::iterator it;
-	for (it = this->_headers.begin(); it != this->_headers.end(); it++) {
-		std::cout << "[" << it->first << "] : \"" << it->second << "\"" << std::endl;
-	}
-	std::cout << "\n---------------End of Headers---------------" << std::endl;
-	std::cout << "\n-------------------Body---------------------" << std::endl;
-	std::cout << this->getBody() << std::endl;
-	std::cout << "\n--------------------Raw---------------------" << std::endl;
-	std::cout << this->_raw << std::endl;
-}

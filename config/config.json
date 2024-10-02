@@ -5,8 +5,8 @@
 		"port": 8080,
 		"max_body": 10000,
 		"error": {
-				"404": "/error-pages/not_found.html",
-				"405": "/error-pages/error_405.html"
+				"404": "./error-pages/not_found_404.html",
+				"405": "./error-pages/method_not_allowed_405.html"
 		},
 		"routes": [
 			{
@@ -14,8 +14,8 @@
 				"route": "/",
 				"index": "index.html",
 				"dir_listing": true,
-				"directory": "../website",
-				"upload": "../upload",
+				"directory": "./website",
+				"upload": "./upload",
 				"cgi": [
 					{
 						"extension": "py",
@@ -32,8 +32,11 @@
 				"route": "/about",
 				"dir_listing": false,
 				"index": "index.html",
-				"directory": "../website/about",
-				"upload": "../upload"
+				"directory": "./another_folder/",
+				"upload": "../upload",
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3"}
+				]
 			}
 		]
 	},
@@ -42,29 +45,7 @@
 		"host": "localhost",
 		"port": 8081,
 		"error": {
-				"404": "/error-pages/not_found.html"
-		},
-		"max_body": 2000,
-		"routes": [
-			{
-				"methods": ["GET", "POST"],
-				"route": "/",
-				"index": "index.html",
-				"dir_listing": true,
-				"directory": "../website",
-				"upload": "../upload",
-				"cgi": [
-					{ "extension": "cpp", "exec": "/usr/bin/c++"}
-				]
-			}
-		]
-	},
-	{
-		"name": "third server",
-		"host": "localhost",
-		"port": 9487,
-		"error": {
-				"404": "/error-pages/not_found.html"
+				"404": "./error-pages/not_found_404.html"
 		},
 		"max_body": 2000,
 		"routes": [

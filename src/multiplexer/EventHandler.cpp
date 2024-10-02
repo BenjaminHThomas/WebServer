@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 14:22:12 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:20:58 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,38 +164,38 @@ void EventHandler::handleClientRequest(int clientFd) {
 	if (bytes_read <= 0) {
 		std::cerr << "Error: failed to read or client closed connection.\n";
 		deleteFromEpoll(clientFd);
-		delete _clients[clientFd];
+		delete _clients.at(clientFd);
 		_openConns.erase(clientFd);
 		_clients.erase(clientFd);
 		return ;
 	}
 	buffer[bytes_read] = 0;
-	_clients[clientFd]->_requestBuffer += buffer;
+	_clients.at(clientFd)->_requestBuffer.append(buffer);
 	if (isResponseComplete(clientFd)) {
-		std::cout << "Recieved request:\n" << _clients[clientFd]->_requestBuffer << "\n";
+		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
 		changeToWrite(clientFd);
 	}
 }
 
+// Write response to the client
 void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	// 1. HTTP Parse the reqesut Buffer
-	Request	rqs(_clients[clientFd]->_requestBuffer);
-
-	// 2. Check if it is a cgi or not
-
+	Request	rqs(_clients.at(clientFd)->_requestBuffer);
+	
+	// 2. Find the last matched Routes for this request 
+		
 	// 3. Generate Response based on Request object
 	/* A Response object to be created and feed output */
-	/* _clients[clientFD]->_responseBuffer += Response.getOutput() */
-	Response rsp(rqs);
-	_clients[clientFd]->_responseBuffer += rsp.generateResponse();
-
+	Response rsp(rqs, _clients.at(clientFd)->_config);
+	_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
+	
 	// 4. Write to the clientFD with reponse string
-	std::cout << _clients[clientFd]->_responseBuffer << std::endl;
-	write(clientFd, _clients[clientFd]->_responseBuffer.c_str(), _clients[clientFd]->_responseBuffer.length());
+	//		- Use string.at() instead of indexing.
+	std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
+	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	// 5. clear the buff in this clientFD
-	_clients[clientFd]->resetData();
-
+	_clients.at(clientFd)->resetData();
 	changeToRead(clientFd);
 }
 

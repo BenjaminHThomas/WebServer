@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 15:31:41 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 20:40:07 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Server.hpp"
 #include "config.hpp"
 #include "json.hpp"
+#include <stdexcept>
 #include <vector>
 
 Cluster::Cluster(const JsonValue &json)
@@ -35,6 +36,10 @@ Cluster::Cluster(const JsonValue &json)
 	catch (const Config::BadValue &e)
 	{
 		throw Config::BadValue("bad config");
+	}
+	catch (const std::out_of_range &e)
+	{
+		throw Config::BadValue("config error, missing field");
 	}
 	catch (const std::exception &e)
 	{
