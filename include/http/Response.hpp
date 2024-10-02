@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 15:30:33 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 16:50:38 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ private:
 	/* init utils */
 	int				initResponse(Request const &request);
 	Config::Routes	const &find_match(std::string const &url);
-	std::string		getContent();
+	std::string		readFile(const std::string &filename);
+	std::string		getErrorContent(int errCode);
 	
 	/* static functions */
 	static std::string	getCurrentTime();

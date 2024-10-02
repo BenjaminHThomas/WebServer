@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 15:59:17 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 16:59:21 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@ Response::Response(Request const &request, Config const &config) :
 	_route = find_match(request.getUrl());
 	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
 		_statusCode = 405;
-		if (_config.get_error_pages().size() && _config.get_error_pages())
+		_content = getErrorContent(_statusCode);
+	} else {
+		
 	}
 	// if (request.getUrl() == "/") {
 	// 	_content = "<html><body><h1>Welcome to My C++ Web Server!</h1></body></html>";
@@ -34,7 +36,6 @@ Response::~Response() {}
 
 int	Response::initResponse(Request const &request) {
 	
-	// Check for allowed Methods
 	
 	// Check for CGI
 	//if (check_cgi(route.cgi, request.getURL()) == true)
@@ -78,6 +79,41 @@ std::string Response::generateResponse() {
 	response << _content;
 
 	return response.str();
+}
+
+std::string		Response::readFile(const std::string &filename) {
+	std::ifstream	ifs(filename.c_str());
+	if (!ifs) {
+		throw std::runtime_error("Cannot open file: " + filename);
+	}
+	std::string		content;
+	std::string		line;
+	while (std::getline(ifs, line)) {
+		content.append(line + '\n');
+	}
+	if (ifs.bad()) {
+		throw std::runtime_error("Error occurred while reading the file: " + filename);
+	}
+	return content;
+}
+
+std::string		Response::getErrorContent(int errCode) {
+	std::string content;
+	if (_config.get_error_pages().size() != 0) {
+		try
+		{
+			std::string const &err_page = _config.get_error_pages().at(errCode);
+			content = readFile(err_page);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+			content.append("<html><body><h1>");
+			content.append(_statusCodes.at(_statusCode));
+			content.append("</h1></body></html>");
+		}
+	}
+	return content;
 }
 
 std::map<int, std::string> Response::initStatusCodes() {
