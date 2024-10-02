@@ -14,8 +14,18 @@
 				"route": "/",
 				"index": "index.html",
 				"dir_listing": true,
-				"directory": "./website/",
-				"upload": "./upload"
+				"directory": "./website",
+				"upload": "./upload",
+				"cgi": [
+					{
+						"extension": "py",
+						"exec": "/usr/bin/python3"
+					},
+					{
+						"extension": "php",
+						"exec": "/usr/bin/php"
+					}
+				]
 			},
 			{
 				"methods": ["GET"],
@@ -33,6 +43,9 @@
 		"name": "second server",
 		"host": "localhost",
 		"port": 8081,
+		"error": {
+				"404": "./error-pages/not_found_404.html"
+		},
 		"max_body": 2000,
 		"routes": [
 			{
@@ -41,7 +54,10 @@
 				"index": "index.html",
 				"dir_listing": true,
 				"directory": "../website",
-				"upload": "../upload"
+				"upload": "../upload",
+				"cgi": [
+					{ "extension": "cpp", "exec": "/usr/bin/c++"}
+				]
 			}
 		]
 	}

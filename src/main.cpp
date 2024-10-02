@@ -5,42 +5,49 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/10/02 09:45:58 by tsuchen          ###   ########.fr       */
+/*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
+/*   Updated: 2024/10/02 13:27:39 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 
+#include "cluster.hpp"
 #include "config.hpp"
 #include "json.hpp"
 #include "parser.hpp"
+#include <csignal>
+#include <exception>
 #include <temp.hpp>
 
+void	handle_sigint(int _sig) { throw _sig; }
 
-int main(int ac, char **av, char **env)
+int main(int ac, char **av)
 {
 	if (ac != 2)
 		return 1;
 
-	std::ifstream input(av[1]);
-	if (!input)
-		return 1;
-	JsonValue json  = JSONParser::parse(input);
+	try
+	{
+		std::ifstream input(av[1]);
+		if (!input)
+			return 1;
+		JsonValue json  = JSONParser::parse(input);
+		Cluster cluster(json);
+		signal(SIGINT, handle_sigint);
 
-	std::cout << json << "\n\n##################################\n\n" << std::endl;
-
-	Config::init(json);
-
-	try {
-		Server s;
-		EventHandler e(av, env);
-		e.addServer(s);
-		e.epollLoop();
-	} catch (std::exception &e) {
-		std::cerr << e.what();
+		cluster.start();
+	}
+	catch (int e)
+	{
+		std::cerr << "\nexit successful..." << std::endl;
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << "ERROR ERROR" << e.what();
 	}
 
 	return 0;

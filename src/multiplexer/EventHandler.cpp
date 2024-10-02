@@ -6,13 +6,14 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 09:42:16 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 13:26:28 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <unistd.h>
 
 void cgiOut(int clientFd, char **av, char **env);
 
@@ -30,14 +31,12 @@ class EventHandler::epollWaitFailure : public std::exception {
 		}
 };
 
-EventHandler::EventHandler(char **av, char **env)
+EventHandler::EventHandler()
 {
 	_epollFd = epoll_create1(0);
 	if (_epollFd == -1) {
 		throw epollInitFailure();
 	}
-	_av = av;
-	_env = env;
 }
 
 EventHandler::~EventHandler()
@@ -59,7 +58,7 @@ void EventHandler::setNonBlock(int fd) {
 		return ;
 	}
 	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-		std::cerr << "Error: couldn't set fd to non-blocking\n"; 
+		std::cerr << "Error: couldn't set fd to non-blocking\n";
 	}
 }
 
@@ -141,7 +140,7 @@ bool EventHandler::isResponseComplete(int clientFd) {
 	size_t pos = buff.find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return false;
-	
+
 	//Check if it's a POST request with a body
 	size_t content_len_pos = buff.find("Content-Length: ");
 	if (content_len_pos != std::string::npos) {
