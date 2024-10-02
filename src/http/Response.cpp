@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 19:52:15 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 21:28:53 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include <stdexcept>
+#include <sys/stat.h>
 
-Response::Response(Request const &request, Config const &config) : 
+Response::Response(Request const &request, Config const &config) :
 	_statusCode(200), _contentType("text/html"), _config(config)
 {
 	_route = find_match(request.getUrl());
@@ -67,7 +69,7 @@ std::string Response::getCurrentTime() {
 
 std::string Response::generateResponse() {
 	std::ostringstream  response;
-	
+
 	response << "HTTP/1.1 " << _statusCodes.at(_statusCode) << "\r\n";
 	response << "ContentType: " << _contentType << "\r\n";
 	response << "Content-Length: " << _content.length() << "\r\n";
@@ -151,6 +153,24 @@ std::string		Response::getFileContent(std::string const &url) {
 		content = getErrorContent(_statusCode);
 	}
 	return content;
+}
+
+bool	Response::is_directory(const std::string &path)
+{
+	struct stat s;
+
+	if (stat(path.c_str() ,&s) == 0)
+	{
+		if( s.st_mode & S_IFDIR )
+		{
+			return true;
+		}
+		return false;
+	}
+	else
+	{
+		throw std::runtime_error("cannot access asked file");
+	}
 }
 
 std::map<int, std::string> Response::initStatusCodes() {

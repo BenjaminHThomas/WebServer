@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 16:04:19 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 21:24:50 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,42 +78,7 @@ Config::Config(const JsonValue &j) : _addr(NULL)
 
 	for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)
 	{
-		Routes route;
-
-		const JsonValue &routes = *it_route;
-		route.path = routes["route"].as_string();
-		route.index = routes["index"].as_string();
-		route.dir_listing = routes["dir_listing"].as_bool();
-		route.directory = routes["directory"].as_string();
-		route.upload = routes["upload"].as_string();
-
-		for (JsonValue::const_iter_arr it_method = routes["methods"].begin_arr(); it_method < routes["methods"].end_arr(); it_method++)
-			route.methods.insert(it_method->as_string());
-
-		try
-		{
-			const JsonValue &rt = routes["cgi"];
-
-			for (JsonValue::const_iter_arr it_cgi = rt.begin_arr(); it_cgi != rt.end_arr(); it_cgi++)
-			{
-				const JsonValue &c = (*it_cgi);
-				if (std::distance(c.begin_obj(), c.end_obj()) != 2)
-					throw Config::BadValue("too many cgi arguments");
-				std::pair<std::string, std::string> el(c["extension"].as_string(), c["exec"].as_string());
-				std::cout << "CGI: " << el.first << ", exec: " << el.second << std::endl;
-				route.cgi.insert(el);
-			}
-		}
-		catch (const std::out_of_range &e)
-		{
-			std::cerr << "IGNORE -> route doesnt contain any CGI: " << e.what() << std::endl;
-		}
-		catch (const std::exception &e)
-		{
-			std::cerr << "CGI: " << e.what() << std::endl;
-			throw e;
-		}
-		_routes.push_back(route);
+		_routes.push_back(Routes(*it_route));
 	}
 
 	_addr = init_addrinfo(_host, j["port"].as_string());
@@ -133,6 +98,50 @@ Config::~Config()
 
 Config::Routes::Routes() : dir_listing(true), has_cgi(false)
 {}
+
+std::string Config::handle_directory(const std::string &s)
+{
+	std::string current = s;
+	if (*current.rbegin() != '/')
+		current += '/';
+	return current;
+}
+
+Config::Routes::Routes(const JsonValue &j) : dir_listing(true), has_cgi(false)
+{
+	path = j["route"].as_string();
+	index = j["index"].as_string();
+	dir_listing = j["dir_listing"].as_bool();
+	directory = handle_directory(j["directory"].as_string());
+	upload = j["upload"].as_string();
+
+	for (JsonValue::const_iter_arr it_method = j["methods"].begin_arr(); it_method < j["methods"].end_arr(); it_method++)
+		methods.insert(it_method->as_string());
+
+	try
+	{
+		const JsonValue &rt = j["cgi"];
+
+		for (JsonValue::const_iter_arr it_cgi = rt.begin_arr(); it_cgi != rt.end_arr(); it_cgi++)
+		{
+			const JsonValue &c = (*it_cgi);
+			if (std::distance(c.begin_obj(), c.end_obj()) != 2)
+				throw Config::BadValue("too many cgi arguments");
+			std::pair<std::string, std::string> el(c["extension"].as_string(), c["exec"].as_string());
+			std::cout << "CGI: " << el.first << ", exec: " << el.second << std::endl;
+			cgi.insert(el);
+		}
+	}
+	catch (const std::out_of_range &e)
+	{
+		std::cerr << "IGNORE -> route doesnt contain any CGI: " << e.what() << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "CGI: " << e.what() << std::endl;
+		throw e;
+	}
+}
 
 const std::string& Config::get_name() const
 {return _name; }
