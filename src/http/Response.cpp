@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 15:45:52 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:59:17 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@ Response::Response(Request const &request, Config const &config) :
 	_statusCode(200), _contentType("text/html"), _config(config)
 {
 	_route = find_match(request.getUrl());
+	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
+		_statusCode = 405;
+		if (_config.get_error_pages().size() && _config.get_error_pages())
+	}
 	// if (request.getUrl() == "/") {
 	// 	_content = "<html><body><h1>Welcome to My C++ Web Server!</h1></body></html>";
 	// } else if (request.getUrl() == "/about") {
@@ -29,12 +33,8 @@ Response::Response(Request const &request, Config const &config) :
 Response::~Response() {}
 
 int	Response::initResponse(Request const &request) {
-	//find the last matched route and save it
-	//const Config::Routes &route = find_match(request.getURL(), config.get_routes());
 	
 	// Check for allowed Methods
-	//if (!std::count(route.methods.begin(), route.methods.end(), request.getMethod()))
-	//		return 405;
 	
 	// Check for CGI
 	//if (check_cgi(route.cgi, request.getURL()) == true)
