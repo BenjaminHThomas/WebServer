@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 21:28:53 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 22:00:18 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,14 @@ std::string		Response::getFileContent(std::string const &url) {
 	std::string content;
 	try
 	{
-		content = readFile(filename);
+		if (is_directory(filename))
+		{
+			content = directory_listing(filename, file);
+		}
+		else
+		{
+			content = readFile(filename);
+		}
 	}
 	catch(const std::exception& e)
 	{

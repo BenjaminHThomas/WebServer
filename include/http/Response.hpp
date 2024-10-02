@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 21:09:29 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 21:56:01 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,12 @@ public:
 
 	std::string		generateResponse();
 	static std::map<int, std::string>	initStatusCodes();
+
+	/* DIRECTORY LISTING */
+private:
+	static const std::string _html_template;
+
+	std::string directory_listing(const std::string &path, const std::string &file);
 };
 
 
