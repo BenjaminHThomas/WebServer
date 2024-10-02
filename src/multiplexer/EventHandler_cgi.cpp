@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 10:15:34 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 11:39:22 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ void EventHandler::startCGI(int clientFd, std::string fname) {
 	}
 	if (pid == 0) {
 		setPipe(fd, STDOUT_FILENO);
-		// SET AV TO NULL -> NOT WHATS EXPECTED
 		char **args = new char*;
 		args[0] = const_cast<char*>(fname.c_str());
 		execve(fname.c_str(),args, environ);

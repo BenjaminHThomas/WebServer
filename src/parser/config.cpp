@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 11:18:25 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 11:41:27 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,9 +132,6 @@ Config::Config(const JsonValue &j)
 	std::cout << j["routes"][0]["index"] << "\n";
 	std::cout << "--------" << std::endl;
 }
-
-Config::Config() : _address(0), _max_body_size(0), _port(0), _addr(NULL)
-{}
 
 Config::~Config()
 {

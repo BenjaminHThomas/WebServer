@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 11:17:56 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 11:40:39 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,7 @@ private:
 	addrinfo	*_addr;
 
 	std::map<std::string, std::string>	_error_pages;
-
-	std::vector<Routes>	_routes;
-
-
-	Config();
+	std::vector<Routes>					_routes;
 public:
 	Config(const JsonValue &j);
 	~Config();
@@ -66,12 +62,13 @@ public:
 
 // GETTERS
 public:
-	const std::string& get_name() const;
-	const std::string& get_host() const;
-	uint64_t get_address() const;
-	uint64_t get_max_body_size() const;
-	int get_port() const;
-	const addrinfo* get_addr() const;
-	const std::map<std::string, std::string>& get_error_pages() const;
-	const std::vector<Routes>& get_routes() const;
+	const std::string&	get_name() const;
+	const std::string&	get_host() const;
+	uint64_t			get_address() const;
+	uint64_t			get_max_body_size() const;
+	int					get_port() const;
+	const addrinfo*		get_addr() const;
+
+	const std::map<std::string, std::string>&	get_error_pages() const;
+	const std::vector<Routes>&					get_routes() const;
 };
