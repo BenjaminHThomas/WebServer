@@ -6,12 +6,13 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 15:48:09 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 15:57:54 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config.hpp"
 #include "json.hpp"
+#include <cstdlib>
 #include <stdint.h>
 #include <cstdio>
 #include <cstring>
@@ -27,9 +28,9 @@
 #include <arpa/inet.h>
 #include <utility>
 
-void Config::check_error_page(const std::string &page)
+void Config::check_error_page(int page)
 {
-	if (page != "400" && page != "404" && page != "405" && page != "500")
+	if (page != 400 && page != 404 && page != 405 && page != 500)
 		throw Config::BadValue();
 }
 
@@ -60,8 +61,8 @@ Config::Config(const JsonValue &j) : _addr(NULL)
 	{
 		for (JsonValue::const_iter_obj err = j["error"].begin_obj(); err != j["error"].end_obj(); err++)
 		{
-			check_error_page(err->first);
-			std::pair<std::string, std::string> pair(err->first, err->second.as_string());
+			check_error_page(std::atoi(err->first.c_str()));
+			std::pair<int, std::string> pair(std::atoi(err->first.c_str()), err->second.as_string());
 			_error_pages.insert(pair);
 			std::cout << err->first << ", second" << err->second.as_string() << std::endl;
 		}
@@ -151,7 +152,7 @@ int Config::get_port() const
 const addrinfo* Config::get_addr() const
 {return _addr; }
 
-const std::map<std::string, std::string>& Config::get_error_pages() const
+const std::map<int, std::string>& Config::get_error_pages() const
 {return _error_pages; }
 
 const std::vector<Config::Routes>& Config::get_routes() const
