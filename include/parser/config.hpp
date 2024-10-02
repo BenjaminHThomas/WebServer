@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 13:37:01 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 11:40:39 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,19 +51,24 @@ private:
 	addrinfo	*_addr;
 
 	std::map<std::string, std::string>	_error_pages;
-
-	std::vector<Routes>	routes;
-
-
+	std::vector<Routes>					_routes;
 public:
-	Config();
+	Config(const JsonValue &j);
 	~Config();
 
-	Config &operator=(const Config& data);
 public:
-	static config_list init(JsonValue json);
-
-private:
 	static void			check_error_page(const std::string &page);
 	static addrinfo*	init_addrinfo(const std::string &host, const std::string &port);
+
+// GETTERS
+public:
+	const std::string&	get_name() const;
+	const std::string&	get_host() const;
+	uint64_t			get_address() const;
+	uint64_t			get_max_body_size() const;
+	int					get_port() const;
+	const addrinfo*		get_addr() const;
+
+	const std::map<std::string, std::string>&	get_error_pages() const;
+	const std::vector<Routes>&					get_routes() const;
 };

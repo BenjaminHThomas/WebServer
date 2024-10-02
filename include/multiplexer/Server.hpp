@@ -3,22 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:07 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 15:55:50 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/02 11:15:14 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "config.hpp"
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
 #define MAX_EVENTS 1024
 #define MAX_CLIENTS 500
 
-#include <iostream>
-#include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -29,11 +28,12 @@
 class Server
 {
 	private:
+		Config &_config;
+
 		int _sockFd;
 		int _port;
 		int _maxClients;
 		int _maxEvents;
-		struct sockaddr_in _addr;
 
 	public:
 		int getSockFd() const;
@@ -47,8 +47,8 @@ class Server
 		class socketListenFailure;
 
 	public:
-		Server (int port = 8080);
 		Server (const Server &socket);
+		Server (Config &socket);
 		~Server ();
 		Server & operator=(const Server &other);
 };

@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler_cgi.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/01 12:50:01 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/02 11:39:22 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
+#include "string.h"
 
 static void setPipe(int *fd, int end) {
 	if (dup2(fd[end], end) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1) {
@@ -37,7 +38,10 @@ void EventHandler::startCGI(int clientFd, std::string fname) {
 	}
 	if (pid == 0) {
 		setPipe(fd, STDOUT_FILENO);
-		execve(fname.c_str(), _av, _env);
+		char **args = new char*;
+		args[0] = const_cast<char*>(fname.c_str());
+		execve(fname.c_str(),args, environ);
+		delete args;
 		std::cerr << "Error: could not execute cgi script\n";
 		exit(1);
 	} else {

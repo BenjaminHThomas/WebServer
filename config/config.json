@@ -17,8 +17,14 @@
 				"directory": "../website",
 				"upload": "../upload",
 				"cgi": [
-					{ "extension": "py", "exec": "/usr/bin/python3"},
-					{ "extension": "php", "exec": "/usr/bin/php"}
+					{
+						"extension": "py",
+						"exec": "/usr/bin/python3"
+					},
+					{
+						"extension": "php",
+						"exec": "/usr/bin/php"
+					}
 				]
 			},
 			{
@@ -35,6 +41,28 @@
 		"name": "second server",
 		"host": "localhost",
 		"port": 8081,
+		"error": {
+				"404": "/error-pages/not_found.html"
+		},
+		"max_body": 2000,
+		"routes": [
+			{
+				"methods": ["GET", "POST"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "../website",
+				"upload": "../upload",
+				"cgi": [
+					{ "extension": "cpp", "exec": "/usr/bin/c++"}
+				]
+			}
+		]
+	},
+	{
+		"name": "third server",
+		"host": "localhost",
+		"port": 9487,
 		"error": {
 				"404": "/error-pages/not_found.html"
 		},
