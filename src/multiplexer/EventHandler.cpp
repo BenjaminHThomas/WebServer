@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 14:09:28 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/02 14:22:12 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,8 @@ bool EventHandler::deleteFromEpoll(int fd) {
 	return true;
 }
 
-void EventHandler::addClient(int clientFd) {
-	ClientConnection* conn = new ClientConnection(clientFd);
+void EventHandler::addClient(int clientFd, const Config &config) {
+	ClientConnection* conn = new ClientConnection(clientFd, config);
 	_clients[clientFd] = conn;
 	_openConns[clientFd] = EP_CLIENT;
 }
@@ -134,7 +134,7 @@ void EventHandler::handleNewConnection(Server & s) {
 		close(clientFd);
 		return ;
 	}
-	addClient(clientFd);
+	addClient(clientFd, s.getConfig());
 }
 
 bool EventHandler::isResponseComplete(int clientFd) {
@@ -195,7 +195,7 @@ void EventHandler::handleResponse(int clientFd) {
 	write(clientFd, _clients[clientFd]->_responseBuffer.c_str(), _clients[clientFd]->_responseBuffer.length());
 	// 5. clear the buff in this clientFD
 	_clients[clientFd]->resetData();
-	
+
 	changeToRead(clientFd);
 }
 

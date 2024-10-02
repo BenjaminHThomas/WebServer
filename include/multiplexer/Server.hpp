@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:07 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 11:15:14 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 14:16:52 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Server
 		int getPort() const;
 		int getMaxClients() const;
 		int getMaxEvents() const;
+		const Config& getConfig() const;
 
 	public:
 		class socketCreationFailure;

@@ -3,42 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/27 13:44:19 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/02 14:19:27 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ClientConnection.hpp"
 
-ClientConnection::ClientConnection(int fd) : 
+ClientConnection::ClientConnection(int fd, const Config &config) :
 	_clientFd(fd),
 	_bytesSent(0),
-	_responseReady(false)
-{
-}
-
-ClientConnection::ClientConnection(void) :
-	_clientFd(-1),
-	_bytesSent(0),
-	_responseReady(false) 
+	_responseReady(false),
+	_config(config)
 {
 }
 
  ClientConnection::ClientConnection(const ClientConnection& other) :
-		_clientFd(other._clientFd),
+		_clientFd(dup(other._clientFd)),
 		_requestBuffer(other._requestBuffer),
 		_responseBuffer(other._responseBuffer),
 		_bytesSent(other._bytesSent),
-		_responseReady(other._responseReady)
+		_responseReady(other._responseReady),
+		_config(other._config)
 {
 }
 
 ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 	if (this != &other) {
 		closeConnection();
-		_clientFd = other._clientFd;
+		_clientFd = dup(other._clientFd);
 		_requestBuffer = other._requestBuffer;
 		_responseBuffer = other._responseBuffer;
 		_responseReady = false;
