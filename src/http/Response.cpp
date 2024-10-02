@@ -6,21 +6,24 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 11:56:42 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:05:29 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-Response::Response(Request const &request) : _statusCode(200), _contentType("text/html") {
-	if (request.getUrl() == "/") {
-		_content = "<html><body><h1>Welcome to My C++ Web Server!</h1></body></html>";
-	} else if (request.getUrl() == "/about") {
-		_content = "<html><body><h1>About Us</h1><p>This is a simple C++ web server.</p></body></html>";
-	} else {
-		_content = "<html><body><h1>404 Not Found</h1></body></html>";
-		_statusCode = 404;
-	}
+Response::Response(Request const &request, const std::vector<Config::Routes> &routes) : 
+	_statusCode(200), _contentType("text/html")
+{
+	_route = find_match(request.getUrl(), routes);
+	// if (request.getUrl() == "/") {
+	// 	_content = "<html><body><h1>Welcome to My C++ Web Server!</h1></body></html>";
+	// } else if (request.getUrl() == "/about") {
+	// 	_content = "<html><body><h1>About Us</h1><p>This is a simple C++ web server.</p></body></html>";
+	// } else {
+	// 	_content = "<html><body><h1>404 Not Found</h1></body></html>";
+	// 	_statusCode = 404;
+	// }
 }
 
 Response::~Response() {}
@@ -38,6 +41,16 @@ int	Response::initResponse(Request const &request) {
 	//		//trigger CGI loop to get content;
 	
 	return 200;
+}
+
+Config::Routes const & Response::find_match(std::string const &url, std::vector<Config::Routes> const &routes) {
+	std::vector<Config::Routes>::const_iterator found = routes.begin();
+	for (std::vector<Config::Routes>::const_iterator it = routes.begin(); it != routes.end(); ++it) {
+		if (it->path.compare(0, it->path.length(), url) == 0) {
+			found = it;
+		}
+	}
+	return *found;
 }
 
 

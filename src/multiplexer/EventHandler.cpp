@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 13:26:28 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 15:01:25 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,16 +178,13 @@ void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	// 1. HTTP Parse the reqesut Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
-	// Request	rqs(_clients[clientFd]->_requestBuffer);
 	
-	// 2. Check if it is a cgi or not using Config and Path
-	// 		- Maybe do this part in Response
+	// 2. Find the last matched Routes for this request 
 		
 	// 3. Generate Response based on Request object
 	/* A Response object to be created and feed output */
-	Response rsp(rqs);
+	Response rsp(rqs, _servers.at(0)->_config.get_routes());
 	_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
-	// _clients[clientFd]->_responseBuffer += rsp.generateResponse();
 	
 	// 4. Write to the clientFD with reponse string
 	//		- Use string.at() instead of indexing.
@@ -195,7 +192,6 @@ void EventHandler::handleResponse(int clientFd) {
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	// 5. clear the buff in this clientFD
 	_clients.at(clientFd)->resetData();
-	// _clients[clientFd]->resetData();
 	
 	
 	// cgiOut(clientFd, "cgi_bin/tester.cgi");
