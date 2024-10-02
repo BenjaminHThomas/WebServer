@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:00:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/01 13:33:25 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 09:50:28 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ private:
 	std::string		_url;
 	std::string		_http_version;
 	/* static data */
-	static std::vector<std::string>	_allowdMethods;
+	// static std::vector<std::string>	_allowdMethods;
 public:
 	/* constructors & destructors */
 	Request(std::string const &str);
@@ -48,7 +48,7 @@ public:
 
 	/* Utils */
 	void	printAll();
-	static std::vector<std::string>	initMethods();
+	// static std::vector<std::string>	initMethods();
 };
 
 #endif

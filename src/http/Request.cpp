@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/01 14:35:07 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 09:54:48 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,6 @@ void	Request::parseHead() {
 	if (mtd_end == std::string::npos)
 		throw std::runtime_error("Method Not Found");
 	_method = _raw.substr(0, mtd_end);
-	//if (!std::count(Config.methods.begin(), Config.method.end(), _method))
-	if (!std::count(_allowdMethods.begin(), _allowdMethods.end(), _method))
-		throw std::runtime_error("Not allowed Method");
 	/* Parse URL */
 	std::size_t	url_start = _raw.find_first_not_of(" ", mtd_end + 1);
 	if (url_start == std::string::npos)
@@ -80,25 +77,6 @@ void	Request::parseHead() {
 		_http_version.erase(_http_version.length() - 1);
 }
 
-// This part could be deleted after having merged with Config classes
-std::vector<std::string>	Request::initMethods() {
-	std::vector<std::string>	methods;
-	
-	methods.push_back("GET");
-	methods.push_back("HEAD");
-	methods.push_back("POST");
-	methods.push_back("PUT");
-	methods.push_back("DELETE");
-	methods.push_back("CONNECT");
-	methods.push_back("OPTIONS");
-	methods.push_back("TRACE");
-	methods.push_back("PATCH");
-
-	return methods;
-}
-
-std::vector<std::string>	Request::_allowdMethods = Request::initMethods();
-
 // Debug function to print all elements in Request class
 void	Request::printAll() {
 	std::cout << "Method:\t" << this->getMethod() << std::endl;
@@ -116,6 +94,26 @@ void	Request::printAll() {
 	std::cout << this->_raw << std::endl;
 }
 
+/* This part could be deleted after having merged with Config classes */
+// std::vector<std::string>	Request::initMethods() {
+// 	std::vector<std::string>	methods;
+	
+// 	methods.push_back("GET");
+// 	methods.push_back("HEAD");
+// 	methods.push_back("POST");
+// 	methods.push_back("PUT");
+// 	methods.push_back("DELETE");
+// 	methods.push_back("CONNECT");
+// 	methods.push_back("OPTIONS");
+// 	methods.push_back("TRACE");
+// 	methods.push_back("PATCH");
+
+// 	return methods;
+// }
+
+// std::vector<std::string>	Request::_allowdMethods = Request::initMethods();
+
+/* The following part is separated to Abstract class AHTTP */
 // std::string const &Request::getHeaderValue(std::string const &key) const{
 // 	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
 // 	if (it != this->_headers.end()) {
