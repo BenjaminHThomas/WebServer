@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:01:07 by bthomas           #+#    #+#             */
-/*   Updated: 2024/09/25 15:37:26 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/01 15:55:50 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ class Server
 {
 	private:
 		int _sockFd;
-		const int _port;
-		const int _maxClients;
-		const int _maxEvents;
+		int _port;
+		int _maxClients;
+		int _maxEvents;
 		struct sockaddr_in _addr;
 
 	public:
@@ -50,6 +50,7 @@ class Server
 		Server (int port = 8080);
 		Server (const Server &socket);
 		~Server ();
+		Server & operator=(const Server &other);
 };
 
 #endif /* SERVER_HPP */
