@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 08:37:03 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 08:54:23 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,7 @@ std::vector<Config> Config::init(JsonValue json)
 			std::cout << j["port"] << "\n";
 			std::cout << j["routes"][0]["index"] << "\n";
 			std::cout << "--------" << std::endl;
+			cfg.push_back(e);
 		}
 	}
 	catch (const std::exception &e)
