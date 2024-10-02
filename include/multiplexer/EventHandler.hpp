@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 11:02:24 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 13:45:59 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,18 @@ class CGIManager;
 class EventHandler
 {
 	private:
+		enum CONNTYPE {
+			EP_SERVER,
+			EP_CLIENT,
+			EP_CGI
+		};
+
+	private:
 		int _epollFd;
 		std::map<int, Server*> _servers;
 		std::map<int, ClientConnection*> _clients;
 		CGIManager _cgiManager;
+		std::map<int, CONNTYPE> _openConns;
 
 	public:
 		class epollInitFailure;
