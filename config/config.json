@@ -17,8 +17,14 @@
 				"directory": "../website",
 				"upload": "../upload",
 				"cgi": [
-					{ "extension": "py", "exec": "/usr/bin/python3"},
-					{ "extension": "php", "exec": "/usr/bin/php"}
+					{
+						"extension": "py",
+						"exec": "/usr/bin/python3"
+					},
+					{
+						"extension": "php",
+						"exec": "/usr/bin/php"
+					}
 				]
 			},
 			{

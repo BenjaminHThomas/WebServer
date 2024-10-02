@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/01 14:41:33 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/02 08:37:03 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <cstring>
 #include <exception>
 #include <iostream>
+#include <iterator>
+#include <map>
 #include <stdexcept>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -109,15 +111,26 @@ std::vector<Config> Config::init(JsonValue json)
 
 				try
 				{
-					for (JsonValue::const_iter_obj it_cgi = routes["cgi"].begin_obj(); it_cgi != routes["cgi"].end_obj(); it_cgi++)
+					const JsonValue &rt = routes["cgi"];
+
+					for (JsonValue::const_iter_arr it_cgi = rt.begin_arr(); it_cgi != rt.end_arr(); it_cgi++)
 					{
-						std::pair<std::string, std::string> el(it_cgi->first, it_cgi->second.as_string());
+						const JsonValue &c = (*it_cgi);
+						if (std::distance(c.begin_obj(), c.end_obj()) != 2)
+							throw Config::BadValue("too many cgi arguments");
+						std::pair<std::string, std::string> el(c["extension"].as_string(), c["exec"].as_string());
+						std::cout << "CGI: " << el.first << ", exec: " << el.second << std::endl;
 						route.cgi.insert(el);
 					}
 				}
+				catch (const std::out_of_range &e)
+				{
+					std::cerr << "IGNORE -> route doesnt contain any CGI: " << e.what() << std::endl;
+				}
 				catch (const std::exception &e)
 				{
-					std::cerr << "error: " << e.what() << std::endl;
+					std::cerr << "CGI: " << e.what() << std::endl;
+					throw e;
 				}
 			}
 
