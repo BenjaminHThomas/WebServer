@@ -6,26 +6,30 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/27 19:03:45 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/09/30 14:22:07 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 15:47:15 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AHttpData.hpp"
 
-AHttpData::AHttpData(std::string const & str) : _raw(str) {
+AHttpData::AHttpData(std::string const & str, bool isRequest) : _raw(str), _isRequest(isRequest) {
 	// std::cout << "HttpData constructed" << std::endl;
-	try
-	{
-		/* code */
-		this->parseRest();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "[HttpData] Error: " << e.what() << std::endl;
-	}
+
+	_hasHeaders = parseHeaders();
+	if (!_hasHeaders)
+		_body = _raw;
+	// try
+	// {
+	// 	/* code */
+	// 	this->parseRest();
+	// }
+	// catch(const std::exception& e)
+	// {
+	// 	std::cerr << "[HttpData] Error: " << e.what() << std::endl;
+	// }
 }
 
-AHttpData::AHttpData(AHttpData const & other) : _raw(other._raw) {
+AHttpData::AHttpData(AHttpData const & other) : _raw(other._raw), _isRequest(other._isRequest) {
 	// std::cout << "HttpData object copied" << std::endl;
 	*this = other;
 }
@@ -50,6 +54,10 @@ std::string const &AHttpData::getHeaderValue(std::string const &key) const{
 	throw std::runtime_error("Key not found in _headers");
 }
 
+std::map<std::string, std::string> const &AHttpData::getHeaders() const {
+	return this->_headers;
+}
+
 std::string const &AHttpData::getBody() const {
 	return this->_body;
 }
@@ -58,13 +66,31 @@ std::string const &AHttpData::getRaw() const {
 	return this->_raw;
 }
 
-void	AHttpData::parseRest() {
-	/* Parse Headers (key, value)*/
+// Parse Headers (key, value)
+bool	AHttpData::parseHeaders() {
 	std::string::const_iterator	it = _raw.begin();
 	std::string::const_iterator end = _raw.end();
-	it = std::find(it, end, '\n');	// first move to the end of first line
-	if (it == end) return ;
-	++it;
+	// If concret class is Request, offset to the 2nd line
+	if (_isRequest) {
+		it = std::find(it, end, '\n');	// first move to the end of first line
+		if (it == end) return false;
+		++it;
+	}
+	
+	// Check header end (empty line) position and see if it exists
+	std::string::size_type headerEnd = _raw.find("\r\n\r\n");
+	if (headerEnd == std::string::npos) {
+		headerEnd = _raw.find("\n\n");
+		if (headerEnd == std::string::npos)
+			return false;
+	}
+
+	// Once header end location find, check if there is header structure in this section
+	std::string	headerSection = _raw.substr(std::distance(_raw.begin(), it), headerEnd);
+	std::string::size_type firstColon = headerSection.find(':');
+    std::string::size_type firstNewline = headerSection.find('\n');
+    if (firstColon == std::string::npos || (firstNewline != std::string::npos && firstColon > firstNewline))
+		return false;
 	
 	while (it != end) {
 		std::string::const_iterator	line_end = std::find(it, end, '\n');	// the end of next line
@@ -90,6 +116,7 @@ void	AHttpData::parseRest() {
 	/* Parese Body if there is any*/
 	if (it != end && std::find(it, end, '\n') != end)
 		_body.assign(std::find(it, end, '\n') + 1, end);
+	return true;
 }
 
 std::string AHttpData::trim(std::string const & str) {

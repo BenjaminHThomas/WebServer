@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 13:21:59 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 15:46:05 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "CgiContent.hpp"
 #include <stdexcept>
 #include <sys/stat.h>
 
@@ -42,7 +43,10 @@ Response::Response(Request const &request, Config const &config, const std::stri
 	}
 	else
 	{
-		_content = cgi_content;
+		CgiContent	cgi(cgi_content);
+		_extraHeaders = cgi.getHeaders();
+		_content = cgi.getBody();
+		// _content = cgi_content;
 	}
 }
 
@@ -76,7 +80,12 @@ std::string Response::generateResponse() {
 	response << "Content-Length: " << _content.length() << "\r\n";
 	response << "Date: " << getCurrentTime() << "\r\n";
 	response << "Server: 3GoatServer/1.0\r\n";
-	// response << additionalHeaders << "\r\n";
+	if (!_extraHeaders.empty()) {
+		for (std::map<std::string, std::string>::iterator it = _extraHeaders.begin();
+			it != _extraHeaders.end(); ++it) {
+			response << it->first << ": " << it->second << "\r\n";
+		}
+	}
 	response << "\r\n";
 	response << _content;
 

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: okoca <okoca@student.42.fr>                +#+  +:+       +#+         #
+#    By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/10/02 21:49:32 by okoca            ###   ########.fr        #
+#    Updated: 2024/10/03 14:42:10 by tsuchen          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ SRC			+=	EventHandler.cpp \
 				ClientConnection.cpp \
 				EventHandler_cgi.cpp \
 				CGIManager.cpp
-SRC			+=	AHttpData.cpp Request.cpp Response.cpp DirectoryListing.cpp
+SRC			+=	AHttpData.cpp Request.cpp Response.cpp DirectoryListing.cpp CgiContent.cpp
 SRC			+=	cluster.cpp
 
 vpath %.cpp src/

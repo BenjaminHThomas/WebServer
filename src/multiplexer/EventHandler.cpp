@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 13:12:24 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 13:57:34 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,6 @@ void EventHandler::handleResponse(int clientFd) {
 	_clients.at(clientFd)->_responseBuffer.append(s);
 
 	// 4. Write to the clientFD with reponse string
-	//		- Use string.at() instead of indexing.
 	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	// 5. clear the buff in this clientFD
