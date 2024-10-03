@@ -67,7 +67,7 @@
 		"host": "localhost",
 		"port": 9999,
 		"error": {
-				"404": "/error-pages/not_found.html"
+				"404": "./error-pages/not_found_404.html"
 		},
 		"max_body": 2000,
 		"routes": [

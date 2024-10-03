@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 21:40:45 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/03 08:16:51 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 10:28:09 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,6 @@ std::string Response::directory_listing(const std::string &path, const std::stri
 		while ((ent = readdir(dir)) != NULL)
 		{
 			std::string name = ent->d_name;
-			// currently has issues with going back
-			// if (name == "." || name == "..")
-			// 	continue ;
 			std::string icon = (ent->d_type == DT_DIR) ? "folder-icon": "file-icon";
 			items += "<li><span class=\"" + icon + "\"></span><a href=\"" + file + '/' + name + "\">" + name + "</a></li>\n";
 		}

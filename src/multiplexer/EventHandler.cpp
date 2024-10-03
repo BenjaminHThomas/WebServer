@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 15:20:58 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 10:25:36 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,17 +182,17 @@ void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	// 1. HTTP Parse the reqesut Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
-	
-	// 2. Find the last matched Routes for this request 
-		
+
+	// 2. Find the last matched Routes for this request
+
 	// 3. Generate Response based on Request object
 	/* A Response object to be created and feed output */
 	Response rsp(rqs, _clients.at(clientFd)->_config);
 	_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
-	
+
 	// 4. Write to the clientFD with reponse string
 	//		- Use string.at() instead of indexing.
-	std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
+	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	// 5. clear the buff in this clientFD
 	_clients.at(clientFd)->resetData();
