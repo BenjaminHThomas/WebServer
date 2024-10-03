@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 10:25:36 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 10:47:38 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,15 @@ void EventHandler::handleClientRequest(int clientFd) {
 	_clients.at(clientFd)->_requestBuffer.append(buffer);
 	if (isResponseComplete(clientFd)) {
 		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
+
+
+		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
+
+		// const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
+
+		// if (route.has_cgi)
+		// 	startCGI(clientFd, );
+
 		changeToWrite(clientFd);
 	}
 }

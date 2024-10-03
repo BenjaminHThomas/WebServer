@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 21:56:01 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 10:54:05 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ private:
 	Config const 	&_config;
 
 	/* init utils */
-	Config::Routes	const &find_match(std::string const &url);
+	static std::string		toLower(std::string s);
+
+	// static Config::Routes	const &find_match(std::string const &url);
 	std::string		readFile(const std::string &filename);
 	std::string		getErrorContent(int errCode);
-	std::string		toLower(std::string s);
-	bool			check_cgi(std::string const &url);
 	std::string		getFileContent(std::string const &url);
 	bool			is_directory(const std::string &path);
 
@@ -43,10 +43,14 @@ private:
 	static const std::map<int, std::string>	_statusCodes;
 public:
 	Response(Request const &request, Config const &config);
+	Response(Request const &request, Config const &config, const std::string &cgi_content, bool complete);
 	~Response();
 
 	std::string		generateResponse();
 	static std::map<int, std::string>	initStatusCodes();
+
+	static bool						check_cgi(const Config::Routes &route, std::string const &url);
+	static Config::Routes const &	find_match(const Config &config, std::string const &url);
 
 	/* DIRECTORY LISTING */
 private:
