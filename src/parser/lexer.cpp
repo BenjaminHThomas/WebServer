@@ -6,13 +6,15 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 14:19:40 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 21:14:13 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <algorithm>
 #include <cstddef>
+#include <iostream>
+#include <map>
 #include <stdexcept>
-#include <temp.hpp>
 #include <lexer.hpp>
 #include <fstream>
 #include <vector>

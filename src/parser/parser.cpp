@@ -6,12 +6,13 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 10:53:32 by okoca             #+#    #+#             */
-/*   Updated: 2024/09/29 14:15:33 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 21:14:26 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "json.hpp"
 #include "lexer.hpp"
+#include <iostream>
 #include <parser.hpp>
 #include <stdexcept>
 #include <vector>
