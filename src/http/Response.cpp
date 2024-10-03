@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 22:00:18 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 09:31:28 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,11 @@ Response::~Response() {}
 
 Config::Routes const & Response::find_match(std::string const &url) {
 	std::vector<Config::Routes>::const_iterator found = _config.get_routes().begin();
+
 	for (std::vector<Config::Routes>::const_iterator
 	it = _config.get_routes().begin(); it != _config.get_routes().end(); ++it) {
-		if (it->path.compare(0, it->path.length(), url) == 0) {
-			if (it->path.length() >= url.length() ||
-				(it->path.length() < url.length() && url[it->path.length()] == '/')) {
-					found = it;
-			}
-		}
+		if (url.find(it->path) == 0 && it->path.length() > found->path.length())
+			found = it;
 	}
 	return *found;
 }
@@ -84,7 +81,7 @@ std::string Response::generateResponse() {
 std::string		Response::readFile(const std::string &filename) {
 	std::ifstream	ifs(filename.c_str());
 	if (!ifs) {
-		throw std::runtime_error("Cannot open file: " + filename);
+		throw 404;
 	}
 	std::string		content;
 	std::string		line;
@@ -108,7 +105,8 @@ std::string		Response::getErrorContent(int errCode) {
 		catch(const std::exception& e)
 		{
 			std::cerr << "No Error pages: " << e.what() << '\n';
-			content.append("<html><body><h1>");
+			content.append("<html><body>");
+			content.append("<h2>Oops! Got an error: </h2><h1>");
 			content.append(_statusCodes.at(_statusCode));
 			content.append("</h1></body></html>");
 		}
@@ -135,28 +133,60 @@ bool	Response::check_cgi(std::string const &url) {
 
 std::string		Response::getFileContent(std::string const &url) {
 	std::string filename;
+	std::string appended;
 	std::string	file = url.substr(_route.path.length());
-	if (file == "/" || file.empty()) {
-		filename = _route.directory + _route.index;
-	} else {
-		filename = _route.directory + file;
+
+	filename = _route.directory;
+	if (file != "/")
+	{
+		if (*file.begin() == '/' && *filename.rbegin() == '/')
+			filename += file.substr(1);
+		else
+			filename += file;
 	}
 	std::string content;
 	try
 	{
 		if (is_directory(filename))
 		{
-			content = directory_listing(filename, file);
+			std::cout << "-----------DIRECTORY---------" << std::endl;
+			try
+			{
+				appended = filename;
+				if (*appended.rbegin() != '/')
+					appended += '/';
+				appended += _route.index;
+				content = readFile(appended);
+			}
+			catch (int)
+			{
+				if (!_route.dir_listing)
+					throw 403;
+				content = directory_listing(filename, file);
+			}
+			catch (const std::exception &e)
+			{
+				if (!_route.dir_listing)
+					throw 403;
+				content = directory_listing(filename, file);
+			}
 		}
 		else
 		{
+			std::cout << "-----------REGULAR FILE---------" << std::endl;
 			content = readFile(filename);
 		}
 	}
+	catch(int status_code)
+	{
+		std::cerr << "Error: " << status_code << ", FILE: " << filename << ", appended: " << appended << '\n';
+		_statusCode = status_code;
+		content = getErrorContent(_statusCode);
+	}
 	catch(const std::exception& e)
 	{
-		std::cerr << "Error 404: " << e.what() << '\n';
-		_statusCode = 404;
+		std::cerr << "Error 500: " << e.what() << '\n';
+		_statusCode = 500;
 		content = getErrorContent(_statusCode);
 	}
 	return content;
@@ -169,15 +199,9 @@ bool	Response::is_directory(const std::string &path)
 	if (stat(path.c_str() ,&s) == 0)
 	{
 		if( s.st_mode & S_IFDIR )
-		{
 			return true;
-		}
-		return false;
 	}
-	else
-	{
-		throw std::runtime_error("cannot access asked file");
-	}
+	return false;
 }
 
 std::map<int, std::string> Response::initStatusCodes() {
@@ -196,6 +220,7 @@ std::map<int, std::string> Response::initStatusCodes() {
 	tmp[404] = "404 Not Found";
 	tmp[405] = "405 Method Not Allowed";
 	tmp[418] = "418 I'm a teapot";
+	tmp[500] = "500 Internal Server Error";
 	tmp[502] = "502 Bad Gateway";
 	tmp[504] = "504 Gateway Timeout";
 	tmp[505] = "505 HTTP Version Not Supported";

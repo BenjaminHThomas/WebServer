@@ -6,12 +6,13 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 21:40:45 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 21:59:56 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 08:16:51 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include <cstddef>
+#include <stdexcept>
 #include <sys/types.h>
 #include <dirent.h>
 
@@ -82,7 +83,7 @@ std::string Response::directory_listing(const std::string &path, const std::stri
 	DIR*		dir;
 	dirent*		ent;
 
-	if ((dir = opendir(path.c_str())) != NULL)
+    if ((dir = opendir(path.c_str())) != NULL)
 	{
 		while ((ent = readdir(dir)) != NULL)
 		{
@@ -95,6 +96,10 @@ std::string Response::directory_listing(const std::string &path, const std::stri
 		}
 		closedir(dir);
 	}
+    else
+    {
+        throw std::runtime_error("directory could not be opened");
+    }
 
 	size_t	pos = content.find("<!-- {DIRECTORY_ITEMS} -->");
 	content.replace(pos, 28, items);
