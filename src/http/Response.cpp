@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 16:07:53 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 19:51:01 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,11 @@ Response::Response(Request const &request, Config const &config) :
 	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
 		_statusCode = 405;
 		_content = getErrorContent(_statusCode);
+	}
+	else if (request.getMethod() == "POST")
+	{
+		// Post stuff here
+		_content = getPostContent(request.getUrl());
 	}
 	else if (check_extension(request.getUrl()))
 	{
@@ -55,7 +60,6 @@ Response::Response(Request const &request, Config const &config, const std::stri
 		CgiContent	cgi(cgi_content);
 		_extraHeaders = cgi.getHeaders();
 		_content = cgi.getBody();
-		// _content = cgi_content;
 	}
 }
 
@@ -72,20 +76,11 @@ Config::Routes const & Response::find_match(const Config &config, std::string co
 	return *found;
 }
 
-std::string Response::getCurrentTime() {
-	time_t  now = time(0);
-	struct tm t_struct;
-	char    buff[80];
-	t_struct = *gmtime(&now);
-	strftime(buff, sizeof(buff), "%a, %d %b %Y %H:%M:%S GMT", &t_struct);
-	return std::string(buff);
-}
-
 std::string Response::generateResponse() {
 	std::ostringstream  response;
 
 	response << "HTTP/1.1 " << _statusCodes.at(_statusCode) << "\r\n";
-	response << "ContentType: " << _contentType << "\r\n";
+	response << "Content-Type: " << _contentType << "\r\n";
 	response << "Content-Length: " << _content.length() << "\r\n";
 	response << "Date: " << getCurrentTime() << "\r\n";
 	response << "Server: 3GoatServer/1.0\r\n";
@@ -143,37 +138,6 @@ std::string		Response::getErrorContent(int errCode) {
 		}
 	}
 	return content;
-}
-
-std::string		Response::toLower(std::string s) {
-	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-	return s;
-}
-
-// return true if a corresponding cgi is found in the current _route
-std::map<std::string, std::string>::const_iterator	Response::check_cgi(const Config::Routes &route, std::string const &url)
-{
-	if (route.cgi.empty())
-		return route.cgi.end();
-	std::string::size_type dotPos = url.rfind('.');
-	if (dotPos == std::string::npos)
-		return route.cgi.end();
-	std::string	ext = toLower(url.substr(dotPos + 1));
-	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
-	return it;
-}
-
-bool	Response::check_extension(std::string const &url)
-{
-	if (url.empty())
-		return false;
-	std::string::size_type dotPos = url.rfind('.');
-	if (dotPos == std::string::npos)
-		return false;
-	std::string	ext = toLower(url.substr(dotPos + 1));
-	if (std::count(_allowedCGI.begin(), _allowedCGI.end(), ext) > 0)
-		return true;
-	return false;
 }
 
 std::string		Response::getFileContent(std::string const &url) {
@@ -237,6 +201,38 @@ std::string		Response::getFileContent(std::string const &url) {
 	return content;
 }
 
+std::string	Response::getPostContent(std::string const &url) {
+	std::string	content;
+
+	return content;
+}
+
+// return the iterator of cgi found in the current _route
+std::map<std::string, std::string>::const_iterator	Response::check_cgi(const Config::Routes &route, std::string const &url)
+{
+	if (route.cgi.empty())
+		return route.cgi.end();
+	std::string::size_type dotPos = url.rfind('.');
+	if (dotPos == std::string::npos)
+		return route.cgi.end();
+	std::string	ext = toLower(url.substr(dotPos + 1));
+	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
+	return it;
+}
+
+bool	Response::check_extension(std::string const &url)
+{
+	if (url.empty())
+		return false;
+	std::string::size_type dotPos = url.rfind('.');
+	if (dotPos == std::string::npos)
+		return false;
+	std::string	ext = toLower(url.substr(dotPos + 1));
+	if (std::count(_allowedCGI.begin(), _allowedCGI.end(), ext) > 0)
+		return true;
+	return false;
+}
+
 bool	Response::is_directory(const std::string &path)
 {
 	struct stat s;
@@ -247,6 +243,20 @@ bool	Response::is_directory(const std::string &path)
 			return true;
 	}
 	return false;
+}
+
+std::string		Response::toLower(std::string s) {
+	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+	return s;
+}
+
+std::string Response::getCurrentTime() {
+	time_t  now = time(0);
+	struct tm t_struct;
+	char    buff[80];
+	t_struct = *gmtime(&now);
+	strftime(buff, sizeof(buff), "%a, %d %b %Y %H:%M:%S GMT", &t_struct);
+	return std::string(buff);
 }
 
 std::map<int, std::string> Response::initStatusCodes() {

@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 16:04:18 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 19:43:48 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,14 @@ private:
 	Config const 	&_config;
 
 	/* init utils */
-	static std::string		toLower(std::string s);
-
-	// static Config::Routes	const &find_match(std::string const &url);
 	std::string		readFile(const std::string &filename);
 	std::string		getErrorContent(int errCode);
 	std::string		getFileContent(std::string const &url);
+	std::string		getPostContent(std::string const &url);
 	bool			is_directory(const std::string &path);
 
 	/* static functions */
+	static std::string	toLower(std::string s);
 	static std::string	getCurrentTime();
 	static const std::map<int, std::string>	_statusCodes;
 public:
