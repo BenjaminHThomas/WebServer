@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 09:31:28 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 09:41:41 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,13 +162,13 @@ std::string		Response::getFileContent(std::string const &url) {
 			{
 				if (!_route.dir_listing)
 					throw 403;
-				content = directory_listing(filename, file);
+				content = directory_listing(filename, url);
 			}
 			catch (const std::exception &e)
 			{
 				if (!_route.dir_listing)
 					throw 403;
-				content = directory_listing(filename, file);
+				content = directory_listing(filename, url);
 			}
 		}
 		else
