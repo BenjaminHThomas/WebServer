@@ -23,7 +23,7 @@
 					},
 					{
 						"extension": "php",
-						"exec": "/usr/bin/phsdfp"
+						"exec": "/usr/bin/php"
 					}
 				]
 			},
