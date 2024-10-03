@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 13:12:24 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 14:06:27 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include <unistd.h>
+#include <vector>
 
 void cgiOut(int clientFd, char **av, char **env);
 
@@ -231,21 +232,27 @@ void EventHandler::handleResponse(int clientFd) {
 	changeToRead(clientFd);
 }
 
-void EventHandler::checkCompleteCGIProcesses(void) {
+void EventHandler::checkCompleteCGIProcesses(void)
+{
 	std::map<int, CGIInfo*>::iterator it;
+	std::vector<int> completed;
+
 	for (it = _cgiManager._cgiProcesses.begin();
 			it != _cgiManager._cgiProcesses.end();
 			++it) {
 		if (it->second->isFinished) {
 			CGIInfo *info = it->second;
 			int clientFd = info->clientFd;
-			_clients[clientFd]->_cgiBuffer = info->output;
+			_clients.at(clientFd)->_cgiBuffer = info->output;
 			deleteFromEpoll(info->pipeFd);
-			_cgiManager.deleteFromCGI(info->pipeFd);
+			completed.push_back(info->pipeFd);
 			_openConns.erase(info->pipeFd);
 			changeToWrite(clientFd);
 		}
 	}
+
+	for (std::vector<int>::const_iterator it = completed.begin(); it < completed.end(); it++)
+		_cgiManager.deleteFromCGI(*it);
 }
 
 void EventHandler::epollLoop(void) {
