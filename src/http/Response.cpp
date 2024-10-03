@@ -3,16 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 10:54:32 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 16:07:53 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "CgiContent.hpp"
+#include <algorithm>
 #include <stdexcept>
 #include <sys/stat.h>
+#include <vector>
 
 Response::Response(Request const &request, Config const &config) :
 	_statusCode(200), _contentType("text/html"), _config(config)
@@ -22,7 +25,14 @@ Response::Response(Request const &request, Config const &config) :
 	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
 		_statusCode = 405;
 		_content = getErrorContent(_statusCode);
-	} else {
+	}
+	else if (check_extension(request.getUrl()))
+	{
+		_statusCode = 502;
+		_content = getErrorContent(_statusCode);
+	}
+	else
+	{
 		_content = getFileContent(request.getUrl());
 	}
 }
@@ -42,7 +52,10 @@ Response::Response(Request const &request, Config const &config, const std::stri
 	}
 	else
 	{
-		_content = cgi_content;
+		CgiContent	cgi(cgi_content);
+		_extraHeaders = cgi.getHeaders();
+		_content = cgi.getBody();
+		// _content = cgi_content;
 	}
 }
 
@@ -76,6 +89,12 @@ std::string Response::generateResponse() {
 	response << "Content-Length: " << _content.length() << "\r\n";
 	response << "Date: " << getCurrentTime() << "\r\n";
 	response << "Server: 3GoatServer/1.0\r\n";
+	if (!_extraHeaders.empty()) {
+		for (std::map<std::string, std::string>::iterator it = _extraHeaders.begin();
+			it != _extraHeaders.end(); ++it) {
+			response << it->first << ": " << it->second << "\r\n";
+		}
+	}
 	response << "\r\n";
 	response << _content;
 
@@ -132,16 +151,29 @@ std::string		Response::toLower(std::string s) {
 }
 
 // return true if a corresponding cgi is found in the current _route
-bool	Response::check_cgi(const Config::Routes &route, std::string const &url)
+std::map<std::string, std::string>::const_iterator	Response::check_cgi(const Config::Routes &route, std::string const &url)
 {
-	if (route.has_cgi == false)
+	if (route.cgi.empty())
+		return route.cgi.end();
+	std::string::size_type dotPos = url.rfind('.');
+	if (dotPos == std::string::npos)
+		return route.cgi.end();
+	std::string	ext = toLower(url.substr(dotPos + 1));
+	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
+	return it;
+}
+
+bool	Response::check_extension(std::string const &url)
+{
+	if (url.empty())
 		return false;
 	std::string::size_type dotPos = url.rfind('.');
 	if (dotPos == std::string::npos)
 		return false;
 	std::string	ext = toLower(url.substr(dotPos + 1));
-	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
-	return it != route.cgi.end();
+	if (std::count(_allowedCGI.begin(), _allowedCGI.end(), ext) > 0)
+		return true;
+	return false;
 }
 
 std::string		Response::getFileContent(std::string const &url) {
@@ -240,4 +272,14 @@ std::map<int, std::string> Response::initStatusCodes() {
 	return tmp;
 }
 
+const std::vector<std::string> Response::init_allowed_cgi()
+{
+	std::vector<std::string> cgi;
+	cgi.push_back("py");
+	cgi.push_back("php");
+	return cgi;
+}
+
 const std::map<int, std::string> Response::_statusCodes = Response::initStatusCodes();
+
+const std::vector<std::string> Response::_allowedCGI = Response::init_allowed_cgi();

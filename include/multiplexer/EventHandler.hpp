@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 14:22:22 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 16:56:55 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,8 @@ class EventHandler
 		void changeToWrite(int clientFd);
 		void changeToRead(int clientFd);
 		bool isResponseComplete(int clientFd);
-		void startCGI(int clientFd, std::string fname);
+		// void startCGI(int clientFd, std::string fname);
+		bool startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
 
 	public:

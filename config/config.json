@@ -23,7 +23,7 @@
 					},
 					{
 						"extension": "php",
-						"exec": "/usr/bin/php"
+						"exec": "/usr/bin/phsdfp"
 					}
 				]
 			},
@@ -33,7 +33,7 @@
 				"dir_listing": false,
 				"index": "index.html",
 				"directory": "./website/another_folder/",
-				"upload": "../upload",
+				"upload": "./upload",
 				"cgi": [
 					{ "extension": "py", "exec": "/usr/bin/python3"}
 				]
@@ -54,8 +54,8 @@
 				"route": "/",
 				"index": "index.html",
 				"dir_listing": true,
-				"directory": "../website",
-				"upload": "../upload",
+				"directory": "./website",
+				"upload": "./upload",
 				"cgi": [
 					{ "extension": "cpp", "exec": "/usr/bin/c++"}
 				]
@@ -79,7 +79,7 @@
 				"directory": "./website/random",
 				"upload": "./upload",
 				"cgi": [
-					{ "extension": "cpp", "exec": "/usr/bin/c++"}
+					{ "extension": "py", "exec": "/usr/bin/python3"}
 				]
 			}
 		]

@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 21:24:50 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 13:11:53 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ Config::~Config()
 		freeaddrinfo(_addr);
 }
 
-Config::Routes::Routes() : dir_listing(true), has_cgi(false)
+Config::Routes::Routes() : dir_listing(true)
 {}
 
 std::string Config::handle_directory(const std::string &s)
@@ -107,7 +107,7 @@ std::string Config::handle_directory(const std::string &s)
 	return current;
 }
 
-Config::Routes::Routes(const JsonValue &j) : dir_listing(true), has_cgi(false)
+Config::Routes::Routes(const JsonValue &j) : dir_listing(true)
 {
 	path = j["route"].as_string();
 	index = j["index"].as_string();

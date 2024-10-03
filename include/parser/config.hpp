@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 21:22:48 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 13:11:33 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ public:
 		std::string	directory;		// default redirected directory Methods except for POST
 		std::string	upload;			// default redirected directory for POST Method
 		bool		dir_listing;	// flag to see if the output is a listing of directories
-		bool		has_cgi;		// could use cgi.size() instead to check if there is any cgi
 
 		std::set<std::string>		methods;
 		std::map<std::string, std::string>	cgi;

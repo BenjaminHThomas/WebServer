@@ -6,14 +6,16 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 10:47:38 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 17:07:59 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <string>
 #include <unistd.h>
+#include <vector>
 
 void cgiOut(int clientFd, char **av, char **env);
 
@@ -171,18 +173,30 @@ void EventHandler::handleClientRequest(int clientFd) {
 	}
 	buffer[bytes_read] = 0;
 	_clients.at(clientFd)->_requestBuffer.append(buffer);
-	if (isResponseComplete(clientFd)) {
+	if (isResponseComplete(clientFd))
+	{
 		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
 
-
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
+		const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
 
-		// const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
-
-		// if (route.has_cgi)
-		// 	startCGI(clientFd, );
-
-		changeToWrite(clientFd);
+		std::map<std::string, std::string>::const_iterator cgi_route;
+		if ((cgi_route = Response::check_cgi(route, tmp_request.getUrl())) != route.cgi.end())
+		{
+			std::vector<std::string> arguments;
+			arguments.push_back(cgi_route->second);
+			std::string file = tmp_request.getUrl().substr(route.path.length());
+			arguments.push_back(route.directory + file);
+			if (!startCGI(clientFd, arguments))
+			{
+				changeToWrite(clientFd);
+				_clients.at(clientFd)->_cgiFailed = true;
+			}
+		}
+		else
+		{
+			changeToWrite(clientFd);
+		}
 	}
 }
 
@@ -196,11 +210,23 @@ void EventHandler::handleResponse(int clientFd) {
 
 	// 3. Generate Response based on Request object
 	/* A Response object to be created and feed output */
-	Response rsp(rqs, _clients.at(clientFd)->_config);
-	_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
+
+	std::string s;
+	if (!_clients.at(clientFd)->_cgiBuffer.empty())
+	{
+		Response rsp(rqs, _clients.at(clientFd)->_config, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
+		s = rsp.generateResponse();
+	}
+	else
+	{
+		Response rsp(rqs, _clients.at(clientFd)->_config);
+		s = rsp.generateResponse();
+	}
+
+	// IF REQUEST WAS FOR A CGI -> _responseBuffer contains CGI content
+	_clients.at(clientFd)->_responseBuffer.append(s);
 
 	// 4. Write to the clientFD with reponse string
-	//		- Use string.at() instead of indexing.
 	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	// 5. clear the buff in this clientFD
@@ -208,21 +234,27 @@ void EventHandler::handleResponse(int clientFd) {
 	changeToRead(clientFd);
 }
 
-void EventHandler::checkCompleteCGIProcesses(void) {
+void EventHandler::checkCompleteCGIProcesses(void)
+{
 	std::map<int, CGIInfo*>::iterator it;
+	std::vector<int> completed;
+
 	for (it = _cgiManager._cgiProcesses.begin();
 			it != _cgiManager._cgiProcesses.end();
 			++it) {
 		if (it->second->isFinished) {
 			CGIInfo *info = it->second;
 			int clientFd = info->clientFd;
-			_clients[clientFd]->_responseBuffer = info->output;
+			_clients.at(clientFd)->_cgiBuffer = info->output;
 			deleteFromEpoll(info->pipeFd);
-			_cgiManager.deleteFromCGI(info->pipeFd);
+			completed.push_back(info->pipeFd);
 			_openConns.erase(info->pipeFd);
 			changeToWrite(clientFd);
 		}
 	}
+
+	for (std::vector<int>::const_iterator it = completed.begin(); it < completed.end(); it++)
+		_cgiManager.deleteFromCGI(*it);
 }
 
 void EventHandler::epollLoop(void) {
