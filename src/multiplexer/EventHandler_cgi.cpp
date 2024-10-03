@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 21:05:52 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 21:18:14 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,7 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 		args[2] = NULL;
 
 		signal(SIGALRM, alarm_handler);
-
-		alarm(5);
-
+		alarm(TIMEOUT);
 		execve(arguments.front().c_str(), args, environ);
 		delete[] args;
 		std::cerr << "Error: could not execute cgi script\n";
