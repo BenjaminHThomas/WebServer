@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 11:51:08 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 16:24:39 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 static void setPipe(int *fd, int end) {
 	if (dup2(fd[end], end) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1) {
 		std::cerr << "Error: could not open pipe for cgi output\n";
-		exit(1);
+		throw (1);
 	}
 }
 
@@ -46,7 +46,7 @@ void EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 		execve(arguments.front().c_str(), args, environ);
 		delete[] args;
 		std::cerr << "Error: could not execute cgi script\n";
-		exit(1);
+		throw (1);
 	} else {
 		close(fd[1]);
 		addToEpoll(fd[0]);
