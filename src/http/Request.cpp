@@ -6,13 +6,13 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 09:54:48 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 15:39:49 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-Request::Request(std::string const &str) : AHttpData(str) {
+Request::Request(std::string const &str) : AHttpData(str, true) {
 	try
 	{
 		this->parseHead();
@@ -23,7 +23,7 @@ Request::Request(std::string const &str) : AHttpData(str) {
 	}
 }
 
-Request::Request(const Request &other) : AHttpData(other.getRaw()) {
+Request::Request(const Request &other) : AHttpData(other.getRaw(), true) {
 	*this = other;
 }
 

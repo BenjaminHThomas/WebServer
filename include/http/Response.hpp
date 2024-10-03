@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 14:35:08 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 16:04:18 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,11 @@ class Response
 {
 private:
 	/* data */
-	std::string		_content;
-	int				_statusCode;
-	std::string		_contentType;
-	Config::Routes	_route;
+	std::string							_content;
+	int									_statusCode;
+	std::string							_contentType;
+	Config::Routes						_route;
+	std::map<std::string, std::string>	_extraHeaders;
 	Config const 	&_config;
 
 	/* init utils */

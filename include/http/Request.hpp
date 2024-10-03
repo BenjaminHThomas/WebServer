@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:00:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 09:50:28 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 14:39:50 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,6 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include <iostream>
-# include <algorithm>
-# include <fstream>
-# include <string>
-# include <map>
-# include <vector>
 # include "AHttpData.hpp"
 
 class Request : public AHttpData
