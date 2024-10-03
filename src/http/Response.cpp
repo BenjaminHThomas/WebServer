@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 09:41:41 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 09:54:33 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,14 @@ std::string		Response::getErrorContent(int errCode) {
 		{
 			std::string const &err_page = _config.get_error_pages().at(errCode);
 			content = readFile(err_page);
+		}
+		catch(int)
+		{
+			std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
+			content.append("<html><body>");
+			content.append("<h2>Oops! Got an error: </h2><h1>");
+			content.append(_statusCodes.at(_statusCode));
+			content.append("</h1></body></html>");
 		}
 		catch(const std::exception& e)
 		{
