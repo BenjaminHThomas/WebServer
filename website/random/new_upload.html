@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #uploadedFilename {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload a File</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="uploadedFilename"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const uploadResponse = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                const responseText = await uploadResponse.text();
+                alert('File uploaded successfully');
+                console.log(responseText);
+
+                // Extract filename from response or handle accordingly
+                const filename = fileInput.files[0].name;
+
+                const filenameResponse = await fetch(`/new/${encodeURIComponent(filename)}`);
+                if (!filenameResponse.ok) {
+                    throw new Error('Failed to fetch filename');
+                }
+
+                const filenameText = await filenameResponse.text();
+                document.getElementById('uploadedFilename').textContent = `Uploaded filename: ${filenameText}`;
+            } catch (error) {
+                alert('An error occurred while uploading the file.');
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #uploadButton {
+            margin: 20px 0;
+        }
+        #imagePreview {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Upload Test</h1>
+    <input type="file" id="fileInput" accept="image/*">
+    <button id="uploadButton">Upload Image</button>
+    <div id="status"></div>
+    <img id="imagePreview" alt="Uploaded image preview" style="display: none;">
+
+    <script>
+        document.getElementById('uploadButton').addEventListener('click', uploadImage);
+
+        function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const statusDiv = document.getElementById('status');
+            const imagePreview = document.getElementById('imagePreview');
+
+            if (!file) {
+                statusDiv.textContent = 'Please select an image file.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                statusDiv.textContent = 'Upload successful!';
+                // Assuming the server returns the filename or path of the uploaded image
+                imagePreview.src = `/upload/${data}`;
+                imagePreview.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusDiv.textContent = 'Upload failed. Please try again.';
+            });
+        }
+    </script>
+</body>
+</html>
