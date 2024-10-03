@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 10:01:12 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 17:07:01 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <exception>
 #include <temp.hpp>
 
-void	handle_sigint(int _sig) { throw (char)_sig; }
+void	handle_sigint(int _sig) { throw (int)_sig; }
 
 int main(int ac, char **av)
 {
@@ -35,9 +35,11 @@ int main(int ac, char **av)
 
 		cluster.start();
 	}
-	catch (char)
+	catch (int v)
 	{
-		std::cerr << "\nexit successful..." << std::endl;
+		if (v == 1)
+			return v;
+		std::cerr << "\n("<< v << ") exit successful..." << std::endl;
 	}
 	catch (std::exception &e)
 	{

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 16:15:34 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 17:02:03 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 	_clientFd(fd),
 	_bytesSent(0),
 	_responseReady(false),
+	_cgiFailed(false),
 	_config(config)
 {
 }
@@ -27,6 +28,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 		_cgiBuffer(other._cgiBuffer),
 		_bytesSent(other._bytesSent),
 		_responseReady(other._responseReady),
+		_cgiFailed(false),
 		_config(other._config)
 {
 }
@@ -39,6 +41,7 @@ ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 		_cgiBuffer = other._cgiBuffer;
 		_responseBuffer = other._responseBuffer;
 		_responseReady = false;
+		_cgiFailed = false;
 	}
 	return *this;
 }
@@ -49,6 +52,7 @@ void ClientConnection::resetData() {
 	_cgiBuffer.clear();
 	_bytesSent = 0;
 	_responseReady = false;
+	_cgiFailed = false;
 }
 
 void ClientConnection::closeConnection() {

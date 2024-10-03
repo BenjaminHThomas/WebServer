@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 16:00:20 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 17:07:59 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,7 +187,11 @@ void EventHandler::handleClientRequest(int clientFd) {
 			arguments.push_back(cgi_route->second);
 			std::string file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
-			startCGI(clientFd, arguments);
+			if (!startCGI(clientFd, arguments))
+			{
+				changeToWrite(clientFd);
+				_clients.at(clientFd)->_cgiFailed = true;
+			}
 		}
 		else
 		{
@@ -210,7 +214,7 @@ void EventHandler::handleResponse(int clientFd) {
 	std::string s;
 	if (!_clients.at(clientFd)->_cgiBuffer.empty())
 	{
-		Response rsp(rqs, _clients.at(clientFd)->_config, _clients.at(clientFd)->_cgiBuffer, true);
+		Response rsp(rqs, _clients.at(clientFd)->_config, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
 		s = rsp.generateResponse();
 	}
 	else
