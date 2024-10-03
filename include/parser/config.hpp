@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 16:03:03 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/02 21:22:48 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ public:
 		std::map<std::string, std::string>	cgi;
 
 		Routes();
+		Routes(const JsonValue &j);
 	};
 public:
 	typedef std::vector<Config>			config_list;
@@ -68,6 +69,9 @@ private:
 public:
 	Config(const JsonValue &j);
 	~Config();
+
+private:
+	static std::string handle_directory(const std::string &s);
 
 public:
 	static void			check_error_page(int page);

@@ -1,0 +1,25 @@
+body {
+  text-align: center;
+  background-color: #f0e8c5;
+}
+
+div {
+  margin-top: 15px;
+}
+
+.image-section {
+  display: flex;
+  justify-content: center;
+}
+
+.section-style {
+  margin-right: 25px;
+  margin-left: 25px;
+  background-color: white;
+}
+
+.here {
+  width: 400px;
+  height: 300px;
+  object-fit: cover; /* Optional: Ensures the image fills the dimensions without distortion */
+}

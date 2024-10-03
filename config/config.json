@@ -32,7 +32,7 @@
 				"route": "/about",
 				"dir_listing": false,
 				"index": "index.html",
-				"directory": "./another_folder/",
+				"directory": "./website/another_folder/",
 				"upload": "../upload",
 				"cgi": [
 					{ "extension": "py", "exec": "/usr/bin/python3"}
@@ -65,19 +65,19 @@
 	{
 		"name": "haha server",
 		"host": "localhost",
-		"port": 65534,
+		"port": 9999,
 		"error": {
-				"404": "/error-pages/not_found.html"
+				"404": "./error-pages/not_found_404.html"
 		},
 		"max_body": 2000,
 		"routes": [
 			{
-				"methods": ["get", "post"],
+				"methods": ["GET", "POST"],
 				"route": "/",
 				"index": "index.html",
 				"dir_listing": true,
-				"directory": "../website",
-				"upload": "../upload",
+				"directory": "./website/random",
+				"upload": "./upload",
 				"cgi": [
 					{ "extension": "cpp", "exec": "/usr/bin/c++"}
 				]

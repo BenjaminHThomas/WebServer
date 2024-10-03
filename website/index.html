@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABOUT PAGE</title>
+    <title>Welcome!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,12 +12,12 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #aaaaf0;
+            background-color: #f0f0f0;
         }
         .welcome-container {
             text-align: center;
             padding: 2rem;
-            background-color: #ffaabb;
+            background-color: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -32,7 +32,7 @@
 </head>
 <body>
     <div class="welcome-container">
-        <h1>THIS IS THE ABOUT PAGE!</h1>
+        <h1>Welcome!</h1>
         <p>Hello there! We're glad you're here.</p>
     </div>
     <script>
@@ -42,11 +42,11 @@
         const greetingElement = document.querySelector('p');
         // Change the greeting based on the time of day
         if (currentHour < 12) {
-            greetingElement.textContent = 'Good morning! We hope you have a great day. -> about page';
+            greetingElement.textContent = 'Good morning! We hope you have a great day.';
         } else if (currentHour < 18) {
-            greetingElement.textContent = 'Good afternoon! Thanks for stopping by. -> about page';
+            greetingElement.textContent = 'Good afternoon! Thanks for stopping by.';
         } else {
-            greetingElement.textContent = "Good evening! We hope you're having a nice night. -> about page";
+            greetingElement.textContent = "Good evening! We hope you're having a nice night.";
         }
     </script>
 </body>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #uploadButton {
+            margin: 20px 0;
+        }
+        #imagePreview {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Upload Test</h1>
+    <input type="file" id="fileInput" accept="image/jpeg,image/png">
+    <button id="uploadButton">Upload Image</button>
+    <div id="status"></div>
+    <img id="imagePreview" alt="Uploaded image preview" style="display: none;">
+
+    <script>
+        document.getElementById('uploadButton').addEventListener('click', uploadImage);
+
+        function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const statusDiv = document.getElementById('status');
+            const imagePreview = document.getElementById('imagePreview');
+
+            if (!file) {
+                statusDiv.textContent = 'Please select an image file.';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const blob = new Blob([new Uint8Array(e.target.result)], {type: file.type});
+
+                fetch('/', {
+                    method: 'POST',
+                    body: blob,
+                    headers: {
+                        'Content-Type': file.type
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(() => {
+                    statusDiv.textContent = 'Upload successful!';
+                    // Use a fixed path with the appropriate file extension
+                    const fileExtension = file.type === 'image/png' ? 'png' : 'jpg';
+                    imagePreview.src = `/upload/img.${fileExtension}`;
+                    imagePreview.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusDiv.textContent = 'Upload failed. Please try again.';
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>

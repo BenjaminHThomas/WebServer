@@ -3,55 +3,58 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/02 19:52:15 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 10:54:32 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include <stdexcept>
+#include <sys/stat.h>
 
-Response::Response(Request const &request, Config const &config) : 
+Response::Response(Request const &request, Config const &config) :
 	_statusCode(200), _contentType("text/html"), _config(config)
 {
-	_route = find_match(request.getUrl());
+	_route = find_match(_config, request.getUrl());
 	// check if method is allowed in the scope of _route
 	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
 		_statusCode = 405;
 		_content = getErrorContent(_statusCode);
 	} else {
-		if (check_cgi(request.getUrl())) {
-			// deal with CGI
-			std::cout << "Need to handle CGI here" << std::endl;
-		}
-		else {
-			// read normal file and get content
-			_content = getFileContent(request.getUrl());
-		}
+		_content = getFileContent(request.getUrl());
 	}
-	// if (request.getUrl() == "/") {
-	// 	_content = "<html><body><h1>Welcome to My C++ Web Server!</h1></body></html>";
-	// } else if (request.getUrl() == "/about") {
-	// 	_content = "<html><body><h1>About Us</h1><p>This is a simple C++ web server.</p></body></html>";
-	// } else {
-	// 	_content = "<html><body><h1>404 Not Found</h1></body></html>";
-	// 	_statusCode = 404;
-	// }
+}
+
+Response::Response(Request const &request, Config const &config, const std::string &cgi_content, bool complete) :
+	_statusCode(200), _contentType("text/html"), _config(config)
+{
+	_route = find_match(_config, request.getUrl());
+	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
+		_statusCode = 405;
+		_content = getErrorContent(_statusCode);
+	}
+	else if (!complete)
+	{
+		_statusCode = 404;
+		_content = getErrorContent(_statusCode);
+	}
+	else
+	{
+		_content = cgi_content;
+	}
 }
 
 Response::~Response() {}
 
-Config::Routes const & Response::find_match(std::string const &url) {
-	std::vector<Config::Routes>::const_iterator found = _config.get_routes().begin();
+Config::Routes const & Response::find_match(const Config &config, std::string const &url) {
+	std::vector<Config::Routes>::const_iterator found = config.get_routes().begin();
+
 	for (std::vector<Config::Routes>::const_iterator
-	it = _config.get_routes().begin(); it != _config.get_routes().end(); ++it) {
-		if (it->path.compare(0, it->path.length(), url) == 0) {
-			if (it->path.length() >= url.length() ||
-				(it->path.length() < url.length() && url[it->path.length()] == '/')) {
-					found = it;
-			}
-		}
+	it = config.get_routes().begin(); it != config.get_routes().end(); ++it) {
+		if (url.find(it->path) == 0 && it->path.length() > found->path.length())
+			found = it;
 	}
 	return *found;
 }
@@ -67,7 +70,7 @@ std::string Response::getCurrentTime() {
 
 std::string Response::generateResponse() {
 	std::ostringstream  response;
-	
+
 	response << "HTTP/1.1 " << _statusCodes.at(_statusCode) << "\r\n";
 	response << "ContentType: " << _contentType << "\r\n";
 	response << "Content-Length: " << _content.length() << "\r\n";
@@ -82,7 +85,7 @@ std::string Response::generateResponse() {
 std::string		Response::readFile(const std::string &filename) {
 	std::ifstream	ifs(filename.c_str());
 	if (!ifs) {
-		throw std::runtime_error("Cannot open file: " + filename);
+		throw 404;
 	}
 	std::string		content;
 	std::string		line;
@@ -103,10 +106,19 @@ std::string		Response::getErrorContent(int errCode) {
 			std::string const &err_page = _config.get_error_pages().at(errCode);
 			content = readFile(err_page);
 		}
+		catch(int)
+		{
+			std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
+			content.append("<html><body>");
+			content.append("<h2>Oops! Got an error: </h2><h1>");
+			content.append(_statusCodes.at(_statusCode));
+			content.append("</h1></body></html>");
+		}
 		catch(const std::exception& e)
 		{
 			std::cerr << "No Error pages: " << e.what() << '\n';
-			content.append("<html><body><h1>");
+			content.append("<html><body>");
+			content.append("<h2>Oops! Got an error: </h2><h1>");
 			content.append(_statusCodes.at(_statusCode));
 			content.append("</h1></body></html>");
 		}
@@ -120,37 +132,89 @@ std::string		Response::toLower(std::string s) {
 }
 
 // return true if a corresponding cgi is found in the current _route
-bool	Response::check_cgi(std::string const &url) {
-	if (_route.has_cgi == false)
+bool	Response::check_cgi(const Config::Routes &route, std::string const &url)
+{
+	if (route.has_cgi == false)
 		return false;
 	std::string::size_type dotPos = url.rfind('.');
 	if (dotPos == std::string::npos)
 		return false;
 	std::string	ext = toLower(url.substr(dotPos + 1));
-	std::map<std::string, std::string>::const_iterator it = _route.cgi.find(ext);
-	return it != _route.cgi.end();
+	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
+	return it != route.cgi.end();
 }
 
 std::string		Response::getFileContent(std::string const &url) {
 	std::string filename;
+	std::string appended;
 	std::string	file = url.substr(_route.path.length());
-	if (file == "/" || file.empty()) {
-		filename = _route.directory + _route.index;
-	} else {
-		filename = _route.directory + file;
+
+	filename = _route.directory;
+	if (file != "/")
+	{
+		if (*file.begin() == '/' && *filename.rbegin() == '/')
+			filename += file.substr(1);
+		else
+			filename += file;
 	}
 	std::string content;
 	try
 	{
-		content = readFile(filename);
+		if (is_directory(filename))
+		{
+			std::cout << "-----------DIRECTORY---------" << std::endl;
+			try
+			{
+				appended = filename;
+				if (*appended.rbegin() != '/')
+					appended += '/';
+				appended += _route.index;
+				content = readFile(appended);
+			}
+			catch (int)
+			{
+				if (!_route.dir_listing)
+					throw 403;
+				content = directory_listing(filename, url);
+			}
+			catch (const std::exception &e)
+			{
+				if (!_route.dir_listing)
+					throw 403;
+				content = directory_listing(filename, url);
+			}
+		}
+		else
+		{
+			std::cout << "-----------REGULAR FILE---------" << std::endl;
+			content = readFile(filename);
+		}
+	}
+	catch(int status_code)
+	{
+		std::cerr << "Error: " << status_code << ", FILE: " << filename << ", appended: " << appended << '\n';
+		_statusCode = status_code;
+		content = getErrorContent(_statusCode);
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << "Error 404: " << e.what() << '\n';
-		_statusCode = 404;
+		std::cerr << "Error 500: " << e.what() << '\n';
+		_statusCode = 500;
 		content = getErrorContent(_statusCode);
 	}
 	return content;
+}
+
+bool	Response::is_directory(const std::string &path)
+{
+	struct stat s;
+
+	if (stat(path.c_str() ,&s) == 0)
+	{
+		if( s.st_mode & S_IFDIR )
+			return true;
+	}
+	return false;
 }
 
 std::map<int, std::string> Response::initStatusCodes() {
@@ -169,6 +233,7 @@ std::map<int, std::string> Response::initStatusCodes() {
 	tmp[404] = "404 Not Found";
 	tmp[405] = "405 Method Not Allowed";
 	tmp[418] = "418 I'm a teapot";
+	tmp[500] = "500 Internal Server Error";
 	tmp[502] = "502 Bad Gateway";
 	tmp[504] = "504 Gateway Timeout";
 	tmp[505] = "505 HTTP Version Not Supported";
