@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 10:47:38 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 13:12:24 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,18 +171,28 @@ void EventHandler::handleClientRequest(int clientFd) {
 	}
 	buffer[bytes_read] = 0;
 	_clients.at(clientFd)->_requestBuffer.append(buffer);
-	if (isResponseComplete(clientFd)) {
-		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
+	if (isResponseComplete(clientFd))
+	{
 
+		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
 
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
 
-		// const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
+		const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
 
-		// if (route.has_cgi)
-		// 	startCGI(clientFd, );
-
-		changeToWrite(clientFd);
+		if (Response::check_cgi(route, tmp_request.getUrl()))
+		{
+			std::vector<std::string> arguments;
+			arguments.push_back("/usr/bin/python3");
+			std::string file = tmp_request.getUrl().substr(route.path.length());
+			arguments.push_back(route.directory + file);
+			std::cerr << "CGI_FILE: " << file << std::endl;
+			startCGI(clientFd, arguments);
+		}
+		else
+		{
+			changeToWrite(clientFd);
+		}
 	}
 }
 
@@ -196,8 +206,21 @@ void EventHandler::handleResponse(int clientFd) {
 
 	// 3. Generate Response based on Request object
 	/* A Response object to be created and feed output */
-	Response rsp(rqs, _clients.at(clientFd)->_config);
-	_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
+
+	std::string s;
+	if (!_clients.at(clientFd)->_cgiBuffer.empty())
+	{
+		Response rsp(rqs, _clients.at(clientFd)->_config, _clients.at(clientFd)->_cgiBuffer, true);
+		s = rsp.generateResponse();
+	}
+	else
+	{
+		Response rsp(rqs, _clients.at(clientFd)->_config);
+		s = rsp.generateResponse();
+	}
+
+	// IF REQUEST WAS FOR A CGI -> _responseBuffer contains CGI content
+	_clients.at(clientFd)->_responseBuffer.append(s);
 
 	// 4. Write to the clientFD with reponse string
 	//		- Use string.at() instead of indexing.
@@ -216,7 +239,7 @@ void EventHandler::checkCompleteCGIProcesses(void) {
 		if (it->second->isFinished) {
 			CGIInfo *info = it->second;
 			int clientFd = info->clientFd;
-			_clients[clientFd]->_responseBuffer = info->output;
+			_clients[clientFd]->_cgiBuffer = info->output;
 			deleteFromEpoll(info->pipeFd);
 			_cgiManager.deleteFromCGI(info->pipeFd);
 			_openConns.erase(info->pipeFd);

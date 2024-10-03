@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 14:19:06 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 11:58:27 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class ClientConnection
 		int _clientFd;
 		std::string _requestBuffer;
 		std::string _responseBuffer;
+		std::string _cgiBuffer;
 		size_t	_bytesSent;
 		bool _responseReady;
 

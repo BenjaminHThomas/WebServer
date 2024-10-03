@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 10:54:32 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 13:21:59 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ std::string Response::generateResponse() {
 	response << "Content-Length: " << _content.length() << "\r\n";
 	response << "Date: " << getCurrentTime() << "\r\n";
 	response << "Server: 3GoatServer/1.0\r\n";
+	// response << additionalHeaders << "\r\n";
 	response << "\r\n";
 	response << _content;
 
@@ -134,7 +135,7 @@ std::string		Response::toLower(std::string s) {
 // return true if a corresponding cgi is found in the current _route
 bool	Response::check_cgi(const Config::Routes &route, std::string const &url)
 {
-	if (route.has_cgi == false)
+	if (route.cgi.empty())
 		return false;
 	std::string::size_type dotPos = url.rfind('.');
 	if (dotPos == std::string::npos)

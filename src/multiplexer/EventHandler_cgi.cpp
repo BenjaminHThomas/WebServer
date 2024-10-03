@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler_cgi.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/02 13:49:57 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/03 11:51:08 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "string.h"
+#include <vector>
 
 static void setPipe(int *fd, int end) {
 	if (dup2(fd[end], end) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1) {
@@ -21,7 +22,7 @@ static void setPipe(int *fd, int end) {
 }
 
 // forks process - child execve's script
-void EventHandler::startCGI(int clientFd, std::string fname) {
+void EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 	pid_t pid;
 	int fd[2];
 
@@ -38,10 +39,12 @@ void EventHandler::startCGI(int clientFd, std::string fname) {
 	}
 	if (pid == 0) {
 		setPipe(fd, STDOUT_FILENO);
-		char **args = new char*;
-		args[0] = const_cast<char*>(fname.c_str());
-		execve(fname.c_str(),args, environ);
-		delete args;
+		char **args = new char*[3];
+		args[0] = const_cast<char *>(arguments[0].c_str());
+		args[1] = const_cast<char *>(arguments[1].c_str());
+		args[2] = NULL;
+		execve(arguments.front().c_str(), args, environ);
+		delete[] args;
 		std::cerr << "Error: could not execute cgi script\n";
 		exit(1);
 	} else {
