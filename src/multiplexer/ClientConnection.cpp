@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 11:58:56 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 16:15:34 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 void ClientConnection::resetData() {
 	_requestBuffer.clear();
 	_responseBuffer.clear();
+	_cgiBuffer.clear();
 	_bytesSent = 0;
 	_responseReady = false;
 }

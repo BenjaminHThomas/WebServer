@@ -6,14 +6,16 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 13:57:34 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/03 16:00:20 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <string>
 #include <unistd.h>
+#include <vector>
 
 void cgiOut(int clientFd, char **av, char **env);
 
@@ -173,20 +175,18 @@ void EventHandler::handleClientRequest(int clientFd) {
 	_clients.at(clientFd)->_requestBuffer.append(buffer);
 	if (isResponseComplete(clientFd))
 	{
-
 		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
 
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
-
 		const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
 
-		if (Response::check_cgi(route, tmp_request.getUrl()))
+		std::map<std::string, std::string>::const_iterator cgi_route;
+		if ((cgi_route = Response::check_cgi(route, tmp_request.getUrl())) != route.cgi.end())
 		{
 			std::vector<std::string> arguments;
-			arguments.push_back("/usr/bin/python3");
+			arguments.push_back(cgi_route->second);
 			std::string file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
-			std::cerr << "CGI_FILE: " << file << std::endl;
 			startCGI(clientFd, arguments);
 		}
 		else
@@ -230,21 +230,27 @@ void EventHandler::handleResponse(int clientFd) {
 	changeToRead(clientFd);
 }
 
-void EventHandler::checkCompleteCGIProcesses(void) {
+void EventHandler::checkCompleteCGIProcesses(void)
+{
 	std::map<int, CGIInfo*>::iterator it;
+	std::vector<int> completed;
+
 	for (it = _cgiManager._cgiProcesses.begin();
 			it != _cgiManager._cgiProcesses.end();
 			++it) {
 		if (it->second->isFinished) {
 			CGIInfo *info = it->second;
 			int clientFd = info->clientFd;
-			_clients[clientFd]->_cgiBuffer = info->output;
+			_clients.at(clientFd)->_cgiBuffer = info->output;
 			deleteFromEpoll(info->pipeFd);
-			_cgiManager.deleteFromCGI(info->pipeFd);
+			completed.push_back(info->pipeFd);
 			_openConns.erase(info->pipeFd);
 			changeToWrite(clientFd);
 		}
 	}
+
+	for (std::vector<int>::const_iterator it = completed.begin(); it < completed.end(); it++)
+		_cgiManager.deleteFromCGI(*it);
 }
 
 void EventHandler::epollLoop(void) {
