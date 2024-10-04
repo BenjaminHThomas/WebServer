@@ -6,14 +6,19 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 17:06:45 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 14:59:08 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "string.h"
 #include <cstdlib>
+#include <ctime>
+#include <sched.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <vector>
+#include <csignal>
 
 static void setPipe(int *fd, int end) {
 	if (dup2(fd[end], end) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1) {
@@ -51,24 +56,50 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 		throw (1);
 	} else {
 		close(fd[1]);
-		int status;
-		bool code = waitpid(pid, &status, 0) < 0 || !WIFEXITED(status) || WEXITSTATUS(status) != 0;
-
-		std::cout << "CGI EXIT STATUS: " << code << std::endl;
-		std::cout << "Response sent to client.\n";
-
-		if (!code)
+		time_t start_time = std::time(NULL);
+		while (1)
 		{
-			addToEpoll(fd[0]);
-			_cgiManager.addCgiProcess(clientFd, fd[0], pid);
-			_openConns[fd[0]] = EP_CGI;
+			int status;
+			pid_t result = waitpid(pid, &status, WNOHANG);
+			if (result < 0)
+			{
+				std::cerr << "WAITPID FAILED: its ok though" << std::endl;
+				return false;
+				//throw (1);
+			}
+			else if (result == 0)
+			{
+				if (std::time(NULL) - start_time >= TIMEOUT)
+				{
+					std::cout << "child timeout after: " << TIMEOUT << std::endl;
+					kill(pid, SIGTERM);
+					waitpid(pid, NULL, 0);
+					return false;
+				}
+			}
+			else
+			{
+				bool code = result < 0 || !WIFEXITED(status) || WEXITSTATUS(status) != 0;
+
+				std::cout << "CGI EXIT STATUS: " << code << std::endl;
+				std::cout << "Response sent to client.\n";
+
+				if (!code)
+				{
+					addToEpoll(fd[0]);
+					_cgiManager.addCgiProcess(clientFd, fd[0], pid);
+					_openConns[fd[0]] = EP_CGI;
+					return true;
+				}
+				else
+				{
+					close(fd[0]);
+					return false;
+				}
+			}
 		}
-		else
-		{
-			close(fd[0]);
-			return false;
-		}
+
 	}
-	return true;
+	return false;
 }
 
