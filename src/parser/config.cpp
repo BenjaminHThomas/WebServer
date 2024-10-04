@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/03 13:11:53 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 20:28:47 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,6 @@ Config::Config(const JsonValue &j) : _addr(NULL)
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "IN HERE, IGNORE, ITS GOOD THAT IT THROWS: " << e.what() << std::endl;
 	}
 
 	for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)

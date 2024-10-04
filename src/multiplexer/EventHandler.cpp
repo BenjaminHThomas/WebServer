@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:41:20 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 20:43:46 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 
 		tmp_request.printAll();
 
-		const Config &conf = _cluster.get_config_by_host(tmp_request.getHeaderValue("Host"));
+
+		const Config &conf = get_config(tmp_request.getHeaderValue("Host"), clientFd);
 		const Config::Routes &route = Response::find_match(conf, tmp_request.getUrl());
 
 		std::map<std::string, std::string>::const_iterator cgi_route;
@@ -234,7 +235,7 @@ void EventHandler::handleResponse(int clientFd) {
 
 	std::string s;
 
-	const Config &conf = _cluster.get_config_by_host(rqs.getHeaderValue("Host"));
+	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
 	if (!_clients.at(clientFd)->_cgiBuffer.empty())
 	{
 		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
@@ -307,4 +308,12 @@ void EventHandler::epollLoop(void) {
 		}
 		checkCompleteCGIProcesses();
 	}
+}
+
+const Config &EventHandler::get_config(const std::string &host, int clientFd) const
+{
+	const std::vector<Config*>::const_iterator found = _cluster.get_config_by_host(host);
+	if (_cluster.get_configs().end() == found)
+		return _clients.at(clientFd)->_config;
+	return **found;
 }

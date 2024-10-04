@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/04 15:40:43 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 20:31:09 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ const std::vector<Config*> &Cluster::get_configs() const
 	return _configs;
 }
 
-const Config& Cluster::get_config_by_host(const std::string &host) const
+const std::vector<Config*>::const_iterator Cluster::get_config_by_host(const std::string &host) const
 {
 	std::stringstream s;
 	for (std::vector<Config*>::const_iterator it = _configs.begin(); it < _configs.end(); it++)
@@ -88,9 +88,9 @@ const Config& Cluster::get_config_by_host(const std::string &host) const
 		if (host == s.str())
 		{
 			std::cerr << "FOUND: [" << s.str() << "], actual host: [" << host << ']' << std::endl;
-			return *(*it);
+			return it;
 		}
 		s.str("");
 	}
-	return *_configs.front();
+	return _configs.end();
 }
