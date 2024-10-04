@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/04 20:31:09 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 21:36:50 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,22 +30,10 @@ Cluster::Cluster(const JsonValue &json)
 			_servers.push_back(new Server(*current));
 		}
 	}
-	catch (const JsonValue::BadType &e)
-	{
-		throw Config::BadValue("bad config");
-	}
-	catch (const Config::BadValue &e)
-	{
-		throw Config::BadValue("bad config");
-	}
-	catch (const std::out_of_range &e)
-	{
-		throw Config::BadValue("config error, missing field");
-	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "CLUSTER ERROR: " << e.what() << std::endl;
-		throw e;
+		Cluster::clear();
+		throw std::runtime_error(e.what());
 	}
 }
 
@@ -60,7 +48,7 @@ Cluster &Cluster::start()
 	return *this;
 }
 
-Cluster::~Cluster()
+void Cluster::clear()
 {
 	for (std::vector<Server*>::iterator it = _servers.begin(); it < _servers.end(); it++)
 	{
@@ -74,11 +62,17 @@ Cluster::~Cluster()
 	}
 }
 
+Cluster::~Cluster()
+{
+	Cluster::clear();
+}
+
 const std::vector<Config*> &Cluster::get_configs() const
 {
 	return _configs;
 }
 
+// Returns an iterator of config, if it can't be found it returns `end()`
 const std::vector<Config*>::const_iterator Cluster::get_config_by_host(const std::string &host) const
 {
 	std::stringstream s;

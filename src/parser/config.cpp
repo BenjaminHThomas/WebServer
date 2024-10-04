@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/04 20:28:47 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 21:41:39 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,45 +48,52 @@ addrinfo *Config::init_addrinfo(const std::string &host, const std::string &port
 
 Config::Config(const JsonValue &j) : _addr(NULL)
 {
-	_name = j["name"].as_string();
-	_host = j["host"].as_string();
-	if (j["port"].as_number() < 0 || j["port"].as_number() > std::numeric_limits<uint16_t>::max())
-		throw Config::BadValue();
-	_port = j["port"].as_number();
-	if (j["max_body"].as_number() < 0)
-		throw Config::BadValue();
-	_max_body_size = j["max_body"].as_number();
-
 	try
 	{
-		for (JsonValue::const_iter_obj err = j["error"].begin_obj(); err != j["error"].end_obj(); err++)
+		_name = j["name"].as_string();
+		_host = j["host"].as_string();
+		if (j["port"].as_number() < 0 || j["port"].as_number() > std::numeric_limits<uint16_t>::max())
+			throw Config::BadValue();
+		_port = j["port"].as_number();
+		if (j["max_body"].as_number() < 0)
+			throw Config::BadValue();
+		_max_body_size = j["max_body"].as_number();
+
+		try
 		{
-			check_error_page(std::atoi(err->first.c_str()));
-			std::pair<int, std::string> pair(std::atoi(err->first.c_str()), err->second.as_string());
-			_error_pages.insert(pair);
-			std::cout << err->first << ", second" << err->second.as_string() << std::endl;
+			for (JsonValue::const_iter_obj err = j["error"].begin_obj(); err != j["error"].end_obj(); err++)
+			{
+				check_error_page(std::atoi(err->first.c_str()));
+				std::pair<int, std::string> pair(std::atoi(err->first.c_str()), err->second.as_string());
+				_error_pages.insert(pair);
+				std::cout << err->first << ", second" << err->second.as_string() << std::endl;
+			}
 		}
-	}
-	catch (const Config::BadValue &e)
-	{
-		throw Config::BadValue();
-	}
-	catch (const std::exception &e)
-	{
-	}
+		catch (const Config::BadValue &e)
+		{
+			throw Config::BadValue();
+		}
+		catch (const std::exception &e)
+		{
+		}
 
-	for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)
-	{
-		_routes.push_back(Routes(*it_route));
+		for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)
+		{
+			_routes.push_back(Routes(*it_route));
+		}
+
+		_addr = init_addrinfo(_host, j["port"].as_string());
+
+		std::cout << j["name"] << "\n";
+		std::cout << j["host"] << "\n";
+		std::cout << j["port"] << "\n";
+		std::cout << j["routes"][0]["index"] << "\n";
+		std::cout << "--------" << std::endl;
 	}
-
-	_addr = init_addrinfo(_host, j["port"].as_string());
-
-	std::cout << j["name"] << "\n";
-	std::cout << j["host"] << "\n";
-	std::cout << j["port"] << "\n";
-	std::cout << j["routes"][0]["index"] << "\n";
-	std::cout << "--------" << std::endl;
+	catch (const std::out_of_range &e)
+	{
+		throw std::out_of_range("missing field in config file");
+	}
 }
 
 Config::~Config()
