@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 17:01:25 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 14:09:22 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,12 @@
 class ClientConnection
 {
 	public:
+		enum reqType {
+			CHUNKED,
+			NONCHUNKED
+		};
+
+	public:
 		int _clientFd;
 		std::string _requestBuffer;
 		std::string _responseBuffer;
@@ -26,6 +32,7 @@ class ClientConnection
 		size_t	_bytesSent;
 		bool _responseReady;
 		bool _cgiFailed;
+		reqType _reqType;
 
 		const Config &_config;
 
