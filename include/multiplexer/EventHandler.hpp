@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:58:10 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 15:00:21 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "config.hpp"
 #ifndef EVENTHANDLER_HPP
 # define EVENTHANDLER_HPP
+
+# define TIMEOUT 5
 
 #include "CGIManager.hpp"
 #include "Server.hpp"
