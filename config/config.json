@@ -63,7 +63,7 @@
 		]
 	},
 	{
-		"name": "haha server",
+		"name": "this is the first server",
 		"host": "localhost",
 		"port": 9999,
 		"error": {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:07:27 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/04 15:03:47 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <sstream>
 
 #define BUFFER_SIZE 30720
+#define TIMEOUT 5
 
 extern char **environ;
 
@@ -46,7 +47,7 @@ class EventHandler
 			EP_CLIENT,
 			EP_CGI
 		};
-		
+
 
 	private:
 		int _epollFd;
@@ -71,7 +72,7 @@ class EventHandler
 		// void startCGI(int clientFd, std::string fname);
 		bool startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
-	
+
 	public:
 		bool isHeaderChunked(int clientFd);
 		bool isChunkReqFinished(int clientFd);
