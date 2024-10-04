@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:24:26 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 15:09:37 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 #ifndef EVENTHANDLER_HPP
 # define EVENTHANDLER_HPP
 
-# define TIMEOUT 5
-
 #include "CGIManager.hpp"
 #include "Server.hpp"
 #include "ClientConnection.hpp"
@@ -26,14 +24,20 @@
 #include <cerrno> //temp, just for testing
 #include <cstdlib>
 #include <sys/wait.h>
+#include <sstream>
 
 #define BUFFER_SIZE 30720
+#define TIMEOUT 5
 
 extern char **environ;
 
 class ClientConnection;
 class CGIManager;
 
+enum reqType {
+			CHUNKED,
+			NONCHUNKED
+		};
 class EventHandler
 {
 	private:
@@ -42,6 +46,7 @@ class EventHandler
 			EP_CLIENT,
 			EP_CGI
 		};
+
 
 	private:
 		int _epollFd;
@@ -53,7 +58,6 @@ class EventHandler
 		const Cluster &_cluster;
 
 	public:
-		class epollInitFailure;
 		void setNonBlock(int fd);
 		bool addToEpoll(int fd);
 		bool deleteFromEpoll(int fd);
@@ -71,6 +75,16 @@ class EventHandler
 		void checkCompleteCGIProcesses(void);
 
 	public:
+		bool isHeaderChunked(int clientFd);
+		bool isChunkReqFinished(int clientFd);
+		void cleanChunkedReq(int clientFd);
+		std::string extractHeader(std::string & reqBuffer, std::string::size_type & headerEnd);
+		std::string::size_type getChunkSize(std::string::size_type & chunkStart,
+									std::string::size_type & chunkEnd,
+									std::string & reqBuffer);
+
+	public:
+		class epollInitFailure;
 		class epollWaitFailure;
 
 	public:
