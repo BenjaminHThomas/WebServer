@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 17:07:01 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/03 21:13:27 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "parser.hpp"
 #include <csignal>
 #include <exception>
-#include <temp.hpp>
+#include <iostream>
 
 void	handle_sigint(int _sig) { throw (int)_sig; }
 
