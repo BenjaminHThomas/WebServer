@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 16:07:13 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/03 21:14:13 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 15:25:06 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,8 @@ JSONLexer::Tokens JSONLexer::lex(std::ifstream &stream)
 	size_t		line_counter = 1;
 	while (std::getline(stream, _buf))
 	{
+		if (_buf.erase(0, _buf.find_first_not_of(" \n\r\t")).find("//") == 0)
+			continue;
 		try
 		{
 			loop(_buf.begin(), _buf.end());
