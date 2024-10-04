@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:41:04 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 13:35:26 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 13:46:35 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,7 @@ public:
 	~Cluster ();
 public:
 	Cluster &start();
+
+	const std::vector<Config*> &get_configs() const;
+	const Config& get_config_by_host(const std::string &host) const;
 };

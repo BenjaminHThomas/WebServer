@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 20:40:07 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 13:44:23 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,4 +71,19 @@ Cluster::~Cluster()
 		if (*it != NULL)
 			delete *it;
 	}
+}
+
+const std::vector<Config*> &Cluster::get_configs() const
+{
+	return _configs;
+}
+
+const Config& Cluster::get_config_by_host(const std::string &host) const
+{
+	for (std::vector<Config*>::const_iterator it = _configs.begin(); it < _configs.end(); it++)
+	{
+		if (host == (*it)->get_host())
+			return *(*it);
+	}
+	return *_configs.front();
 }
