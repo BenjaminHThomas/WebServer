@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:14:17 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/04 16:01:45 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,20 +142,17 @@ void EventHandler::handleNewConnection(Server & s) {
 bool EventHandler::isResponseComplete(int clientFd) {
 	// check header completion
 	std::string buff = _clients[clientFd]->_requestBuffer;
-	size_t pos = buff.find("\r\n\r\n");
+	std::string::size_type pos = getHeaderEndPos(clientFd);
 	if (pos == std::string::npos) {
-		pos = buff.find("\n\n");
-		if (pos == std::string::npos) {
-			return false;
-		}
+		return false;
 	}
 
 	if (isHeaderChunked(clientFd)) {
-		_clients[clientFd]->_reqType = (ClientConnection::reqType)CHUNKED;
+		_clients.at(clientFd)->_reqType = (ClientConnection::reqType)CHUNKED;
 	}
 	
 	//Check if it's a POST request with a body
-	if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
+	if (_clients.at(clientFd)->_reqType == (ClientConnection::reqType)CHUNKED) {
 		return isChunkReqFinished(clientFd);
 	}
 	size_t content_len_pos = buff.find("Content-Length: ");
@@ -166,6 +163,43 @@ bool EventHandler::isResponseComplete(int clientFd) {
 		return buff.length() >= (pos + 4 + content_length);
 	}
 	return true;
+}
+
+std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
+	std::string reqBuffer = _clients.at(clientFd)->_requestBuffer;
+	std::string::size_type headerEnd = reqBuffer.find("\r\n\r\n");
+	if (headerEnd == std::string::npos) {
+		headerEnd = reqBuffer.find("\n\n");
+		if (headerEnd == std::string::npos) {
+			return std::string::npos;
+		}
+		headerEnd += 2;
+	} else {
+		headerEnd += 4;
+	}
+	return headerEnd;
+}
+
+bool EventHandler::isBodyTooBig(int clientFd, int bytes_read) {
+	std::string::size_type headerEndPos = getHeaderEndPos(clientFd);
+	if (headerEndPos == std::string::npos)
+		return false;
+	uint64_t maxBodySize = _clients.at(clientFd)->_config.get_max_body_size();
+	std::string::size_type currentBodySize;
+	currentBodySize = _clients.at(clientFd)->_requestBuffer.size() - headerEndPos;
+	if (currentBodySize + bytes_read > maxBodySize) {
+		return true;
+	}
+	return false;
+}
+
+void EventHandler::sendInvalidResponse(int clientFd) {
+	std::cerr << "Error: body size limit reached.\n";
+	_clients.at(clientFd)->resetData();
+	// change request buffer to cause 504
+	_clients.at(clientFd)->_errorCode = 504;
+
+	changeToWrite(clientFd);
 }
 
 // Read all data from the client
@@ -184,7 +218,12 @@ void EventHandler::handleClientRequest(int clientFd) {
 		return ;
 	}
 	buffer[bytes_read] = 0;
-	_clients.at(clientFd)->_requestBuffer.append(buffer);
+	if (isBodyTooBig(clientFd, bytes_read)) {
+		// send 504.
+		sendInvalidResponse(clientFd);
+		return ;
+	}
+	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
 	if (isResponseComplete(clientFd))
 	{
 		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
@@ -218,6 +257,14 @@ void EventHandler::handleClientRequest(int clientFd) {
 // Write response to the client
 void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
+	if (_clients.at(clientFd)->_errorCode) {
+		Response rsp(_clients.at(clientFd)->_config, _clients.at(clientFd)->_errorCode);
+		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
+		write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
+		_clients.at(clientFd)->resetData();
+		changeToRead(clientFd);
+		return ;
+	}
 	// 1. HTTP Parse the reqesut Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
 

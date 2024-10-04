@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 10:54:25 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:11:55 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/04 15:21:48 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,18 +41,11 @@ bool EventHandler::isChunkReqFinished(int clientFd) {
 	return (request.find("0\r\n\r\n") != std::string::npos);
 }
 
-std::string EventHandler::extractHeader(std::string & reqBuffer, std::string::size_type & headerEnd) {
+std::string EventHandler::extractHeader(std::string & reqBuffer, std::string::size_type & headerEnd, int clientFd) {
 	// extract header
-	headerEnd = reqBuffer.find("\r\n\r\n");
-	if (headerEnd == std::string::npos) {
-		headerEnd = reqBuffer.find("\n\n");
-		if (headerEnd == std::string::npos) {
-			throw std::runtime_error("Invalid request: no header-body separator found\n");
-		}
-		headerEnd += 2;
-	} else {
-		headerEnd += 4;
-	}
+	headerEnd = getHeaderEndPos(clientFd);
+	if (headerEnd == std::string::npos)
+		return "";
 	return reqBuffer.substr(0, headerEnd);
 }
 
@@ -80,7 +73,7 @@ void EventHandler::cleanChunkedReq(int clientFd) {
 	std::string::size_type chunkSize;
 	std::string::size_type headerEnd, chunkStart, chunkEnd;
 
-	std::string header = extractHeader(request, headerEnd);
+	std::string header = extractHeader(request, headerEnd, clientFd);
 
 	// process chunks
 	chunkStart = headerEnd;

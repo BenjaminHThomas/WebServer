@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:10:23 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/04 15:53:38 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 	_responseReady(false),
 	_cgiFailed(false),
 	_reqType(NONCHUNKED),
+	_errorCode(0),
 	_config(config)
 {
 }
@@ -31,6 +32,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 		_responseReady(other._responseReady),
 		_cgiFailed(false),
 		_reqType(NONCHUNKED),
+		_errorCode(other._errorCode),
 		_config(other._config)
 {
 }
@@ -45,6 +47,7 @@ ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 		_responseReady = false;
 		_cgiFailed = false;
 		_reqType = other._reqType;
+		_errorCode = other._errorCode;
 	}
 	return *this;
 }
@@ -57,6 +60,7 @@ void ClientConnection::resetData() {
 	_responseReady = false;
 	_cgiFailed = false;
 	_reqType = NONCHUNKED;
+	_errorCode = 0;
 }
 
 void ClientConnection::closeConnection() {

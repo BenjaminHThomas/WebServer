@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 16:04:18 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 15:49:57 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ private:
 	static std::string	getCurrentTime();
 	static const std::map<int, std::string>	_statusCodes;
 public:
+	Response(Config const &config, uint8_t errCode);
 	Response(Request const &request, Config const &config);
 	Response(Request const &request, Config const &config, const std::string &cgi_content, bool complete);
 	~Response();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:03:47 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 15:37:17 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,16 +68,19 @@ class EventHandler
 		void epollLoop(void);
 		void changeToWrite(int clientFd);
 		void changeToRead(int clientFd);
+		bool isBodyTooBig(int clientFd, int bytes_read);
 		bool isResponseComplete(int clientFd);
+		void sendInvalidResponse(int clientFd);
 		// void startCGI(int clientFd, std::string fname);
 		bool startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
 
 	public:
+		std::string::size_type getHeaderEndPos(int clientFd);
 		bool isHeaderChunked(int clientFd);
 		bool isChunkReqFinished(int clientFd);
 		void cleanChunkedReq(int clientFd);
-		std::string extractHeader(std::string & reqBuffer, std::string::size_type & headerEnd);
+		std::string extractHeader(std::string & reqBuffer, std::string::size_type & headerEnd, int clientFd);
 		std::string::size_type getChunkSize(std::string::size_type & chunkStart,
 									std::string::size_type & chunkEnd,
 									std::string & reqBuffer);
