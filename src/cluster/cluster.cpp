@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/04 13:44:23 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 13:50:28 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ Cluster::Cluster(const JsonValue &json)
 
 Cluster &Cluster::start()
 {
-	EventHandler e;
+	EventHandler e(*this);
 	for (std::vector<Server*>::iterator it = _servers.begin(); it < _servers.end(); it++)
 	{
 		e.addServer(*(*it));

@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 17:07:59 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 14:55:45 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include <string>
+#include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
 
@@ -33,7 +34,7 @@ class EventHandler::epollWaitFailure : public std::exception {
 		}
 };
 
-EventHandler::EventHandler()
+EventHandler::EventHandler(const Cluster &cluster) : _cluster(cluster)
 {
 	_epollFd = epoll_create1(0);
 	if (_epollFd == -1) {
@@ -178,6 +179,12 @@ void EventHandler::handleClientRequest(int clientFd) {
 		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
 
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
+
+		tmp_request.printAll();
+		const std::string &host = tmp_request.getHeaderValue("Host");
+		std::cerr << "HOSTS------------: " << host << std::endl;;
+		std::cerr << "TEST----:: " << _cluster.get_config_by_host(host).get_name() << std::endl;;
+
 		const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
 
 		std::map<std::string, std::string>::const_iterator cgi_route;
