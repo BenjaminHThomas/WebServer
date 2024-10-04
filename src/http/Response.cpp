@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 14:48:17 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 16:07:56 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,7 +211,6 @@ std::string	Response::getPostContent(Request const &request) {
 	std::ostringstream content;
 	std::string filename;
 	std::string path = _route.upload;
-	
 
 	if (*path.rbegin() != '/')
 		path.append("/");
@@ -259,6 +258,8 @@ std::string Response::check_postFile(std::string const &type)
 	if (!type.empty())
 		// missing content-type header in the request 
 		throw (400); //Bad request
+	std::cout << "---------------------POST file type ---------------" << std::endl;
+	std::cout << type << std::endl;
 	if (_acceptedPostFile.count(type) > 0)
 		return _acceptedPostFile.at(type);
 	else

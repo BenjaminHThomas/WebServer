@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 19:17:21 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 16:45:19 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,12 +145,16 @@ bool EventHandler::isResponseComplete(int clientFd) {
 	if (pos == std::string::npos)
 		return false;
 
+	std::cout << "-----------reading request------------" << std::endl;
+	std::cout << buff << std::endl;
 	//Check if it's a POST request with a body
 	size_t content_len_pos = buff.find("Content-Length: ");
 	if (content_len_pos != std::string::npos) {
 		size_t content_len_end = buff.find("\r\n", content_len_pos);
 		std::string content_len_str = buff.substr(content_len_pos + 16, content_len_end - (content_len_pos + 16));
 		int content_length = std::atoi(content_len_str.c_str());
+		std::cout << "The read content length is : " << pos + 4 + content_length << std::endl;
+		std::cout << "Buff lengh is: " << buff.length() << std::endl;
 		return buff.length() >= (pos + 4 + content_length);
 	}
 	return true;
@@ -206,6 +210,7 @@ void EventHandler::handleResponse(int clientFd) {
 	// 1. HTTP Parse the request Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
 
+	rqs.printAll();
 	// 2. Generate Response based on Request object and whether there is cgiContent created in cgiBuffer
 	// IF REQUEST WAS FOR A CGI -> _cgiBuffer contains CGI content and not Empty
 	std::string s;
@@ -219,7 +224,6 @@ void EventHandler::handleResponse(int clientFd) {
 		Response rsp(rqs, _clients.at(clientFd)->_config);
 		s = rsp.generateResponse();
 	}
-
 	// 3. Updated the response string to _responseBuffer in the client
 	_clients.at(clientFd)->_responseBuffer.append(s);
 
