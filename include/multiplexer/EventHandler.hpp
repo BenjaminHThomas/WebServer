@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 21:18:13 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 13:52:34 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <cerrno> //temp, just for testing
 #include <cstdlib>
 #include <sys/wait.h>
+#include <sstream>
 
 #define BUFFER_SIZE 30720
 
@@ -50,7 +51,6 @@ class EventHandler
 		std::map<int, CONNTYPE> _openConns;
 
 	public:
-		class epollInitFailure;
 		void setNonBlock(int fd);
 		bool addToEpoll(int fd);
 		bool deleteFromEpoll(int fd);
@@ -66,8 +66,18 @@ class EventHandler
 		// void startCGI(int clientFd, std::string fname);
 		bool startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
+	
+	public:
+		bool isHeaderChunked(int clientFd);
+		bool isChunkReqFinished(int clientFd);
+		void cleanChunkedReq(int clientFd);
+		std::string extractHeader(std::string & reqBuffer, std::string::size_type & headerEnd);
+		std::string::size_type getChunkSize(std::string::size_type & chunkStart,
+									std::string::size_type & chunkEnd,
+									std::string & reqBuffer);
 
 	public:
+		class epollInitFailure;
 		class epollWaitFailure;
 
 	public:
