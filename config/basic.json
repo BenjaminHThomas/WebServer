@@ -1,9 +1,0 @@
-{
-	"some_string": "some_other_string",
-	"another": "hello",
-	"num": 429496729.5,
-	"key": true,
-	"object_val": {
-		"inside_key": "inside_val"
-	}
-}

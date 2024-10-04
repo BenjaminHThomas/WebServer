@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 18:03:43 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 21:18:26 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include <string>
+#include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
 
@@ -33,7 +34,7 @@ class EventHandler::epollWaitFailure : public std::exception {
 		}
 };
 
-EventHandler::EventHandler()
+EventHandler::EventHandler(const Cluster &cluster) : _cluster(cluster)
 {
 	_epollFd = epoll_create1(0);
 	if (_epollFd == -1) {
@@ -153,7 +154,7 @@ bool EventHandler::isResponseComplete(int clientFd) {
 	if (isHeaderChunked(clientFd)) {
 		_clients[clientFd]->_reqType = (ClientConnection::reqType)CHUNKED;
 	}
-	
+
 	//Check if it's a POST request with a body
 	if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
 		return isChunkReqFinished(clientFd);
@@ -191,7 +192,13 @@ void EventHandler::handleClientRequest(int clientFd) {
 		}
 
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
-		const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
+
+
+		tmp_request.printAll();
+
+
+		const Config &conf = get_config(tmp_request.getHeaderValue("Host"), clientFd);
+		const Config::Routes &route = Response::find_match(conf, tmp_request.getUrl());
 
 		std::map<std::string, std::string>::const_iterator cgi_route;
 		if ((cgi_route = Response::check_cgi(route, tmp_request.getUrl())) != route.cgi.end())
@@ -223,14 +230,16 @@ void EventHandler::handleResponse(int clientFd) {
 	// 2. Generate Response based on Request object and whether there is cgiContent created in cgiBuffer
 	// IF REQUEST WAS FOR A CGI -> _cgiBuffer contains CGI content and not Empty
 	std::string s;
+
+	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
 	if (!_clients.at(clientFd)->_cgiBuffer.empty())
 	{
-		Response rsp(rqs, _clients.at(clientFd)->_config, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
+		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
 		s = rsp.generateResponse();
 	}
 	else
 	{
-		Response rsp(rqs, _clients.at(clientFd)->_config);
+		Response rsp(rqs, conf);
 		s = rsp.generateResponse();
 	}
 	// 3. Updated the response string to _responseBuffer in the client
@@ -239,7 +248,7 @@ void EventHandler::handleResponse(int clientFd) {
 	// 4. Write to the clientFD with reponse string
 	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
-	
+
 	// 5. clear the buff in this clientFD
 	_clients.at(clientFd)->resetData();
 	changeToRead(clientFd);
@@ -295,4 +304,12 @@ void EventHandler::epollLoop(void) {
 		}
 		checkCompleteCGIProcesses();
 	}
+}
+
+const Config &EventHandler::get_config(const std::string &host, int clientFd) const
+{
+	const std::vector<Config*>::const_iterator found = _cluster.get_config_by_host(host);
+	if (_cluster.get_configs().end() == found)
+		return _clients.at(clientFd)->_config;
+	return **found;
 }

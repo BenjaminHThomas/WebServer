@@ -6,16 +6,15 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:03:47 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 20:38:07 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "cluster.hpp"
 #include "config.hpp"
 #ifndef EVENTHANDLER_HPP
 # define EVENTHANDLER_HPP
-
-# define TIMEOUT 5
 
 #include "CGIManager.hpp"
 #include "Server.hpp"
@@ -56,6 +55,8 @@ class EventHandler
 		CGIManager _cgiManager;
 		std::map<int, CONNTYPE> _openConns;
 
+		const Cluster &_cluster;
+
 	public:
 		void setNonBlock(int fd);
 		bool addToEpoll(int fd);
@@ -73,6 +74,8 @@ class EventHandler
 		bool startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
 
+		const Config &get_config(const std::string &host, int clientFd) const;
+
 	public:
 		bool isHeaderChunked(int clientFd);
 		bool isChunkReqFinished(int clientFd);
@@ -87,7 +90,7 @@ class EventHandler
 		class epollWaitFailure;
 
 	public:
-		EventHandler ();
+		EventHandler (const Cluster &cluster);
 		~EventHandler ();
 };
 
