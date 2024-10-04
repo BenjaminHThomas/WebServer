@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 19:51:01 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 10:34:04 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,7 +203,9 @@ std::string		Response::getFileContent(std::string const &url) {
 
 std::string	Response::getPostContent(std::string const &url) {
 	std::string	content;
+	std::string filename;
 
+	
 	return content;
 }
 
@@ -259,7 +261,7 @@ std::string Response::getCurrentTime() {
 	return std::string(buff);
 }
 
-std::map<int, std::string> Response::initStatusCodes() {
+const std::map<int, std::string> Response::initStatusCodes() {
 	std::map<int, std::string>	tmp;
 	tmp[200] = "200 OK";
 	tmp[201] = "201 Created";
@@ -290,6 +292,28 @@ const std::vector<std::string> Response::init_allowed_cgi()
 	return cgi;
 }
 
+const std::map<std::string, std::string> Response::initAcceptedPostFile() {
+	std::map<std::string, std::string>	tmp;
+	tmp["application/octet-stream"] = ".bin";
+	tmp["application/json"] = ".json";
+	tmp["application/pdf"] = ".pdf";
+	tmp["application/x-httpd-php"] = ".php";
+	tmp["application/x-sh"] = ".sh";
+	tmp["application/x-tar"] = ".tar";
+	tmp["text/css"] = ".css";
+	tmp["text/csv"] = ".csv";
+	tmp["text/html"] = ".html";
+	tmp["text/plain"] = ".txt";
+	tmp["text/javascript"] = ".js";
+	tmp["image/gif"] = ".gif";
+	tmp["image/jpeg"] = ".jpeg";
+	tmp["image/png"] = ".png";
+	tmp["audio/mpeg"] = ".mp3";
+	tmp["video/mp4"] = ".mp4";
+}
+
 const std::map<int, std::string> Response::_statusCodes = Response::initStatusCodes();
 
 const std::vector<std::string> Response::_allowedCGI = Response::init_allowed_cgi();
+
+const std::map<std::string, std::string> Response::_accpetedPostFile = Response::initAcceptedPostFile();
