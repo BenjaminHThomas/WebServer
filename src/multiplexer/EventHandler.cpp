@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 16:49:00 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 17:12:14 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,7 @@ void EventHandler::handleNewConnection(Server & s) {
 bool EventHandler::isResponseComplete(int clientFd) {
 	// check header completion
 	std::string buff = _clients[clientFd]->_requestBuffer;
+		std::cout << "Buff lengh is: " << buff.length() << std::endl;
 	size_t pos = buff.find("\r\n\r\n");
 	if (pos == std::string::npos) {
 		pos = buff.find("\n\n");
@@ -185,8 +186,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 		_clients.erase(clientFd);
 		return ;
 	}
-	buffer[bytes_read] = 0;
-	_clients.at(clientFd)->_requestBuffer.append(buffer);
+	_clients.at(clientFd)->_requestBuffer.append(buffer, bytes_read);
+	std::cerr << "##########BYTES READ: " << bytes_read << std::endl;
 	if (isResponseComplete(clientFd))
 	{
 		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
