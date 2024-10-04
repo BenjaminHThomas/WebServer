@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:14:17 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/04 18:03:43 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,11 +183,9 @@ void EventHandler::handleClientRequest(int clientFd) {
 		_clients.erase(clientFd);
 		return ;
 	}
-	buffer[bytes_read] = 0;
-	_clients.at(clientFd)->_requestBuffer.append(buffer);
+	_clients.at(clientFd)->_requestBuffer.append(buffer, bytes_read);
 	if (isResponseComplete(clientFd))
 	{
-		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
 		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
 			cleanChunkedReq(clientFd);
 		}
@@ -218,14 +216,12 @@ void EventHandler::handleClientRequest(int clientFd) {
 // Write response to the client
 void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
-	// 1. HTTP Parse the reqesut Buffer
+	// 1. HTTP Parse the request Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
 
-	// 2. Find the last matched Routes for this request
-
-	// 3. Generate Response based on Request object
-	/* A Response object to be created and feed output */
-
+	// rqs.printAll();
+	// 2. Generate Response based on Request object and whether there is cgiContent created in cgiBuffer
+	// IF REQUEST WAS FOR A CGI -> _cgiBuffer contains CGI content and not Empty
 	std::string s;
 	if (!_clients.at(clientFd)->_cgiBuffer.empty())
 	{
@@ -237,13 +233,13 @@ void EventHandler::handleResponse(int clientFd) {
 		Response rsp(rqs, _clients.at(clientFd)->_config);
 		s = rsp.generateResponse();
 	}
-
-	// IF REQUEST WAS FOR A CGI -> _responseBuffer contains CGI content
+	// 3. Updated the response string to _responseBuffer in the client
 	_clients.at(clientFd)->_responseBuffer.append(s);
 
 	// 4. Write to the clientFD with reponse string
 	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
+	
 	// 5. clear the buff in this clientFD
 	_clients.at(clientFd)->resetData();
 	changeToRead(clientFd);
