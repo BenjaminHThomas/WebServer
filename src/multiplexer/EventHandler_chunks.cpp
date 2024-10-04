@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 10:54:25 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 13:53:02 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/04 14:11:55 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ std::string EventHandler::extractHeader(std::string & reqBuffer, std::string::si
 	return reqBuffer.substr(0, headerEnd);
 }
 
-std::string::size_type getChunkSize(std::string::size_type & chunkStart,
+std::string::size_type EventHandler::getChunkSize(std::string::size_type & chunkStart,
 									std::string::size_type & chunkEnd,
 									std::string & reqBuffer) {
 	std::istringstream iss;

@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 13:52:34 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/04 14:07:27 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,10 @@ extern char **environ;
 class ClientConnection;
 class CGIManager;
 
+enum reqType {
+			CHUNKED,
+			NONCHUNKED
+		};
 class EventHandler
 {
 	private:
@@ -42,6 +46,7 @@ class EventHandler
 			EP_CLIENT,
 			EP_CGI
 		};
+		
 
 	private:
 		int _epollFd;
