@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 17:12:14 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 18:03:43 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,6 @@ void EventHandler::handleNewConnection(Server & s) {
 bool EventHandler::isResponseComplete(int clientFd) {
 	// check header completion
 	std::string buff = _clients[clientFd]->_requestBuffer;
-		std::cout << "Buff lengh is: " << buff.length() << std::endl;
 	size_t pos = buff.find("\r\n\r\n");
 	if (pos == std::string::npos) {
 		pos = buff.find("\n\n");
@@ -164,8 +163,6 @@ bool EventHandler::isResponseComplete(int clientFd) {
 		size_t content_len_end = buff.find("\r\n", content_len_pos);
 		std::string content_len_str = buff.substr(content_len_pos + 16, content_len_end - (content_len_pos + 16));
 		int content_length = std::atoi(content_len_str.c_str());
-		std::cout << "The read content length is : " << pos + 4 + content_length << std::endl;
-		std::cout << "Buff lengh is: " << buff.length() << std::endl;
 		return buff.length() >= (pos + 4 + content_length);
 	}
 	return true;
@@ -187,10 +184,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 		return ;
 	}
 	_clients.at(clientFd)->_requestBuffer.append(buffer, bytes_read);
-	std::cerr << "##########BYTES READ: " << bytes_read << std::endl;
 	if (isResponseComplete(clientFd))
 	{
-		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
 		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
 			cleanChunkedReq(clientFd);
 		}
@@ -224,7 +219,7 @@ void EventHandler::handleResponse(int clientFd) {
 	// 1. HTTP Parse the request Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
 
-	rqs.printAll();
+	// rqs.printAll();
 	// 2. Generate Response based on Request object and whether there is cgiContent created in cgiBuffer
 	// IF REQUEST WAS FOR A CGI -> _cgiBuffer contains CGI content and not Empty
 	std::string s;

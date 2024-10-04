@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 16:07:39 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 17:53:19 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,8 @@ void	Request::printAll() {
 		std::cout << "[" << it->first << "] : \"" << it->second << "\"" << std::endl;
 	}
 	std::cout << "\n---------------End of Headers---------------" << std::endl;
-	std::cout << "\n-------------------Body---------------------" << std::endl;
-	std::cout << this->getBody() << std::endl;
-	std::cout << "\n--------------------Raw---------------------" << std::endl;
-	std::cout << this->_raw << std::endl;
+	// std::cout << "\n-------------------Body---------------------" << std::endl;
+	// std::cout << this->getBody() << std::endl;
+	// std::cout << "\n--------------------Raw---------------------" << std::endl;
+	// std::cout << this->_raw << std::endl;
 }
