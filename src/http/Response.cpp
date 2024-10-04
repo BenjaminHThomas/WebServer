@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 10:34:04 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 14:48:17 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,15 @@ Response::Response(Request const &request, Config const &config) :
 		_statusCode = 405;
 		_content = getErrorContent(_statusCode);
 	}
+	else if (request.getHttpVersion() != "HTTP/1.1")
+	{
+		_statusCode = 505;
+		_content = getErrorContent(_statusCode);
+	}
 	else if (request.getMethod() == "POST")
 	{
 		// Post stuff here
-		_content = getPostContent(request.getUrl());
+		_content = getPostContent(request);
 	}
 	else if (check_extension(request.getUrl()))
 	{
@@ -82,7 +87,7 @@ std::string Response::generateResponse() {
 	response << "HTTP/1.1 " << _statusCodes.at(_statusCode) << "\r\n";
 	response << "Content-Type: " << _contentType << "\r\n";
 	response << "Content-Length: " << _content.length() << "\r\n";
-	response << "Date: " << getCurrentTime() << "\r\n";
+	response << "Date: " << getCurrentTime(STANDARD) << "\r\n";
 	response << "Server: 3GoatServer/1.0\r\n";
 	if (!_extraHeaders.empty()) {
 		for (std::map<std::string, std::string>::iterator it = _extraHeaders.begin();
@@ -201,12 +206,39 @@ std::string		Response::getFileContent(std::string const &url) {
 	return content;
 }
 
-std::string	Response::getPostContent(std::string const &url) {
-	std::string	content;
+std::string	Response::getPostContent(Request const &request) {
+	// std::string	content;
+	std::ostringstream content;
 	std::string filename;
-
+	std::string path = _route.upload;
 	
-	return content;
+
+	if (*path.rbegin() != '/')
+		path.append("/");
+	try
+	{
+		_contentType = request.getHeaderValue("Content-Type");	// throw outof range if no content_type in request
+		filename = getCurrentTime(SIMPLE) + check_postFile(_contentType); // throw 403 if not allowed file format
+		path += filename;
+		std::ofstream ofs(path.c_str(), std::ofstream::out | std::ofstream::trunc);
+		if (!ofs)
+			throw (401); // not authorized to create a file
+		ofs << request.getBody();
+		_statusCode = 201;
+		content << filename << " is created successfully at [" << _route.upload << "]\r\n";
+	}
+	catch(int statusCode)
+	{
+		_statusCode = statusCode;
+		content << getErrorContent(_statusCode);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Other Post Error: " << e.what() << '\n';
+		_statusCode = 400;
+		content << getErrorContent(_statusCode);
+	}
+	return content.str();
 }
 
 // return the iterator of cgi found in the current _route
@@ -220,6 +252,17 @@ std::map<std::string, std::string>::const_iterator	Response::check_cgi(const Con
 	std::string	ext = toLower(url.substr(dotPos + 1));
 	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
 	return it;
+}
+
+std::string Response::check_postFile(std::string const &type)
+{
+	if (!type.empty())
+		// missing content-type header in the request 
+		throw (400); //Bad request
+	if (_acceptedPostFile.count(type) > 0)
+		return _acceptedPostFile.at(type);
+	else
+		throw (403); //Forbidden file type
 }
 
 bool	Response::check_extension(std::string const &url)
@@ -252,12 +295,15 @@ std::string		Response::toLower(std::string s) {
 	return s;
 }
 
-std::string Response::getCurrentTime() {
+std::string Response::getCurrentTime(Response::TimeForm mode) {
 	time_t  now = time(0);
 	struct tm t_struct;
 	char    buff[80];
 	t_struct = *gmtime(&now);
-	strftime(buff, sizeof(buff), "%a, %d %b %Y %H:%M:%S GMT", &t_struct);
+	if (mode == STANDARD)
+		strftime(buff, sizeof(buff), "%a, %d %b %Y %H:%M:%S GMT", &t_struct);
+	else
+		strftime(buff, sizeof(buff), "%F_%H%M%S", &t_struct);
 	return std::string(buff);
 }
 
@@ -310,10 +356,11 @@ const std::map<std::string, std::string> Response::initAcceptedPostFile() {
 	tmp["image/png"] = ".png";
 	tmp["audio/mpeg"] = ".mp3";
 	tmp["video/mp4"] = ".mp4";
+	return tmp;
 }
 
 const std::map<int, std::string> Response::_statusCodes = Response::initStatusCodes();
 
 const std::vector<std::string> Response::_allowedCGI = Response::init_allowed_cgi();
 
-const std::map<std::string, std::string> Response::_accpetedPostFile = Response::initAcceptedPostFile();
+const std::map<std::string, std::string> Response::_acceptedPostFile = Response::initAcceptedPostFile();
