@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:10:13 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 15:41:20 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,12 +195,11 @@ void EventHandler::handleClientRequest(int clientFd) {
 
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
 
-		tmp_request.printAll();
-		const std::string &host = tmp_request.getHeaderValue("Host");
-		std::cerr << "HOSTS------------: " << host << std::endl;;
-		std::cerr << "TEST----:: " << _cluster.get_config_by_host(host).get_name() << std::endl;;
 
-		const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());
+		tmp_request.printAll();
+
+		const Config &conf = _cluster.get_config_by_host(tmp_request.getHeaderValue("Host"));
+		const Config::Routes &route = Response::find_match(conf, tmp_request.getUrl());
 
 		std::map<std::string, std::string>::const_iterator cgi_route;
 		if ((cgi_route = Response::check_cgi(route, tmp_request.getUrl())) != route.cgi.end())
@@ -234,14 +233,16 @@ void EventHandler::handleResponse(int clientFd) {
 	/* A Response object to be created and feed output */
 
 	std::string s;
+
+	const Config &conf = _cluster.get_config_by_host(rqs.getHeaderValue("Host"));
 	if (!_clients.at(clientFd)->_cgiBuffer.empty())
 	{
-		Response rsp(rqs, _clients.at(clientFd)->_config, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
+		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
 		s = rsp.generateResponse();
 	}
 	else
 	{
-		Response rsp(rqs, _clients.at(clientFd)->_config);
+		Response rsp(rqs, conf);
 		s = rsp.generateResponse();
 	}
 

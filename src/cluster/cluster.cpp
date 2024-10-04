@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/04 13:50:28 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 15:40:43 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Server.hpp"
 #include "config.hpp"
 #include "json.hpp"
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -80,10 +81,16 @@ const std::vector<Config*> &Cluster::get_configs() const
 
 const Config& Cluster::get_config_by_host(const std::string &host) const
 {
+	std::stringstream s;
 	for (std::vector<Config*>::const_iterator it = _configs.begin(); it < _configs.end(); it++)
 	{
-		if (host == (*it)->get_host())
+		s << (*it)->get_host() << ':' << (*it)->get_port();
+		if (host == s.str())
+		{
+			std::cerr << "FOUND: [" << s.str() << "], actual host: [" << host << ']' << std::endl;
 			return *(*it);
+		}
+		s.str("");
 	}
 	return *_configs.front();
 }
