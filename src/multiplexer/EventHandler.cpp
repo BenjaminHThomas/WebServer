@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 16:45:19 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 16:49:00 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,14 +140,24 @@ void EventHandler::handleNewConnection(Server & s) {
 }
 
 bool EventHandler::isResponseComplete(int clientFd) {
-	std::string buff = _clients.at(clientFd)->_requestBuffer;
-	std::string::size_type pos = buff.find("\r\n\r\n");
-	if (pos == std::string::npos)
-		return false;
+	// check header completion
+	std::string buff = _clients[clientFd]->_requestBuffer;
+	size_t pos = buff.find("\r\n\r\n");
+	if (pos == std::string::npos) {
+		pos = buff.find("\n\n");
+		if (pos == std::string::npos) {
+			return false;
+		}
+	}
 
-	std::cout << "-----------reading request------------" << std::endl;
-	std::cout << buff << std::endl;
+	if (isHeaderChunked(clientFd)) {
+		_clients[clientFd]->_reqType = (ClientConnection::reqType)CHUNKED;
+	}
+	
 	//Check if it's a POST request with a body
+	if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
+		return isChunkReqFinished(clientFd);
+	}
 	size_t content_len_pos = buff.find("Content-Length: ");
 	if (content_len_pos != std::string::npos) {
 		size_t content_len_end = buff.find("\r\n", content_len_pos);
@@ -180,6 +190,9 @@ void EventHandler::handleClientRequest(int clientFd) {
 	if (isResponseComplete(clientFd))
 	{
 		std::cout << "Recieved request:\n" << _clients.at(clientFd)->_requestBuffer << "\n";
+		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
+			cleanChunkedReq(clientFd);
+		}
 
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
 		const Config::Routes &route = Response::find_match(_clients.at(clientFd)->_config, tmp_request.getUrl());

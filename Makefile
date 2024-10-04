@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+         #
+#    By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/23 14:04:06 by bthomas           #+#    #+#              #
-#    Updated: 2024/10/03 14:42:10 by tsuchen          ###   ########.fr        #
+#    Updated: 2024/10/04 14:10:51 by bthomas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ SRC			+=	EventHandler.cpp \
 				Server.cpp \
 				ClientConnection.cpp \
 				EventHandler_cgi.cpp \
-				CGIManager.cpp
+				CGIManager.cpp \
+				EventHandler_chunks.cpp
 SRC			+=	AHttpData.cpp Request.cpp Response.cpp DirectoryListing.cpp CgiContent.cpp
 SRC			+=	cluster.cpp
 

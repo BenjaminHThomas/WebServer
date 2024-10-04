@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 21:18:13 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/04 15:03:47 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,20 @@
 #include <cerrno> //temp, just for testing
 #include <cstdlib>
 #include <sys/wait.h>
+#include <sstream>
 
 #define BUFFER_SIZE 30720
+#define TIMEOUT 5
 
 extern char **environ;
 
 class ClientConnection;
 class CGIManager;
 
+enum reqType {
+			CHUNKED,
+			NONCHUNKED
+		};
 class EventHandler
 {
 	private:
@@ -42,6 +48,7 @@ class EventHandler
 			EP_CGI
 		};
 
+
 	private:
 		int _epollFd;
 		std::map<int, Server*> _servers;
@@ -50,7 +57,6 @@ class EventHandler
 		std::map<int, CONNTYPE> _openConns;
 
 	public:
-		class epollInitFailure;
 		void setNonBlock(int fd);
 		bool addToEpoll(int fd);
 		bool deleteFromEpoll(int fd);
@@ -68,6 +74,16 @@ class EventHandler
 		void checkCompleteCGIProcesses(void);
 
 	public:
+		bool isHeaderChunked(int clientFd);
+		bool isChunkReqFinished(int clientFd);
+		void cleanChunkedReq(int clientFd);
+		std::string extractHeader(std::string & reqBuffer, std::string::size_type & headerEnd);
+		std::string::size_type getChunkSize(std::string::size_type & chunkStart,
+									std::string::size_type & chunkEnd,
+									std::string & reqBuffer);
+
+	public:
+		class epollInitFailure;
 		class epollWaitFailure;
 
 	public:
