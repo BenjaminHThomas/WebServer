@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler_cgi.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:10:03 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 16:47:16 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 					std::cout << "child timeout after: " << TIMEOUT << std::endl;
 					kill(pid, SIGTERM);
 					waitpid(pid, NULL, 0);
+					std::cerr << "HHHHHHHHHHHHHHHHHHHHHHHHHHH" << std::endl;
 					return false;
 				}
 			}

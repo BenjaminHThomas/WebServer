@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 15:22:23 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 16:58:27 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ Response::Response(Request const &request, Config const &config, const std::stri
 	}
 	else if (!complete)
 	{
+		std::cerr << "$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
 		_statusCode = 404;
 		_content = getErrorContent(_statusCode);
 	}
