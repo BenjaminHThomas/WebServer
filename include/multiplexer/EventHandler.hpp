@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 20:38:07 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 15:21:50 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ class EventHandler
 		void checkCompleteCGIProcesses(void);
 
 		const Config &get_config(const std::string &host, int clientFd) const;
+		void handle_environment(int clientFd, const std::string &arg);
 
 	public:
 		bool isHeaderChunked(int clientFd);

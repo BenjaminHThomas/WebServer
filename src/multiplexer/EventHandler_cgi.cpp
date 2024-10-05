@@ -6,26 +6,62 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:10:03 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 15:55:32 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
+#include "Request.hpp"
 #include "string.h"
+#include <cctype>
 #include <csignal>
 #include <cstdlib>
 #include <ctime>
+#include <exception>
 #include <sched.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <unistd.h>
 #include <vector>
 #include <csignal>
+#include <stdlib.h>
 
 static void setPipe(int *fd, int end) {
 	if (dup2(fd[end], end) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1) {
 		std::cerr << "Error: could not open pipe for cgi output\n";
 		throw (1);
+	}
+}
+
+std::string &process_header_field(std::string &s)
+{
+	for (std::string::iterator it = s.begin(); it < s.end(); it++)
+	{
+		if (*it == '-')
+		{
+			*it = '_';
+			continue;
+		}
+		*it = std::toupper(*it);
+	}
+	return s;
+}
+
+void EventHandler::handle_environment(int clientFd, const std::string &arg)
+{
+	Request req(_clients.at(clientFd)->_requestBuffer);
+
+	setenv("PATH_INFO", arg.c_str(), 1);
+	setenv("REQUEST_METHOD", req.getMethod().c_str(), 1);
+	try
+	{
+		// req.get
+		// setenv("HTTP_COOKIE", req.getHeaderValue("Cookie").c_str(), 1);
+		// setenv("HTTP_USER_AGENT", req.getHeaderValue("Cookie").c_str(), 1);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "[log]no cookies found in the request" << std::endl;
 	}
 }
 
@@ -56,6 +92,8 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 			const_cast<char *>(arguments[1].c_str()),
 			NULL
 		};
+
+		handle_environment(clientFd, arguments[0]);
 
 		// signal(SIGALRM, alarm_handler);
 		// alarm(TIMEOUT);
