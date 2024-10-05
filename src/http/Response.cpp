@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 10:26:23 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 14:11:46 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,7 +264,7 @@ std::string Response::check_postFile(std::string const &type)
 	if (_acceptedPostFile.count(type) > 0)
 		return _acceptedPostFile.at(type);
 	else
-		throw (418); //Forbidden file type
+		throw (403); //Forbidden file type
 }
 
 bool	Response::check_extension(std::string const &url)
