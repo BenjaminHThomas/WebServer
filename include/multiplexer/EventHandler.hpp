@@ -6,11 +6,12 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 22:12:04 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 23:24:18 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "Request.hpp"
 #include "cluster.hpp"
 #include "config.hpp"
 #ifndef EVENTHANDLER_HPP
@@ -75,7 +76,7 @@ class EventHandler
 		void checkCompleteCGIProcesses(void);
 
 		const Config &get_config(const std::string &host, int clientFd) const;
-		void handle_environment(int clientFd, const std::string &arg);
+		void handle_environment(const Request &req, const std::string &arg);
 
 	public:
 		bool isHeaderChunked(int clientFd);

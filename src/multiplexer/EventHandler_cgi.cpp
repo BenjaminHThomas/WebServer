@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 22:10:30 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 00:00:09 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "string.h"
 #include <cctype>
 #include <csignal>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <exception>
@@ -26,11 +27,16 @@
 #include <csignal>
 #include <stdlib.h>
 
-static void setPipe(int *fd, int end) {
-	if (dup2(fd[end], end) == -1 || close(fd[0]) == -1 || close(fd[1]) == -1) {
-		std::cerr << "Error: could not open pipe for cgi output\n";
-		throw (1);
-	}
+static void close_all(int fd[], int fd_body[])
+{
+	if (fd[0] != -1)
+		close(fd[0]);
+	if (fd[1] != -1)
+		close(fd[1]);
+	if (fd_body[0] != -1)
+		close(fd_body[0]);
+	if (fd_body[1] != -1)
+		close(fd_body[1]);
 }
 
 std::string process_header_field(const std::string &s)
@@ -49,9 +55,9 @@ std::string process_header_field(const std::string &s)
 	return processed;
 }
 
-void EventHandler::handle_environment(int clientFd, const std::string &arg)
+void EventHandler::handle_environment(const Request &req, const std::string &arg)
 {
-	Request req(_clients.at(clientFd)->_requestBuffer);
+
 	environ = NULL;
 
 	setenv("PATH_INFO", arg.c_str(), 1);
@@ -63,7 +69,7 @@ void EventHandler::handle_environment(int clientFd, const std::string &arg)
 		for (std::map<std::string, std::string>::const_iterator it = req.getHeaders().begin(); it != req.getHeaders().end(); it++)
 		{
 			std::string s(process_header_field(it->first));
-			std::cout << "zatiri zort zort: " << s <<": " << it->second << std::endl;
+			// std::cout << "zatiri zort zort: " << s <<": " << it->second << std::endl;
 			setenv(s.c_str(), it->second.c_str(), 1);
 		}
 		if (req.getMethod() == "POST")
@@ -86,20 +92,24 @@ void EventHandler::handle_environment(int clientFd, const std::string &arg)
 bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 	pid_t pid;
 	int fd[2];
+	int fd_body[2];
+	Request req(_clients.at(clientFd)->_requestBuffer);
 
-	if (pipe(fd) == -1) {
+	if (pipe(fd) == -1 || pipe(fd_body) == -1) {
 		std::cerr << "Error: could not establish pipe for CGI output\n";
 		return false;
 	}
 	pid = fork();
 	if (pid == -1) {
 		std::cerr << "Error: could not fork process in CGI output\n";
-		close(fd[0]);
-		close(fd[1]);
+		close_all(fd, fd_body);
 		return false;
 	}
 	if (pid == 0) {
-		setPipe(fd, STDOUT_FILENO);
+		// setPipe(fd, STDOUT_FILENO);
+		dup2(fd[1], STDOUT_FILENO);
+		dup2(fd_body[0], STDIN_FILENO);
+		close_all(fd, fd_body);
 		char *const args[] =
 		{
 			const_cast<char *>(arguments[0].c_str()),
@@ -107,7 +117,8 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 			NULL
 		};
 
-		handle_environment(clientFd, arguments[0]);
+
+		handle_environment(req, arguments[0]);
 
 		// signal(SIGALRM, alarm_handler);
 		// alarm(TIMEOUT);
@@ -115,7 +126,10 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 		std::cerr << "Error: could not execute cgi script\n";
 		throw (1);
 	} else {
+		write(fd_body[1], req.getBody().c_str(), req.getBody().size());
 		close(fd[1]);
+		close(fd_body[0]);
+		close(fd_body[1]);
 		time_t start_time = std::time(NULL);
 		while (1)
 		{
