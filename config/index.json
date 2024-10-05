@@ -1,0 +1,21 @@
+[
+	{
+		"name": "test for cgi in index directive server",
+		"host": "localhost",
+		"port": 8889,
+		"max_body": 10000,
+		"routes": [
+			{
+				"methods": ["GET"],
+				"route": "/",
+				"index": "hello.py",
+				"dir_listing": false,
+				"directory": "./website/random",
+				"upload": "./upload",
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3" }
+				]
+			}
+		]
+	}
+]

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 20:38:07 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 18:38:05 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <sys/wait.h>
 #include <sstream>
+#include <utils.hpp>
 
 #define BUFFER_SIZE 30720
 #define TIMEOUT 5
@@ -38,6 +39,7 @@ enum reqType {
 			CHUNKED,
 			NONCHUNKED
 		};
+
 class EventHandler
 {
 	private:
@@ -46,7 +48,6 @@ class EventHandler
 			EP_CLIENT,
 			EP_CGI
 		};
-
 
 	private:
 		int _epollFd;
@@ -71,7 +72,7 @@ class EventHandler
 		void changeToRead(int clientFd);
 		bool isResponseComplete(int clientFd);
 		// void startCGI(int clientFd, std::string fname);
-		bool startCGI(int clientFd, std::vector<std::string> fname);
+		CgiResult startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
 
 		const Config &get_config(const std::string &host, int clientFd) const;
