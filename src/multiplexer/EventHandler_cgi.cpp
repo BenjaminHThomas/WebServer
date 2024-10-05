@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 15:55:32 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 22:10:30 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,10 @@ static void setPipe(int *fd, int end) {
 	}
 }
 
-std::string &process_header_field(std::string &s)
+std::string process_header_field(const std::string &s)
 {
-	for (std::string::iterator it = s.begin(); it < s.end(); it++)
+	std::string processed(s);
+	for (std::string::iterator it = processed.begin(); it < processed.end(); it++)
 	{
 		if (*it == '-')
 		{
@@ -44,24 +45,37 @@ std::string &process_header_field(std::string &s)
 		}
 		*it = std::toupper(*it);
 	}
-	return s;
+	processed.insert(0, "HTTP_");
+	return processed;
 }
 
 void EventHandler::handle_environment(int clientFd, const std::string &arg)
 {
 	Request req(_clients.at(clientFd)->_requestBuffer);
+	environ = NULL;
 
 	setenv("PATH_INFO", arg.c_str(), 1);
 	setenv("REQUEST_METHOD", req.getMethod().c_str(), 1);
+	if (!req.getQueryString().empty())
+		setenv("QUERY_STRING", req.getQueryString().c_str(),1);
 	try
 	{
-		// req.get
-		// setenv("HTTP_COOKIE", req.getHeaderValue("Cookie").c_str(), 1);
-		// setenv("HTTP_USER_AGENT", req.getHeaderValue("Cookie").c_str(), 1);
+		for (std::map<std::string, std::string>::const_iterator it = req.getHeaders().begin(); it != req.getHeaders().end(); it++)
+		{
+			std::string s(process_header_field(it->first));
+			std::cout << "zatiri zort zort: " << s <<": " << it->second << std::endl;
+			setenv(s.c_str(), it->second.c_str(), 1);
+		}
+		if (req.getMethod() == "POST")
+		{
+			setenv("CONTENT_TYPE", req.getHeaderValue("Content-Type").c_str(), 1);
+			setenv("CONTENT_LENGTH", req.getHeaderValue("Content-Length").c_str(), 1);
+		}
+		setenv("SERVER_NAME", req.getHeaderValue("Host").c_str(), 1);
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "[log]no cookies found in the request" << std::endl;
+		std::cerr << "[log] setenv, can ignore" << std::endl;
 	}
 }
 
