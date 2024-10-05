@@ -54,6 +54,7 @@ if [ "$1" = "all" ]; then
     for config_file in ./config/*.json; do
         if [ -f "$config_file" ]; then
             run_test "$config_file"
+            sleep 1
         else
             echo -e "${YELLOW}⚠️  Warning: No config files found in ./config/${NC}"
             break
