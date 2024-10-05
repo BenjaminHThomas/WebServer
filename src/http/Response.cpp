@@ -3,18 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 18:01:02 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 14:11:46 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "CgiContent.hpp"
+#include "utils.hpp"
 #include <algorithm>
+#include <sstream>
 #include <stdexcept>
-#include <sys/stat.h>
 #include <vector>
 
 Response::Response(Request const &request, Config const &config) :
@@ -119,28 +120,29 @@ std::string		Response::readFile(const std::string &filename) {
 
 std::string		Response::getErrorContent(int errCode) {
 	std::string content;
-	if (_config.get_error_pages().size() != 0) {
-		try
-		{
-			std::string const &err_page = _config.get_error_pages().at(errCode);
-			content = readFile(err_page);
+	try
+	{
+		if (_config.get_error_pages().size() != 0) {
+				std::string const &err_page = _config.get_error_pages().at(errCode);
+				content = readFile(err_page);
 		}
-		catch(int)
-		{
-			std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
-			content.append("<html><body>");
-			content.append("<h2>Oops! Got an error: </h2><h1>");
-			content.append(_statusCodes.at(_statusCode));
-			content.append("</h1></body></html>");
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << "No Error pages: " << e.what() << '\n';
-			content.append("<html><body>");
-			content.append("<h2>Oops! Got an error: </h2><h1>");
-			content.append(_statusCodes.at(_statusCode));
-			content.append("</h1></body></html>");
-		}
+		throw (errCode);
+	}
+	catch(int)
+	{
+		std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
+		content.append("<html><body>");
+		content.append("<h2>Oops! Got an error: </h2><h1>");
+		content.append(_statusCodes.at(_statusCode));
+		content.append("</h1></body></html>");
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "No Error pages: " << e.what() << '\n';
+		content.append("<html><body>");
+		content.append("<h2>Oops! Got an error: </h2><h1>");
+		content.append(_statusCodes.at(_statusCode));
+		content.append("</h1></body></html>");
 	}
 	return content;
 }
@@ -212,7 +214,7 @@ std::string	Response::getPostContent(Request const &request) {
 	std::string filename;
 	std::string path = _route.upload;
 
-	
+
 	if (*path.rbegin() != '/')
 		path.append("/");
 	try
@@ -257,7 +259,7 @@ std::map<std::string, std::string>::const_iterator	Response::check_cgi(const Con
 std::string Response::check_postFile(std::string const &type)
 {
 	if (type.empty())
-		// missing content-type header in the request 
+		// missing content-type header in the request
 		throw (400); //Bad request
 	if (_acceptedPostFile.count(type) > 0)
 		return _acceptedPostFile.at(type);
@@ -278,17 +280,7 @@ bool	Response::check_extension(std::string const &url)
 	return false;
 }
 
-bool	Response::is_directory(const std::string &path)
-{
-	struct stat s;
 
-	if (stat(path.c_str() ,&s) == 0)
-	{
-		if( s.st_mode & S_IFDIR )
-			return true;
-	}
-	return false;
-}
 
 std::string		Response::toLower(std::string s) {
 	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
