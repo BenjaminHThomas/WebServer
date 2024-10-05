@@ -54,7 +54,7 @@
 				"route": "/",
 				"index": "index.html",
 				"dir_listing": true,
-				"directory": "./website",
+				"directory": "./website/another_folder",
 				"upload": "./upload",
 				"cgi": [
 					{ "extension": "cpp", "exec": "/usr/bin/c++"}

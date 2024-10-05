@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 14:24:43 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 09:37:33 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 
 # include "Request.hpp"
 # include "config.hpp"
-# include <sstream>
 # include <ctime>
 
 class Response
@@ -26,7 +25,7 @@ public:
 		STANDARD,
 		SIMPLE,
 	};
-	
+
 private:
 	/* data */
 	std::string							_content;
@@ -41,7 +40,6 @@ private:
 	std::string		getErrorContent(int errCode);
 	std::string		getFileContent(std::string const &url);
 	std::string		getPostContent(Request const &request);
-	bool			is_directory(const std::string &path);
 
 	/* static functions */
 	static std::string	toLower(std::string s);
