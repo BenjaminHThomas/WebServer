@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 15:18:26 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 15:19:24 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,7 @@ void EventHandler::sendInvalidResponse(int clientFd) {
 	std::cerr << "Error: body size limit reached.\n";
 	_clients.at(clientFd)->resetData();
 	// change request buffer to cause 504
-	_clients.at(clientFd)->_errorCode = 404;
+	_clients.at(clientFd)->_errorCode = 504;
 	generateResponse(clientFd);
 	changeToWrite(clientFd);
 }
