@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:37:17 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 13:03:18 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class EventHandler
 		void addServer(Server & s);
 		void handleNewConnection(Server & s);
 		void handleClientRequest(int clientFd);
+		void generateResponse(int clientFd);
 		void handleResponse(int clientFd);
 		void epollLoop(void);
 		void changeToWrite(int clientFd);

@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 16:01:45 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 13:15:59 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ void EventHandler::sendInvalidResponse(int clientFd) {
 	_clients.at(clientFd)->resetData();
 	// change request buffer to cause 504
 	_clients.at(clientFd)->_errorCode = 504;
-
+	generateResponse(clientFd);
 	changeToWrite(clientFd);
 }
 
@@ -243,36 +243,28 @@ void EventHandler::handleClientRequest(int clientFd) {
 			arguments.push_back(route.directory + file);
 			if (!startCGI(clientFd, arguments))
 			{
-				changeToWrite(clientFd);
 				_clients.at(clientFd)->_cgiFailed = true;
+				generateResponse(clientFd);
+				changeToWrite(clientFd);
 			}
 		}
 		else
 		{
+			generateResponse(clientFd);
 			changeToWrite(clientFd);
 		}
 	}
 }
 
 // Write response to the client
-void EventHandler::handleResponse(int clientFd) {
-	std::cout << "Sending response to client " << clientFd << "\n";
+
+void EventHandler::generateResponse(int clientFd) {
 	if (_clients.at(clientFd)->_errorCode) {
 		Response rsp(_clients.at(clientFd)->_config, _clients.at(clientFd)->_errorCode);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
-		write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
-		_clients.at(clientFd)->resetData();
-		changeToRead(clientFd);
 		return ;
 	}
-	// 1. HTTP Parse the reqesut Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
-
-	// 2. Find the last matched Routes for this request
-
-	// 3. Generate Response based on Request object
-	/* A Response object to be created and feed output */
-
 	std::string s;
 	if (!_clients.at(clientFd)->_cgiBuffer.empty())
 	{
@@ -284,16 +276,23 @@ void EventHandler::handleResponse(int clientFd) {
 		Response rsp(rqs, _clients.at(clientFd)->_config);
 		s = rsp.generateResponse();
 	}
-
 	// IF REQUEST WAS FOR A CGI -> _responseBuffer contains CGI content
 	_clients.at(clientFd)->_responseBuffer.append(s);
+}
 
-	// 4. Write to the clientFD with reponse string
-	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
-	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
-	// 5. clear the buff in this clientFD
-	_clients.at(clientFd)->resetData();
-	changeToRead(clientFd);
+void EventHandler::handleResponse(int clientFd) {
+	std::cout << "Sending response to client " << clientFd << "\n";
+	
+	ssize_t bytes_remaining = _clients.at(clientFd)->_responseBuffer.size();
+	ssize_t bytes_written = write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
+	if (bytes_written < 0) {
+		return  ; // could be temporary full socket, but not allowed to check err code to confirm :(
+	} else if (bytes_written == bytes_remaining) {
+		_clients.at(clientFd)->resetData();
+		changeToRead(clientFd);
+	} else {
+		_clients.at(clientFd)->_responseBuffer.erase(0, bytes_written);
+	}
 }
 
 void EventHandler::checkCompleteCGIProcesses(void)
@@ -311,6 +310,7 @@ void EventHandler::checkCompleteCGIProcesses(void)
 			deleteFromEpoll(info->pipeFd);
 			completed.push_back(info->pipeFd);
 			_openConns.erase(info->pipeFd);
+			generateResponse(clientFd);
 			changeToWrite(clientFd);
 		}
 	}
