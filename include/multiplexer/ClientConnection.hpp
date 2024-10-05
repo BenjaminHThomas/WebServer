@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:09:22 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 16:04:48 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class ClientConnection
 		size_t	_bytesSent;
 		bool _responseReady;
 		bool _cgiFailed;
+		bool _cgi;
 		reqType _reqType;
 
 		const Config &_config;

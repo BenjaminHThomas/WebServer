@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 21:18:26 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 16:05:54 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,23 +190,28 @@ void EventHandler::handleClientRequest(int clientFd) {
 		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
 			cleanChunkedReq(clientFd);
 		}
-
+		// Create a temporary Request object to check if CGI needs to be triggered
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
-
 
 		tmp_request.printAll();
 
-
+		// Get corresponding Config and Route based on Client Request
 		const Config &conf = get_config(tmp_request.getHeaderValue("Host"), clientFd);
 		const Config::Routes &route = Response::find_match(conf, tmp_request.getUrl());
 
 		std::map<std::string, std::string>::const_iterator cgi_route;
 		if ((cgi_route = Response::check_cgi(route, tmp_request.getUrl())) != route.cgi.end())
 		{
+			_clients.at(clientFd)->_cgi = true;
 			std::vector<std::string> arguments;
 			arguments.push_back(cgi_route->second);
-			std::string file = tmp_request.getUrl().substr(route.path.length());
+			std::string file;
+			if (tmp_request.getUrl() == route.path)
+				file = route.index;
+			else
+				file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
+			std::cout << "In CGI, CGI: " << cgi_route->second << "; filename: " << file << std::endl;
 			if (!startCGI(clientFd, arguments))
 			{
 				changeToWrite(clientFd);
@@ -225,20 +230,24 @@ void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	// 1. HTTP Parse the request Buffer
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
-
 	// rqs.printAll();
 	// 2. Generate Response based on Request object and whether there is cgiContent created in cgiBuffer
 	// IF REQUEST WAS FOR A CGI -> _cgiBuffer contains CGI content and not Empty
 	std::string s;
 
+	std::cout << "---------------IN handle Response----------" << std::endl;
+	std::cout << "\n" << _clients.at(clientFd)->_cgiBuffer << std::endl;
 	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
-	if (!_clients.at(clientFd)->_cgiBuffer.empty())
+	if (_clients.at(clientFd)->_cgi)
 	{
+		std::cout << "Trigger CGI Response: CGI buffer: " << std::endl;
+		std::cout << "\n" << _clients.at(clientFd)->_cgiBuffer << std::endl;
 		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
 		s = rsp.generateResponse();
 	}
 	else
 	{
+		std::cout << "In this loop" << std::endl;
 		Response rsp(rqs, conf);
 		s = rsp.generateResponse();
 	}

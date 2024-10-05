@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 14:10:23 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 16:04:36 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 	_bytesSent(0),
 	_responseReady(false),
 	_cgiFailed(false),
+	_cgi(false),
 	_reqType(NONCHUNKED),
 	_config(config)
 {
@@ -30,6 +31,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 		_bytesSent(other._bytesSent),
 		_responseReady(other._responseReady),
 		_cgiFailed(false),
+		_cgi(false),
 		_reqType(NONCHUNKED),
 		_config(other._config)
 {
@@ -44,6 +46,7 @@ ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 		_responseBuffer = other._responseBuffer;
 		_responseReady = false;
 		_cgiFailed = false;
+		_cgi = false;
 		_reqType = other._reqType;
 	}
 	return *this;
@@ -56,6 +59,7 @@ void ClientConnection::resetData() {
 	_bytesSent = 0;
 	_responseReady = false;
 	_cgiFailed = false;
+	_cgi = false;
 	_reqType = NONCHUNKED;
 }
 

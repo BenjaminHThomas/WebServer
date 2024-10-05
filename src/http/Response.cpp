@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 14:11:46 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 15:22:23 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,14 +246,23 @@ std::string	Response::getPostContent(Request const &request) {
 // return the iterator of cgi found in the current _route
 std::map<std::string, std::string>::const_iterator	Response::check_cgi(const Config::Routes &route, std::string const &url)
 {
+	std::string	ext;
 	if (route.cgi.empty())
 		return route.cgi.end();
 	std::string::size_type dotPos = url.rfind('.');
-	if (dotPos == std::string::npos)
+	if (dotPos == std::string::npos) {
+		if (url == route.path) {
+			// if not extension and the client request url == route, then need to check index
+			dotPos = route.index.rfind('.');
+			if (dotPos != std::string::npos) {
+				ext = toLower(route.index.substr(dotPos + 1));
+				return route.cgi.find(ext);
+			}
+		}
 		return route.cgi.end();
-	std::string	ext = toLower(url.substr(dotPos + 1));
-	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
-	return it;
+	}
+	ext = toLower(url.substr(dotPos + 1));
+	return route.cgi.find(ext);
 }
 
 std::string Response::check_postFile(std::string const &type)
