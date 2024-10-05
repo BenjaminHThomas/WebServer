@@ -1,0 +1,42 @@
+[
+	{
+		"name": "first server",
+		"host": "localhost",
+		"port": 8080,
+		"max_body": 10000,
+		"routes": [
+			{
+				"methods": ["GET", "POST", "DELETE"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "./website",
+				"upload": "./upload",
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3" },
+					{ "extension": "php", "exec": "/usr/bin/php" }
+				]
+			}
+		]
+	},
+	{
+		"name": "second server hahahah",
+		"host": "okoca.42.fr",
+		"port": 8080,
+		"max_body": 10000,
+		"routes": [
+			{
+				"methods": ["GET", "POST", "DELETE"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "./website/random",
+				"upload": "./upload",
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3" },
+					{ "extension": "php", "exec": "/usr/bin/php" }
+				]
+			}
+		]
+	}
+]

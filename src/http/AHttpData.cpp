@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/27 19:03:45 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 15:47:15 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/04 15:31:59 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@ AHttpData::AHttpData(std::string const & str, bool isRequest) : _raw(str), _isRe
 	// std::cout << "HttpData constructed" << std::endl;
 
 	_hasHeaders = parseHeaders();
-	if (!_hasHeaders)
+	if (!_hasHeaders) {
 		_body = _raw;
+	}
 	// try
 	// {
 	// 	/* code */
