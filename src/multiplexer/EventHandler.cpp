@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 18:53:21 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 19:30:51 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,7 +212,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 				file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
 			_clients.at(clientFd)->_cgiResult = startCGI(clientFd, arguments);
-			changeToWrite(clientFd);
+			if (_clients.at(clientFd)->_cgiResult != SUCCESS)
+				changeToWrite(clientFd);
 		}
 		else
 		{
@@ -248,7 +249,6 @@ void EventHandler::handleResponse(int clientFd) {
 	// 4. Write to the clientFD with reponse string
 	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
 	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
-
 	// 5. clear the buff in this clientFD
 	_clients.at(clientFd)->resetData();
 	changeToRead(clientFd);

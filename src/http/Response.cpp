@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 18:57:39 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 19:27:06 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,13 +58,10 @@ Response::Response(Request const &request, Config const &config, const std::stri
 		{
 			case TIMEDOUT:
 				throw(504);
-				break;
 			case NOTFOUND:
 				throw(404);
-				break;
 			case ERROR:
 				throw(500);
-				break;
 			default:
 				break;
 		}

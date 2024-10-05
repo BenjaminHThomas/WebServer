@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 18:24:14 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 19:05:05 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ CgiResult EventHandler::startCGI(int clientFd, std::vector<std::string> argument
 
 				if (!code)
 				{
+					std::cerr << "HERHERHERHERHERHERE" << std::endl;
 					addToEpoll(fd[0]);
 					_cgiManager.addCgiProcess(clientFd, fd[0], pid);
 					_openConns[fd[0]] = EP_CGI;
