@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 13:23:35 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 14:56:50 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,12 +183,16 @@ std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
 
 bool EventHandler::isBodyTooBig(int clientFd, int bytes_read) {
 	std::string::size_type headerEndPos = getHeaderEndPos(clientFd);
-	if (headerEndPos == std::string::npos)
+	if (headerEndPos == std::string::npos) {
+		std::cerr << "header end pos\n";
 		return false;
+	}
 	uint64_t maxBodySize = _clients.at(clientFd)->_config.get_max_body_size();
 	std::string::size_type currentBodySize;
 	currentBodySize = _clients.at(clientFd)->_requestBuffer.size() - headerEndPos;
+	std::cout << "Body size: " << currentBodySize << "\n\n";
 	if (currentBodySize + bytes_read > maxBodySize) {
+		std::cerr << "body too big :(\n";
 		return true;
 	}
 	return false;
@@ -219,12 +223,14 @@ void EventHandler::handleClientRequest(int clientFd) {
 		return ;
 	}
 	buffer[bytes_read] = 0;
+	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
+	std::cout << "\n\nBody:\n" << _clients.at(clientFd)->_requestBuffer << "\n\n\n";
 	if (isBodyTooBig(clientFd, bytes_read)) {
 		// send 504.
+		std::cerr << "Body too big!\n";
 		sendInvalidResponse(clientFd);
 		return ;
 	}
-	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
 	if (isResponseComplete(clientFd))
 	{
 		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
@@ -266,6 +272,7 @@ void EventHandler::handleClientRequest(int clientFd) {
 
 void EventHandler::generateResponse(int clientFd) {
 	if (_clients.at(clientFd)->_errorCode) {
+		std::cerr << "504 error found\n";
 		Response rsp(_clients.at(clientFd)->_config, _clients.at(clientFd)->_errorCode);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
 		return ;
