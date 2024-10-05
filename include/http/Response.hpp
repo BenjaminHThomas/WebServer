@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 09:37:33 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 18:21:45 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 
 # include "Request.hpp"
 # include "config.hpp"
+# include "EventHandler.hpp"
+# include "ClientConnection.hpp"
 # include <ctime>
 
 class Response
@@ -51,7 +53,7 @@ private:
 	static const std::map<std::string, std::string>	_acceptedPostFile;
 public:
 	Response(Request const &request, Config const &config);
-	Response(Request const &request, Config const &config, const std::string &cgi_content, bool complete);
+	Response(Request const &request, Config const &config, const std::string &cgi_content, CgiResult cgi_res);
 	~Response();
 
 	std::string		generateResponse();

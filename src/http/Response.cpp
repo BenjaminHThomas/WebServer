@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 14:11:46 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 19:27:06 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,50 +22,61 @@ Response::Response(Request const &request, Config const &config) :
 	_statusCode(200), _contentType("text/html"), _config(config)
 {
 	_route = find_match(_config, request.getUrl());
-	// check if method is allowed in the scope of _route
-	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
-		_statusCode = 405;
+	try
+	{
+		if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod()))
+			throw(405);
+		else if (request.getHttpVersion() != "HTTP/1.1")
+			throw(505);
+		else if (request.getMethod() == "POST")
+			_content = getPostContent(request);
+		else if (check_extension(request.getUrl()))
+			throw(502);
+		else
+			_content = getFileContent(request.getUrl());
+	}
+	catch(int errCode)
+	{
+		_statusCode = errCode;
 		_content = getErrorContent(_statusCode);
 	}
-	else if (request.getHttpVersion() != "HTTP/1.1")
+	catch(const std::exception& e)
 	{
-		_statusCode = 505;
-		_content = getErrorContent(_statusCode);
-	}
-	else if (request.getMethod() == "POST")
-	{
-		// Post stuff here
-		_content = getPostContent(request);
-	}
-	else if (check_extension(request.getUrl()))
-	{
-		_statusCode = 502;
-		_content = getErrorContent(_statusCode);
-	}
-	else
-	{
-		_content = getFileContent(request.getUrl());
+		std::cerr << "Some other Error in Default Response: " << e.what() << '\n';
 	}
 }
 
-Response::Response(Request const &request, Config const &config, const std::string &cgi_content, bool complete) :
+Response::Response(Request const &request, Config const &config, const std::string &cgi_content, CgiResult cgi_res) :
 	_statusCode(200), _contentType("text/html"), _config(config)
 {
 	_route = find_match(_config, request.getUrl());
-	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
-		_statusCode = 405;
-		_content = getErrorContent(_statusCode);
-	}
-	else if (!complete)
+	try
 	{
-		_statusCode = 404;
-		_content = getErrorContent(_statusCode);
-	}
-	else
-	{
+		if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod()))
+			throw (405);
+		switch (cgi_res)
+		{
+			case TIMEDOUT:
+				throw(504);
+			case NOTFOUND:
+				throw(404);
+			case ERROR:
+				throw(500);
+			default:
+				break;
+		}
 		CgiContent	cgi(cgi_content);
 		_extraHeaders = cgi.getHeaders();
 		_content = cgi.getBody();
+	}
+	catch(int errCode)
+	{
+		_statusCode = errCode;
+		_content = getErrorContent(_statusCode);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Some other errors in CGI Response: " << e.what() << '\n';
 	}
 }
 
@@ -246,14 +257,23 @@ std::string	Response::getPostContent(Request const &request) {
 // return the iterator of cgi found in the current _route
 std::map<std::string, std::string>::const_iterator	Response::check_cgi(const Config::Routes &route, std::string const &url)
 {
+	std::string	ext;
 	if (route.cgi.empty())
 		return route.cgi.end();
 	std::string::size_type dotPos = url.rfind('.');
-	if (dotPos == std::string::npos)
+	if (dotPos == std::string::npos) {
+		if (url == route.path) {
+			// if not extension and the client request url == route, then need to check index
+			dotPos = route.index.rfind('.');
+			if (dotPos != std::string::npos) {
+				ext = toLower(route.index.substr(dotPos + 1));
+				return route.cgi.find(ext);
+			}
+		}
 		return route.cgi.end();
-	std::string	ext = toLower(url.substr(dotPos + 1));
-	std::map<std::string, std::string>::const_iterator it = route.cgi.find(ext);
-	return it;
+	}
+	ext = toLower(url.substr(dotPos + 1));
+	return route.cgi.find(ext);
 }
 
 std::string Response::check_postFile(std::string const &type)

@@ -8,7 +8,7 @@
 			{
 				"methods": ["GET"],
 				"route": "/",
-				"index": "hello.html",
+				"index": "timeout.py",
 				"dir_listing": false,
 				"directory": "./website/timeout",
 				"upload": "./upload",
