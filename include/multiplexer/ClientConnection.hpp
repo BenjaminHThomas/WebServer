@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 13:18:36 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 15:09:38 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ class ClientConnection
 		bool _cgiFailed;
 		reqType _reqType;
 
-		uint16_t _errorCode;
+		int _errorCode;
 
 		const Config &_config;
 

@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 13:22:44 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 15:06:10 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ class EventHandler
 		void epollLoop(void);
 		void changeToWrite(int clientFd);
 		void changeToRead(int clientFd);
-		bool isBodyTooBig(int clientFd, int bytes_read);
+		bool isBodyTooBig(int clientFd);
 		bool isResponseComplete(int clientFd);
 		void sendInvalidResponse(int clientFd);
 		// void startCGI(int clientFd, std::string fname);

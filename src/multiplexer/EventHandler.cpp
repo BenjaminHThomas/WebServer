@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 14:56:50 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 15:18:26 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,28 +181,23 @@ std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
 	return headerEnd;
 }
 
-bool EventHandler::isBodyTooBig(int clientFd, int bytes_read) {
+bool EventHandler::isBodyTooBig(int clientFd) {
 	std::string::size_type headerEndPos = getHeaderEndPos(clientFd);
 	if (headerEndPos == std::string::npos) {
-		std::cerr << "header end pos\n";
 		return false;
 	}
 	uint64_t maxBodySize = _clients.at(clientFd)->_config.get_max_body_size();
 	std::string::size_type currentBodySize;
 	currentBodySize = _clients.at(clientFd)->_requestBuffer.size() - headerEndPos;
 	std::cout << "Body size: " << currentBodySize << "\n\n";
-	if (currentBodySize + bytes_read > maxBodySize) {
-		std::cerr << "body too big :(\n";
-		return true;
-	}
-	return false;
+	return currentBodySize > maxBodySize;
 }
 
 void EventHandler::sendInvalidResponse(int clientFd) {
 	std::cerr << "Error: body size limit reached.\n";
 	_clients.at(clientFd)->resetData();
 	// change request buffer to cause 504
-	_clients.at(clientFd)->_errorCode = 504;
+	_clients.at(clientFd)->_errorCode = 404;
 	generateResponse(clientFd);
 	changeToWrite(clientFd);
 }
@@ -224,10 +219,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 	}
 	buffer[bytes_read] = 0;
 	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
-	std::cout << "\n\nBody:\n" << _clients.at(clientFd)->_requestBuffer << "\n\n\n";
-	if (isBodyTooBig(clientFd, bytes_read)) {
-		// send 504.
-		std::cerr << "Body too big!\n";
+	std::cout << "\n\nFull Request:\n" << _clients.at(clientFd)->_requestBuffer << "\n\n\n";
+	if (isBodyTooBig(clientFd)) {
 		sendInvalidResponse(clientFd);
 		return ;
 	}
