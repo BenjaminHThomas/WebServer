@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 15:21:50 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 22:12:04 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 #include <sstream>
 
 #define BUFFER_SIZE 30720
-#define TIMEOUT 5
+#define TIMEOUT 3
 
 extern char **environ;
 
