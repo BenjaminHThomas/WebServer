@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 09:37:31 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/05 10:26:23 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,28 +120,29 @@ std::string		Response::readFile(const std::string &filename) {
 
 std::string		Response::getErrorContent(int errCode) {
 	std::string content;
-	if (_config.get_error_pages().size() != 0) {
-		try
-		{
-			std::string const &err_page = _config.get_error_pages().at(errCode);
-			content = readFile(err_page);
+	try
+	{
+		if (_config.get_error_pages().size() != 0) {
+				std::string const &err_page = _config.get_error_pages().at(errCode);
+				content = readFile(err_page);
 		}
-		catch(int)
-		{
-			std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
-			content.append("<html><body>");
-			content.append("<h2>Oops! Got an error: </h2><h1>");
-			content.append(_statusCodes.at(_statusCode));
-			content.append("</h1></body></html>");
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << "No Error pages: " << e.what() << '\n';
-			content.append("<html><body>");
-			content.append("<h2>Oops! Got an error: </h2><h1>");
-			content.append(_statusCodes.at(_statusCode));
-			content.append("</h1></body></html>");
-		}
+		throw (errCode);
+	}
+	catch(int)
+	{
+		std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
+		content.append("<html><body>");
+		content.append("<h2>Oops! Got an error: </h2><h1>");
+		content.append(_statusCodes.at(_statusCode));
+		content.append("</h1></body></html>");
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "No Error pages: " << e.what() << '\n';
+		content.append("<html><body>");
+		content.append("<h2>Oops! Got an error: </h2><h1>");
+		content.append(_statusCodes.at(_statusCode));
+		content.append("</h1></body></html>");
 	}
 	return content;
 }
@@ -263,7 +264,7 @@ std::string Response::check_postFile(std::string const &type)
 	if (_acceptedPostFile.count(type) > 0)
 		return _acceptedPostFile.at(type);
 	else
-		throw (403); //Forbidden file type
+		throw (418); //Forbidden file type
 }
 
 bool	Response::check_extension(std::string const &url)
