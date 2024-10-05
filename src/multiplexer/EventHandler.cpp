@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 17:14:41 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 18:53:21 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,11 +211,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 			else
 				file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
-			if (!startCGI(clientFd, arguments))
-			{
-				changeToWrite(clientFd);
-				_clients.at(clientFd)->_cgiFailed = true;
-			}
+			_clients.at(clientFd)->_cgiResult = startCGI(clientFd, arguments);
+			changeToWrite(clientFd);
 		}
 		else
 		{
@@ -237,12 +234,8 @@ void EventHandler::handleResponse(int clientFd) {
 	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
 	if (_clients.at(clientFd)->_cgi)
 	{
-		std::cout << "Trigger CGI Response: CGI buffer: " << std::endl;
-		std::cout << "\n" << _clients.at(clientFd)->_cgiBuffer << std::endl;
-		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
+		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, _clients.at(clientFd)->_cgiResult);
 		s = rsp.generateResponse();
-		std::cerr << "---------CGI response FINALE----------" << std::endl;
-		std::cerr << s << std::endl;
 	}
 	else
 	{

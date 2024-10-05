@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 16:47:16 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 18:24:14 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,20 @@ static void setPipe(int *fd, int end) {
 
 // forks process - child execve's script
 // return true if success -> false if failed
-bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
+CgiResult EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 	pid_t pid;
 	int fd[2];
 
 	if (pipe(fd) == -1) {
 		std::cerr << "Error: could not establish pipe for CGI output\n";
-		return false;
+		return ERROR;
 	}
 	pid = fork();
 	if (pid == -1) {
 		std::cerr << "Error: could not fork process in CGI output\n";
 		close(fd[0]);
 		close(fd[1]);
-		return false;
+		return ERROR;
 	}
 	if (pid == 0) {
 		setPipe(fd, STDOUT_FILENO);
@@ -72,7 +72,7 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 			if (result < 0)
 			{
 				std::cerr << "WAITPID FAILED: its ok though" << std::endl;
-				return false;
+				return NOTFOUND;
 				//throw (1);
 			}
 			else if (result == 0)
@@ -82,8 +82,7 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 					std::cout << "child timeout after: " << TIMEOUT << std::endl;
 					kill(pid, SIGTERM);
 					waitpid(pid, NULL, 0);
-					std::cerr << "HHHHHHHHHHHHHHHHHHHHHHHHHHH" << std::endl;
-					return false;
+					return TIMEDOUT;
 				}
 			}
 			else
@@ -98,17 +97,17 @@ bool EventHandler::startCGI(int clientFd, std::vector<std::string> arguments) {
 					addToEpoll(fd[0]);
 					_cgiManager.addCgiProcess(clientFd, fd[0], pid);
 					_openConns[fd[0]] = EP_CGI;
-					return true;
+					return SUCCESS;
 				}
 				else
 				{
 					close(fd[0]);
-					return false;
+					return ERROR;
 				}
 			}
 		}
 
 	}
-	return false;
+	return ERROR;
 }
 

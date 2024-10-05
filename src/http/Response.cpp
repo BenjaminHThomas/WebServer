@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 16:58:27 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 18:57:39 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,51 +22,64 @@ Response::Response(Request const &request, Config const &config) :
 	_statusCode(200), _contentType("text/html"), _config(config)
 {
 	_route = find_match(_config, request.getUrl());
-	// check if method is allowed in the scope of _route
-	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
-		_statusCode = 405;
+	try
+	{
+		if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod()))
+			throw(405);
+		else if (request.getHttpVersion() != "HTTP/1.1")
+			throw(505);
+		else if (request.getMethod() == "POST")
+			_content = getPostContent(request);
+		else if (check_extension(request.getUrl()))
+			throw(502);
+		else
+			_content = getFileContent(request.getUrl());
+	}
+	catch(int errCode)
+	{
+		_statusCode = errCode;
 		_content = getErrorContent(_statusCode);
 	}
-	else if (request.getHttpVersion() != "HTTP/1.1")
+	catch(const std::exception& e)
 	{
-		_statusCode = 505;
-		_content = getErrorContent(_statusCode);
-	}
-	else if (request.getMethod() == "POST")
-	{
-		// Post stuff here
-		_content = getPostContent(request);
-	}
-	else if (check_extension(request.getUrl()))
-	{
-		_statusCode = 502;
-		_content = getErrorContent(_statusCode);
-	}
-	else
-	{
-		_content = getFileContent(request.getUrl());
+		std::cerr << "Some other Error in Default Response: " << e.what() << '\n';
 	}
 }
 
-Response::Response(Request const &request, Config const &config, const std::string &cgi_content, bool complete) :
+Response::Response(Request const &request, Config const &config, const std::string &cgi_content, CgiResult cgi_res) :
 	_statusCode(200), _contentType("text/html"), _config(config)
 {
 	_route = find_match(_config, request.getUrl());
-	if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod())) {
-		_statusCode = 405;
-		_content = getErrorContent(_statusCode);
-	}
-	else if (!complete)
+	try
 	{
-		std::cerr << "$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
-		_statusCode = 404;
-		_content = getErrorContent(_statusCode);
-	}
-	else
-	{
+		if (!std::count(_route.methods.begin(), _route.methods.end(), request.getMethod()))
+			throw (405);
+		switch (cgi_res)
+		{
+			case TIMEDOUT:
+				throw(504);
+				break;
+			case NOTFOUND:
+				throw(404);
+				break;
+			case ERROR:
+				throw(500);
+				break;
+			default:
+				break;
+		}
 		CgiContent	cgi(cgi_content);
 		_extraHeaders = cgi.getHeaders();
 		_content = cgi.getBody();
+	}
+	catch(int errCode)
+	{
+		_statusCode = errCode;
+		_content = getErrorContent(_statusCode);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "Some other errors in CGI Response: " << e.what() << '\n';
 	}
 }
 
