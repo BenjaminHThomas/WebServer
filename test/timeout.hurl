@@ -1,4 +1,4 @@
-GET http://localhost:7777/timeout.py
+GET http://localhost:7777/
 HTTP 504
 [Asserts]
 body contains "504 Gateway Timeout"
