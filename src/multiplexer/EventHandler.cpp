@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 15:37:21 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:10:57 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,22 +229,26 @@ void EventHandler::handleClientRequest(int clientFd) {
 		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
 			cleanChunkedReq(clientFd);
 		}
-
+		// Create a temporary Request object to check if CGI needs to be triggered
 		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
-
 
 		tmp_request.printAll();
 
-
+		// Get corresponding Config and Route based on Client Request
 		const Config &conf = get_config(tmp_request.getHeaderValue("Host"), clientFd);
 		const Config::Routes &route = Response::find_match(conf, tmp_request.getUrl());
 
 		std::map<std::string, std::string>::const_iterator cgi_route;
 		if ((cgi_route = Response::check_cgi(route, tmp_request.getUrl())) != route.cgi.end())
 		{
+			_clients.at(clientFd)->_cgi = true;
 			std::vector<std::string> arguments;
 			arguments.push_back(cgi_route->second);
-			std::string file = tmp_request.getUrl().substr(route.path.length());
+			std::string file;
+			if (tmp_request.getUrl() == route.path)
+				file = route.index;
+			else
+				file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
 			if (!startCGI(clientFd, arguments))
 			{
@@ -276,9 +280,9 @@ void EventHandler::generateResponse(int clientFd) {
 	std::string s;
 
 	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
-	if (!_clients.at(clientFd)->_cgiBuffer.empty())
+	if (_clients.at(clientFd)->_cgi)
 	{
-		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, !_clients.at(clientFd)->_cgiFailed);
+		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, _clients.at(clientFd)->_cgiResult);
 		s = rsp.generateResponse();
 	}
 	else

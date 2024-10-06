@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:21:42 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 17:53:19 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 21:19:22 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@ std::string const &Request::getHttpVersion() const{
 	return this->_http_version;
 }
 
+std::string const &Request::getQueryString() const{
+	return this->_query_string;
+}
+
 void	Request::parseHead() {
 	/* Parse Method */
 	std::size_t	mtd_end = _raw.find(" ");
@@ -65,6 +69,10 @@ void	Request::parseHead() {
 	if (url_end == std::string::npos)
 		throw std::runtime_error("URL Not Found");
 	_url = _raw.substr(url_start, url_end - url_start);
+	std::size_t query_start = _url.find('?');
+	if (query_start != std::string::npos)
+		_query_string = _url.substr(query_start + 1);
+	_url = _url.substr(0, query_start);
 	/* Parse HTTP version */
 	std::size_t http_start = _raw.find_first_of("HTTP/", url_end + 1);
 	if (http_start == std::string::npos)
@@ -82,6 +90,7 @@ void	Request::printAll() {
 	std::cout << "Method:\t" << this->getMethod() << std::endl;
 	std::cout << "Url:\t" << this->getUrl() << std::endl;
 	std::cout << "Http:\t" << this->getHttpVersion() << std::endl;
+	std::cout << "Query String:\t" << this->getQueryString() << std::endl;
 	std::cout << "\n------------------Headers------------------" << std::endl;
 	std::map<std::string, std::string>::iterator it;
 	for (it = this->_headers.begin(); it != this->_headers.end(); it++) {

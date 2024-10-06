@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 15:24:36 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:12:47 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 
 # include "Request.hpp"
 # include "config.hpp"
-# include <sstream>
+# include "EventHandler.hpp"
+# include "ClientConnection.hpp"
 # include <ctime>
 
 class Response
@@ -26,7 +27,7 @@ public:
 		STANDARD,
 		SIMPLE,
 	};
-	
+
 private:
 	/* data */
 	std::string							_content;
@@ -40,7 +41,6 @@ private:
 	std::string		readFile(const std::string &filename);
 	std::string		getFileContent(std::string const &url);
 	std::string		getPostContent(Request const &request);
-	bool			is_directory(const std::string &path);
 
 	/* static functions */
 	static std::string	toLower(std::string s);
@@ -53,7 +53,7 @@ private:
 public:
 	Response(Config const &config, uint8_t errCode);
 	Response(Request const &request, Config const &config);
-	Response(Request const &request, Config const &config, const std::string &cgi_content, bool complete);
+	Response(Request const &request, Config const &config, const std::string &cgi_content, CgiResult cgi_res);
 	~Response();
 
 	std::string		generateResponse();

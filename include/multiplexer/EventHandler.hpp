@@ -6,11 +6,12 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 15:06:10 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:12:26 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "Request.hpp"
 #include "cluster.hpp"
 #include "config.hpp"
 #ifndef EVENTHANDLER_HPP
@@ -25,9 +26,10 @@
 #include <cstdlib>
 #include <sys/wait.h>
 #include <sstream>
+#include <utils.hpp>
 
 #define BUFFER_SIZE 30720
-#define TIMEOUT 5
+#define TIMEOUT 3
 
 extern char **environ;
 
@@ -38,6 +40,7 @@ enum reqType {
 			CHUNKED,
 			NONCHUNKED
 		};
+
 class EventHandler
 {
 	private:
@@ -46,7 +49,6 @@ class EventHandler
 			EP_CLIENT,
 			EP_CGI
 		};
-
 
 	private:
 		int _epollFd;
@@ -74,10 +76,11 @@ class EventHandler
 		bool isResponseComplete(int clientFd);
 		void sendInvalidResponse(int clientFd);
 		// void startCGI(int clientFd, std::string fname);
-		bool startCGI(int clientFd, std::vector<std::string> fname);
+		CgiResult startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
 
 		const Config &get_config(const std::string &host, int clientFd) const;
+		void handle_environment(const Request &req, const std::string &arg);
 
 	public:
 		std::string::size_type getHeaderEndPos(int clientFd);

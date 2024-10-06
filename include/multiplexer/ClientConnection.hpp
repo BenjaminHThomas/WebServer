@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 15:09:38 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:12:37 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 #ifndef CLIENTCONNECTION_HPP
 # define CLIENTCONNECTION_HPP
 
-#include "EventHandler.hpp"
+# include "EventHandler.hpp"
+# include <utils.hpp>
+
 
 class ClientConnection
 {
@@ -31,7 +33,8 @@ class ClientConnection
 		std::string _cgiBuffer;
 		size_t	_bytesSent;
 		bool _responseReady;
-		bool _cgiFailed;
+		CgiResult _cgiResult;
+		bool _cgi;
 		reqType _reqType;
 
 		int _errorCode;

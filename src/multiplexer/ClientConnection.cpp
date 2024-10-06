@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:53:38 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:11:33 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 	_clientFd(fd),
 	_bytesSent(0),
 	_responseReady(false),
-	_cgiFailed(false),
+	_cgiResult(SUCCESS),
+	_cgi(false),
 	_reqType(NONCHUNKED),
 	_errorCode(0),
 	_config(config)
@@ -30,7 +31,8 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 		_cgiBuffer(other._cgiBuffer),
 		_bytesSent(other._bytesSent),
 		_responseReady(other._responseReady),
-		_cgiFailed(false),
+		_cgiResult(SUCCESS),
+		_cgi(false),
 		_reqType(NONCHUNKED),
 		_errorCode(other._errorCode),
 		_config(other._config)
@@ -45,7 +47,8 @@ ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 		_cgiBuffer = other._cgiBuffer;
 		_responseBuffer = other._responseBuffer;
 		_responseReady = false;
-		_cgiFailed = false;
+		_cgiResult = SUCCESS;
+		_cgi = false;
 		_reqType = other._reqType;
 		_errorCode = other._errorCode;
 	}
@@ -58,7 +61,8 @@ void ClientConnection::resetData() {
 	_cgiBuffer.clear();
 	_bytesSent = 0;
 	_responseReady = false;
-	_cgiFailed = false;
+	_cgiResult = SUCCESS;
+	_cgi = false;
 	_reqType = NONCHUNKED;
 	_errorCode = 0;
 }

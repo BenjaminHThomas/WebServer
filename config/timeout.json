@@ -1,0 +1,22 @@
+[
+	{
+		"name": "timeout test server",
+		"host": "localhost",
+		"port": 7777,
+		"max_body": 10000,
+		"routes": [
+			{
+				"methods": ["GET"],
+				"route": "/",
+				"index": "timeout.py",
+				"dir_listing": false,
+				"directory": "./website/timeout",
+				"upload": "./upload",
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3" },
+					{ "extension": "php", "exec": "/usr/bin/php" }
+				]
+			}
+		]
+	}
+]

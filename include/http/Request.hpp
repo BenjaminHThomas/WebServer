@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 10:00:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 16:07:44 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/05 21:12:03 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ private:
 	std::string		_method;
 	std::string		_url;
 	std::string		_http_version;
+	std::string		_query_string;
 	/* static data */
 	// static std::vector<std::string>	_allowdMethods;
 public:
@@ -36,6 +37,7 @@ public:
 	std::string const &getMethod() const;
 	std::string const &getUrl() const;
 	std::string const &getHttpVersion() const;
+	std::string const &getQueryString() const;
 	/* parser */
 	void	parseHead();
 	// void	parseRest();

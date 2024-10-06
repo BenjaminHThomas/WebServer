@@ -8,6 +8,7 @@ webserv
 compile_commands.json
 .vscode
 .vscode/*
+.fuse*
 
 
 # User-specific files
