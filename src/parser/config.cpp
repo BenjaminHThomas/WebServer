@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/06 17:29:53 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 17:43:28 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,16 +158,33 @@ Config::Routes::Routes(const JsonValue &j) : dir_listing(true)
 	catch (const std::exception &e)
 	{
 		directory = handle_directory(j["directory"].as_string());
-		upload = j["upload"].as_string();
+		upload = set("upload", "./upload", j);
 		is_redirection = false;
 	}
 
-	for (JsonValue::const_iter_arr it_method = j["methods"].begin_arr(); it_method < j["methods"].end_arr(); it_method++)
-		methods.insert(it_method->as_string());
+	try
+	{
+		if (j["methods"].get_arr().size() < 1)
+			throw Config::BadValue("need at least 1 method allowed");
+		for (JsonValue::const_iter_arr it_method = j["methods"].begin_arr(); it_method < j["methods"].end_arr(); it_method++)
+			methods.insert(it_method->as_string());
+	}
+	catch (const Config::BadValue &e)
+	{
+		throw Config::BadValue(e.what());
+	}
+	catch (const std::exception &e)
+	{
+		methods.insert("GET");
+		methods.insert("POST");
+		methods.insert("DELETE");
+	}
 
 	try
 	{
 		const JsonValue &rt = j["cgi"];
+		if (rt.get_arr().size() < 1)
+			throw Config::BadValue("not enough cgi's in the array");
 
 		for (JsonValue::const_iter_arr it_cgi = rt.begin_arr(); it_cgi != rt.end_arr(); it_cgi++)
 		{
