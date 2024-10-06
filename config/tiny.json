@@ -1,0 +1,87 @@
+[
+	{
+		"name": "first server",
+		"host": "localhost",
+		"port": 8080,
+		"max_body": 5,
+		"error": {
+				"404": "./error-pages/not_found_404.html",
+				"405": "./error-pages/method_not_allowed_405.html"
+		},
+		"routes": [
+			{
+				"methods": ["GET", "POST", "DELETE"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "./website",
+				"upload": "./upload",
+				"cgi": [
+					{
+						"extension": "py",
+						"exec": "/usr/bin/python3"
+					},
+					{
+						"extension": "php",
+						"exec": "/usr/bin/php"
+					}
+				]
+			},
+			{
+				"methods": ["GET"],
+				"route": "/about",
+				"dir_listing": false,
+				"index": "index.html",
+				"directory": "./website/another_folder/",
+				"upload": "./upload",
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3"}
+				]
+			}
+		]
+	},
+	{
+		"name": "second server",
+		"host": "localhost",
+		"port": 8081,
+		"error": {
+				"404": "./error-pages/not_found_404.html"
+		},
+		"max_body": 5,
+		"routes": [
+			{
+				"methods": ["GET", "POST"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "./website/another_folder",
+				"upload": "./upload",
+				"cgi": [
+					{ "extension": "cpp", "exec": "/usr/bin/c++"}
+				]
+			}
+		]
+	},
+	{
+		"name": "this is the first server",
+		"host": "localhost",
+		"port": 9999,
+		"error": {
+				"404": "./error-pages/not_found_404.html"
+		},
+		"max_body": 5,
+		"routes": [
+			{
+				"methods": ["GET", "POST"],
+				"route": "/",
+				"index": "index.html",
+				"dir_listing": true,
+				"directory": "./website/random",
+				"upload": "./upload",
+				"cgi": [
+					{ "extension": "py", "exec": "/usr/bin/python3"}
+				]
+			}
+		]
+	}
+]
