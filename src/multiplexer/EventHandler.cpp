@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 15:19:24 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 15:37:21 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,7 +195,7 @@ bool EventHandler::isBodyTooBig(int clientFd) {
 
 void EventHandler::sendInvalidResponse(int clientFd) {
 	std::cerr << "Error: body size limit reached.\n";
-	_clients.at(clientFd)->resetData();
+	//_clients.at(clientFd)->resetData();
 	// change request buffer to cause 504
 	_clients.at(clientFd)->_errorCode = 504;
 	generateResponse(clientFd);
@@ -265,9 +265,11 @@ void EventHandler::handleClientRequest(int clientFd) {
 
 void EventHandler::generateResponse(int clientFd) {
 	if (_clients.at(clientFd)->_errorCode) {
-		std::cerr << "504 error found\n";
-		Response rsp(_clients.at(clientFd)->_config, _clients.at(clientFd)->_errorCode);
+		Request	rqs(_clients.at(clientFd)->_requestBuffer);
+		const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
+		Response rsp(rqs, conf);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
+		_clients.at(clientFd)->_responseBuffer.append(rsp.getErrorContent(504));
 		return ;
 	}
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
@@ -291,6 +293,8 @@ void EventHandler::generateResponse(int clientFd) {
 void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	
+	std::cout << "sending:\n" << _clients.at(clientFd)->_responseBuffer << "\n\n";
+
 	ssize_t bytes_remaining = _clients.at(clientFd)->_responseBuffer.size();
 	ssize_t bytes_written = write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	if (bytes_written < 0) {

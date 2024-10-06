@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 13:24:23 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/05 15:24:36 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ private:
 
 	/* init utils */
 	std::string		readFile(const std::string &filename);
-	std::string		getErrorContent(int errCode);
 	std::string		getFileContent(std::string const &url);
 	std::string		getPostContent(Request const &request);
 	bool			is_directory(const std::string &path);
@@ -66,6 +65,7 @@ public:
 	static Config::Routes const &	find_match(const Config &config, std::string const &url);
 	static std::map<std::string, std::string>::const_iterator	check_cgi(const Config::Routes &route, std::string const &url);
 	static std::string	check_postFile(std::string const &type);
+	std::string		getErrorContent(int errCode);
 	/* Post */
 
 	/* DIRECTORY LISTING */
