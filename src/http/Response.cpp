@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/06 19:32:41 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 00:17:06 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@ Response::Response(Request const &request, Config const &config) :
 			throw(405);
 		else if (request.getHttpVersion() != "HTTP/1.1")
 			throw(505);
+		else if (_route.is_redirection == true)
+			// _content = getRedirContent();
+			_statusCode = 301;
 		else if (request.getMethod() == "POST")
 			_content = getPostContent(request);
 		else if (check_extension(request.getUrl()))
@@ -105,6 +108,8 @@ std::string Response::generateResponse() {
 	std::ostringstream  response;
 
 	response << "HTTP/1.1 " << _statusCodes.at(_statusCode) << "\r\n";
+	if (_route.is_redirection)
+		response << "Location: " << _route.redirection << "\r\n";
 	response << "Content-Type: " << _contentType << "\r\n";
 	response << "Content-Length: " << _content.length() << "\r\n";
 	response << "Date: " << getCurrentTime(STANDARD) << "\r\n";
