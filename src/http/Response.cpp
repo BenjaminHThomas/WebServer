@@ -6,13 +6,10 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/10/05 15:22:39 by bthomas          ###   ########.fr       */
-=======
-/*   Updated: 2024/10/05 19:27:06 by tsuchen          ###   ########.fr       */
->>>>>>> main
+/*   Updated: 2024/10/06 11:13:47 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "Response.hpp"
 #include "CgiContent.hpp"
@@ -124,6 +121,8 @@ std::string Response::generateResponse() {
 
 	return response.str();
 }
+
+
 
 std::string		Response::readFile(const std::string &filename) {
 	std::ifstream	ifs(filename.c_str());

@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 11:10:57 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:23:02 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,9 +250,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 			else
 				file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
-			if (!startCGI(clientFd, arguments))
-			{
-				_clients.at(clientFd)->_cgiFailed = true;
+			_clients.at(clientFd)->_cgiResult = startCGI(clientFd, arguments);
+			if (_clients.at(clientFd)->_cgiResult != SUCCESS) {
 				generateResponse(clientFd);
 				changeToWrite(clientFd);
 			}
