@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 12:18:51 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 16:01:56 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,9 +140,26 @@ void EventHandler::handleNewConnection(Server & s) {
 	addClient(clientFd, s.getConfig());
 }
 
+bool EventHandler::isMultiPartReq(int clientFd) {
+	std::string req = _clients.at(clientFd)->_requestBuffer;
+	return req.find("Content-Type: multipart") != std::string::npos;
+}
+
+bool EventHandler::isMultiPartReqFinished(int clientFd) {
+	std::string req = _clients.at(clientFd)->_requestBuffer;
+	std::string::size_type boundaryPos = req.find("boundary=");
+	if (boundaryPos == std::string::npos) {
+		return false;
+	}
+	std::string boundary = req.substr(boundaryPos + 9);
+	boundary = boundary.substr(0, boundary.find("\r\n"));
+	std::string boundaryFinish = boundary + "--";
+	return req.find(boundaryFinish) != std::string::npos;
+}
+
 bool EventHandler::isResponseComplete(int clientFd) {
 	// check header completion
-	std::string buff = _clients[clientFd]->_requestBuffer;
+	std::string buff = _clients.at(clientFd)->_requestBuffer;
 	std::string::size_type pos = getHeaderEndPos(clientFd);
 	if (pos == std::string::npos) {
 		return false;
@@ -152,10 +169,14 @@ bool EventHandler::isResponseComplete(int clientFd) {
 		_clients.at(clientFd)->_reqType = (ClientConnection::reqType)CHUNKED;
 	}
 
-	//Check if it's a POST request with a body
 	if (_clients.at(clientFd)->_reqType == (ClientConnection::reqType)CHUNKED) {
 		return isChunkReqFinished(clientFd);
 	}
+
+	if (isMultiPartReq(clientFd)) {
+		return isMultiPartReqFinished(clientFd);
+	}
+
 	size_t content_len_pos = buff.find("Content-Length: ");
 	if (content_len_pos != std::string::npos) {
 		size_t content_len_end = buff.find("\r\n", content_len_pos);
@@ -217,7 +238,6 @@ void EventHandler::handleClientRequest(int clientFd) {
 		_clients.erase(clientFd);
 		return ;
 	}
-	buffer[bytes_read] = 0;
 	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
 	if (isBodyTooBig(clientFd)) {
 		sendInvalidResponse(clientFd);
