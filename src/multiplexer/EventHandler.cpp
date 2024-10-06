@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 19:52:28 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 20:26:49 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,15 +285,7 @@ void EventHandler::generateResponse(int clientFd) {
 	if (_clients.at(clientFd)->_errorCode) {
 
 		Request	rqs(_clients.at(clientFd)->_requestBuffer);
-		std::string host;
-		try {
-			host = rqs.getHeaderValue("Host");
-		}
-		catch (std::exception &e)
-		{
-			host = "";
-		}
-		const Config &conf = get_config(host, clientFd);
+		const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
 		Response rsp(conf, _clients.at(clientFd)->_errorCode);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
 		return ;
@@ -316,6 +308,14 @@ void EventHandler::generateResponse(int clientFd) {
 	_clients.at(clientFd)->_responseBuffer.append(s);
 }
 
+void EventHandler::remove_client(int clientFd)
+{
+	deleteFromEpoll(clientFd);
+	delete _clients.at(clientFd);
+	_openConns.erase(clientFd);
+	_clients.erase(clientFd);
+}
+
 void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	ssize_t bytes_remaining = _clients.at(clientFd)->_responseBuffer.size();
@@ -323,6 +323,7 @@ void EventHandler::handleResponse(int clientFd) {
 	if (bytes_written < 0) {
 		return  ; // could be temporary full socket, but not allowed to check err code to confirm :(
 	} else if (bytes_written == bytes_remaining) {
+		// remove_client(clientFd);
 		_clients.at(clientFd)->resetData();
 		changeToRead(clientFd);
 	} else {
@@ -343,12 +344,7 @@ void EventHandler::checkCompleteCGIProcesses(void)
 	}
 
 	for (std::vector<int>::const_iterator it = clients_complete.begin(); it < clients_complete.end(); it++)
-	{
-			deleteFromEpoll(*it);
-			delete _clients.at(*it);
-			_openConns.erase(*it);
-			_clients.erase(*it);
-	}
+		remove_client(*it);
 
 	for (it = _cgiManager._cgiProcesses.begin();
 			it != _cgiManager._cgiProcesses.end();
