@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 15:46:00 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 17:21:17 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,14 @@
 #include "ClientConnection.hpp"
 #include <fcntl.h>
 #include <map>
-#include <cerrno> //temp, just for testing
 #include <cstdlib>
 #include <sys/wait.h>
 #include <sstream>
 #include <utils.hpp>
+#include <string>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <vector>
 
 #define BUFFER_SIZE 30720
 #define TIMEOUT 3
