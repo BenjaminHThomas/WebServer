@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 18:38:17 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:12:37 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ class ClientConnection
 		CgiResult _cgiResult;
 		bool _cgi;
 		reqType _reqType;
+
+		int _errorCode;
 
 		const Config &_config;
 

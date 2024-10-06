@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:58:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 18:23:22 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:11:33 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 	_cgiResult(SUCCESS),
 	_cgi(false),
 	_reqType(NONCHUNKED),
+	_errorCode(0),
 	_config(config)
 {
 }
@@ -33,6 +34,7 @@ ClientConnection::ClientConnection(int fd, const Config &config) :
 		_cgiResult(SUCCESS),
 		_cgi(false),
 		_reqType(NONCHUNKED),
+		_errorCode(other._errorCode),
 		_config(other._config)
 {
 }
@@ -48,6 +50,7 @@ ClientConnection& ClientConnection::operator=(const ClientConnection& other) {
 		_cgiResult = SUCCESS;
 		_cgi = false;
 		_reqType = other._reqType;
+		_errorCode = other._errorCode;
 	}
 	return *this;
 }
@@ -61,6 +64,7 @@ void ClientConnection::resetData() {
 	_cgiResult = SUCCESS;
 	_cgi = false;
 	_reqType = NONCHUNKED;
+	_errorCode = 0;
 }
 
 void ClientConnection::closeConnection() {

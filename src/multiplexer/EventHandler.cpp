@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 19:30:51 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/06 12:18:51 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,20 +143,17 @@ void EventHandler::handleNewConnection(Server & s) {
 bool EventHandler::isResponseComplete(int clientFd) {
 	// check header completion
 	std::string buff = _clients[clientFd]->_requestBuffer;
-	size_t pos = buff.find("\r\n\r\n");
+	std::string::size_type pos = getHeaderEndPos(clientFd);
 	if (pos == std::string::npos) {
-		pos = buff.find("\n\n");
-		if (pos == std::string::npos) {
-			return false;
-		}
+		return false;
 	}
 
 	if (isHeaderChunked(clientFd)) {
-		_clients[clientFd]->_reqType = (ClientConnection::reqType)CHUNKED;
+		_clients.at(clientFd)->_reqType = (ClientConnection::reqType)CHUNKED;
 	}
 
 	//Check if it's a POST request with a body
-	if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
+	if (_clients.at(clientFd)->_reqType == (ClientConnection::reqType)CHUNKED) {
 		return isChunkReqFinished(clientFd);
 	}
 	size_t content_len_pos = buff.find("Content-Length: ");
@@ -167,6 +164,42 @@ bool EventHandler::isResponseComplete(int clientFd) {
 		return buff.length() >= (pos + 4 + content_length);
 	}
 	return true;
+}
+
+std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
+	std::string reqBuffer = _clients.at(clientFd)->_requestBuffer;
+	std::string::size_type headerEnd = reqBuffer.find("\r\n\r\n");
+	if (headerEnd == std::string::npos) {
+		headerEnd = reqBuffer.find("\n\n");
+		if (headerEnd == std::string::npos) {
+			return std::string::npos;
+		}
+		headerEnd += 2;
+	} else {
+		headerEnd += 4;
+	}
+	return headerEnd;
+}
+
+bool EventHandler::isBodyTooBig(int clientFd) {
+	std::string::size_type headerEndPos = getHeaderEndPos(clientFd);
+	if (headerEndPos == std::string::npos) {
+		return false;
+	}
+	uint64_t maxBodySize = _clients.at(clientFd)->_config.get_max_body_size();
+	std::string::size_type currentBodySize;
+	currentBodySize = _clients.at(clientFd)->_requestBuffer.size() - headerEndPos;
+	std::cout << "Body size: " << currentBodySize << "\n\n";
+	return currentBodySize > maxBodySize;
+}
+
+void EventHandler::sendInvalidResponse(int clientFd) {
+	std::cerr << "Error: body size limit reached.\n";
+	//_clients.at(clientFd)->resetData();
+	// change request buffer to cause 504
+	_clients.at(clientFd)->_errorCode = 504;
+	generateResponse(clientFd);
+	changeToWrite(clientFd);
 }
 
 // Read all data from the client
@@ -184,7 +217,12 @@ void EventHandler::handleClientRequest(int clientFd) {
 		_clients.erase(clientFd);
 		return ;
 	}
-	_clients.at(clientFd)->_requestBuffer.append(buffer, bytes_read);
+	buffer[bytes_read] = 0;
+	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
+	if (isBodyTooBig(clientFd)) {
+		sendInvalidResponse(clientFd);
+		return ;
+	}
 	if (isResponseComplete(clientFd))
 	{
 		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
@@ -212,24 +250,30 @@ void EventHandler::handleClientRequest(int clientFd) {
 				file = tmp_request.getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
 			_clients.at(clientFd)->_cgiResult = startCGI(clientFd, arguments);
-			if (_clients.at(clientFd)->_cgiResult != SUCCESS)
+			if (_clients.at(clientFd)->_cgiResult != SUCCESS) {
+				generateResponse(clientFd);
 				changeToWrite(clientFd);
+			}
 		}
 		else
 		{
+			generateResponse(clientFd);
 			changeToWrite(clientFd);
 		}
 	}
 }
 
 // Write response to the client
-void EventHandler::handleResponse(int clientFd) {
-	std::cout << "Sending response to client " << clientFd << "\n";
-	// 1. HTTP Parse the request Buffer
+
+void EventHandler::generateResponse(int clientFd) {
+	if (_clients.at(clientFd)->_errorCode) {
+		Request	rqs(_clients.at(clientFd)->_requestBuffer);
+		const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
+		Response rsp(conf, 504);
+		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
+		return ;
+	}
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
-	// rqs.printAll();
-	// 2. Generate Response based on Request object and whether there is cgiContent created in cgiBuffer
-	// IF REQUEST WAS FOR A CGI -> _cgiBuffer contains CGI content and not Empty
 	std::string s;
 
 	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
@@ -243,15 +287,22 @@ void EventHandler::handleResponse(int clientFd) {
 		Response rsp(rqs, conf);
 		s = rsp.generateResponse();
 	}
-	// 3. Updated the response string to _responseBuffer in the client
+	// IF REQUEST WAS FOR A CGI -> _responseBuffer contains CGI content
 	_clients.at(clientFd)->_responseBuffer.append(s);
+}
 
-	// 4. Write to the clientFD with reponse string
-	// std::cout << _clients.at(clientFd)->_responseBuffer << std::endl;
-	write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
-	// 5. clear the buff in this clientFD
-	_clients.at(clientFd)->resetData();
-	changeToRead(clientFd);
+void EventHandler::handleResponse(int clientFd) {
+	std::cout << "Sending response to client " << clientFd << "\n";
+	ssize_t bytes_remaining = _clients.at(clientFd)->_responseBuffer.size();
+	ssize_t bytes_written = write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
+	if (bytes_written < 0) {
+		return  ; // could be temporary full socket, but not allowed to check err code to confirm :(
+	} else if (bytes_written == bytes_remaining) {
+		_clients.at(clientFd)->resetData();
+		changeToRead(clientFd);
+	} else {
+		_clients.at(clientFd)->_responseBuffer.erase(0, bytes_written);
+	}
 }
 
 void EventHandler::checkCompleteCGIProcesses(void)
@@ -269,6 +320,7 @@ void EventHandler::checkCompleteCGIProcesses(void)
 			deleteFromEpoll(info->pipeFd);
 			completed.push_back(info->pipeFd);
 			_openConns.erase(info->pipeFd);
+			generateResponse(clientFd);
 			changeToWrite(clientFd);
 		}
 	}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/05 18:21:45 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:27:04 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ private:
 
 	/* init utils */
 	std::string		readFile(const std::string &filename);
-	std::string		getErrorContent(int errCode);
 	std::string		getFileContent(std::string const &url);
 	std::string		getPostContent(Request const &request);
 
@@ -52,6 +51,7 @@ private:
 	static const std::vector<std::string> _allowedCGI;
 	static const std::map<std::string, std::string>	_acceptedPostFile;
 public:
+	Response(Config const &config, int errCode);
 	Response(Request const &request, Config const &config);
 	Response(Request const &request, Config const &config, const std::string &cgi_content, CgiResult cgi_res);
 	~Response();
@@ -65,6 +65,7 @@ public:
 	static Config::Routes const &	find_match(const Config &config, std::string const &url);
 	static std::map<std::string, std::string>::const_iterator	check_cgi(const Config::Routes &route, std::string const &url);
 	static std::string	check_postFile(std::string const &type);
+	std::string		getErrorContent(int errCode);
 	/* Post */
 
 	/* DIRECTORY LISTING */
