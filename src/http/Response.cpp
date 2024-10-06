@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/07 00:17:06 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/07 00:26:45 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ Response::Response(Request const &request, Config const &config) :
 		else if (request.getHttpVersion() != "HTTP/1.1")
 			throw(505);
 		else if (_route.is_redirection == true)
-			// _content = getRedirContent();
 			_statusCode = 301;
 		else if (request.getMethod() == "POST")
 			_content = getPostContent(request);
