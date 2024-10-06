@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 18:46:15 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 19:52:28 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include <exception>
+#include <stdexcept>
+#include <sys/socket.h>
 
 class EventHandler::epollInitFailure : public std::exception {
 	public:
@@ -280,8 +282,8 @@ void EventHandler::handleClientRequest(int clientFd) {
 // Write response to the client
 
 void EventHandler::generateResponse(int clientFd) {
-	int err_code = _clients.at(clientFd)->_errorCode;
-	if (err_code) {
+	if (_clients.at(clientFd)->_errorCode) {
+
 		Request	rqs(_clients.at(clientFd)->_requestBuffer);
 		std::string host;
 		try {
@@ -292,7 +294,7 @@ void EventHandler::generateResponse(int clientFd) {
 			host = "";
 		}
 		const Config &conf = get_config(host, clientFd);
-		Response rsp(conf, err_code);
+		Response rsp(conf, _clients.at(clientFd)->_errorCode);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
 		return ;
 	}
@@ -332,6 +334,21 @@ void EventHandler::checkCompleteCGIProcesses(void)
 {
 	std::map<int, CGIInfo*>::iterator it;
 	std::vector<int> completed;
+	std::vector<int> clients_complete;
+
+	for (std::map<int, ClientConnection *>::iterator it = _clients.begin(); it != _clients.end(); it ++)
+	{
+		if (write(it->second->_clientFd, 0, 0) != 0)
+			clients_complete.push_back(it->second->_clientFd);
+	}
+
+	for (std::vector<int>::const_iterator it = clients_complete.begin(); it < clients_complete.end(); it++)
+	{
+			deleteFromEpoll(*it);
+			delete _clients.at(*it);
+			_openConns.erase(*it);
+			_clients.erase(*it);
+	}
 
 	for (it = _cgiManager._cgiProcesses.begin();
 			it != _cgiManager._cgiProcesses.end();
