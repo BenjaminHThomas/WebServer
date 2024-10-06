@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/06 11:12:47 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:27:04 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ private:
 	static const std::vector<std::string> _allowedCGI;
 	static const std::map<std::string, std::string>	_acceptedPostFile;
 public:
-	Response(Config const &config, uint8_t errCode);
+	Response(Config const &config, int errCode);
 	Response(Request const &request, Config const &config);
 	Response(Request const &request, Config const &config, const std::string &cgi_content, CgiResult cgi_res);
 	~Response();

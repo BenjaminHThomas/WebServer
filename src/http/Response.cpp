@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/06 11:13:47 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 11:36:55 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,9 @@
 #include <vector>
 
 
-Response::Response(Config const &config, uint8_t errCode) :
+Response::Response(Config const &config, int errCode) :
 	_statusCode(errCode), _contentType("text/html"), _config(config)
 {
-	_statusCode = errCode;
 	_content = getErrorContent(_statusCode);
 }
 

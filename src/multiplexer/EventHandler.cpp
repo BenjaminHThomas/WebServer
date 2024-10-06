@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 11:23:02 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 12:18:51 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,6 @@ void EventHandler::handleClientRequest(int clientFd) {
 	}
 	buffer[bytes_read] = 0;
 	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
-	std::cout << "\n\nFull Request:\n" << _clients.at(clientFd)->_requestBuffer << "\n\n\n";
 	if (isBodyTooBig(clientFd)) {
 		sendInvalidResponse(clientFd);
 		return ;
@@ -270,9 +269,8 @@ void EventHandler::generateResponse(int clientFd) {
 	if (_clients.at(clientFd)->_errorCode) {
 		Request	rqs(_clients.at(clientFd)->_requestBuffer);
 		const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
-		Response rsp(rqs, conf);
+		Response rsp(conf, 504);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
-		_clients.at(clientFd)->_responseBuffer.append(rsp.getErrorContent(504));
 		return ;
 	}
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
@@ -295,9 +293,6 @@ void EventHandler::generateResponse(int clientFd) {
 
 void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
-	
-	std::cout << "sending:\n" << _clients.at(clientFd)->_responseBuffer << "\n\n";
-
 	ssize_t bytes_remaining = _clients.at(clientFd)->_responseBuffer.size();
 	ssize_t bytes_written = write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	if (bytes_written < 0) {
