@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 18:38:05 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/06 00:04:46 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "Request.hpp"
 #include "cluster.hpp"
 #include "config.hpp"
 #ifndef EVENTHANDLER_HPP
@@ -28,7 +29,7 @@
 #include <utils.hpp>
 
 #define BUFFER_SIZE 30720
-#define TIMEOUT 5
+#define TIMEOUT 3
 
 extern char **environ;
 
@@ -76,6 +77,7 @@ class EventHandler
 		void checkCompleteCGIProcesses(void);
 
 		const Config &get_config(const std::string &host, int clientFd) const;
+		void handle_environment(const Request &req, const std::string &arg);
 
 	public:
 		bool isHeaderChunked(int clientFd);

@@ -1,9 +1,9 @@
-GET http://localhost:9999/timeout.py
-HTTP 502
+GET http://localhost:7777/timeout.py
+HTTP 504
 [Asserts]
-body contains "502 Bad Gateway"
+body contains "504 Gateway Timeout"
 
-GET http://localhost:9999/timeout.php
-HTTP 502
+GET http://localhost:7777/timeout.php
+HTTP 504
 [Asserts]
-body contains "502 Bad Gateway"
+body contains "504 Gateway Timeout"

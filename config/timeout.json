@@ -2,7 +2,7 @@
 	{
 		"name": "timeout test server",
 		"host": "localhost",
-		"port": 8888,
+		"port": 7777,
 		"max_body": 10000,
 		"routes": [
 			{
