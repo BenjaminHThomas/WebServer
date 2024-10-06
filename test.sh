@@ -1,6 +1,9 @@
 #!/bin/bash
 
+# set -e
 set -e
+
+exit_code=0
 
 # Color definitions
 RED='\033[0;31m'
@@ -31,6 +34,7 @@ run_test() {
         echo -e "${GREEN}✅ Test passed for $config_name${NC}"
     else
         echo -e "${RED}❌ Test failed for $config_name${NC}"
+        exit_code=1
     fi
 
     echo -e "${YELLOW}🛑 Stopping webserv for $config_name...${NC}"
@@ -82,3 +86,4 @@ else
 fi
 
 echo -e "${GREEN}🎉 All tests completed.${NC}"
+exit $exit_code

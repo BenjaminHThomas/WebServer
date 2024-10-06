@@ -16,7 +16,7 @@ HTTP 200
 body contains "<h1>THIS IS THE ABOUT PAGE!</h1>"
 
 # Over the limit of 5
-GET http://localhost:9999
+GET http://localhost:7778
 Content-Type: text/plain
 Content-Length: 11
 Custom-Header: test
