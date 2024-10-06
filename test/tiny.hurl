@@ -22,9 +22,9 @@ Content-Length: 11
 Custom-Header: test
 "01234567890"
 
-HTTP 504
+HTTP 413
 [Asserts]
 header "Content-Type" contains "text/html"
-body contains "<html><body><h2>Oops! Got an error: </h2><h1>504 Gateway Timeout</h1></body></html>"
+body contains "<html><body><h2>Oops! Got an error: </h2><h1>413 Payload Too Large</h1></body></html>"
 
 

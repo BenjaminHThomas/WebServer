@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 18:05:28 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 18:46:15 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <exception>
 
 class EventHandler::epollInitFailure : public std::exception {
 	public:
@@ -211,7 +212,7 @@ void EventHandler::sendInvalidResponse(int clientFd) {
 	std::cerr << "Error: body size limit reached.\n";
 	//_clients.at(clientFd)->resetData();
 	// change request buffer to cause 504
-	_clients.at(clientFd)->_errorCode = 504;
+	_clients.at(clientFd)->_errorCode = 413;
 	generateResponse(clientFd);
 	changeToWrite(clientFd);
 }
@@ -279,10 +280,19 @@ void EventHandler::handleClientRequest(int clientFd) {
 // Write response to the client
 
 void EventHandler::generateResponse(int clientFd) {
-	if (_clients.at(clientFd)->_errorCode) {
+	int err_code = _clients.at(clientFd)->_errorCode;
+	if (err_code) {
 		Request	rqs(_clients.at(clientFd)->_requestBuffer);
-		const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
-		Response rsp(conf, 504);
+		std::string host;
+		try {
+			host = rqs.getHeaderValue("Host");
+		}
+		catch (std::exception &e)
+		{
+			host = "";
+		}
+		const Config &conf = get_config(host, clientFd);
+		Response rsp(conf, err_code);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
 		return ;
 	}
