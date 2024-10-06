@@ -1,0 +1,17 @@
+[
+	{
+		"host": "localhost",
+		"port": 8888,
+		"routes": [
+			{
+				"route": "/",
+				"directory": "./website",
+				"upload": "./upload"
+			},
+			{
+				"route": "/redirect",
+				"redirection": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+			}
+		]
+	}
+]

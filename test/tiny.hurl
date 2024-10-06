@@ -16,15 +16,15 @@ HTTP 200
 body contains "<h1>THIS IS THE ABOUT PAGE!</h1>"
 
 # Over the limit of 5
-GET http://localhost:9999
+GET http://localhost:7778
 Content-Type: text/plain
 Content-Length: 11
 Custom-Header: test
 "01234567890"
 
-HTTP 504
+HTTP 413
 [Asserts]
 header "Content-Type" contains "text/html"
-body contains "<html><body><h2>Oops! Got an error: </h2><h1>504 Gateway Timeout</h1></body></html>"
+body contains "<html><body><h2>Oops! Got an error: </h2><h1>413 Payload Too Large</h1></body></html>"
 
 

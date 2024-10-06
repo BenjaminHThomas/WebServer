@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 15:11:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/05 09:39:05 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 20:12:56 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,9 @@ int main(int ac, char **av)
 	try
 	{
 		signal(SIGINT, handle_sigint);
+		signal(SIGPIPE, SIG_IGN);
 		JsonValue json  = JSONParser::parse(input);
+		std::cout << json << std::endl;
 		Cluster cluster(json);
 
 		cluster.start();

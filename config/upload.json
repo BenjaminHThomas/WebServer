@@ -1,0 +1,27 @@
+[
+	{
+		"host": "localhost",
+		"port": 8888,
+		"routes": [
+			{
+				"methods": ["GET", "POST"],
+				"route": "/",
+				"directory": "./upload",
+				"upload": "./upload"
+			}
+		]
+	},
+	{
+		"host": "localhost",
+		"port": 8889,
+		"max_body": 10,
+		"routes": [
+			{
+				"methods": ["GET", "POST"],
+				"route": "/",
+				"directory": "./upload",
+				"upload": "./upload"
+			}
+		]
+	}
+]

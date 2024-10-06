@@ -1,0 +1,40 @@
+name: HURL Unit tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+        sudo apt-get update
+        sudo apt-get install -y gcc-10 g++-10 libreadline-dev
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
+
+    - name: Verify GCC version
+      run: gcc --version
+
+    - name: Run Makefile
+      run: make all
+
+    - name: Set execute permissions
+      run: |
+        chmod +x ./test.sh
+        chmod +x ./test/hurl
+
+    - name: Run tests
+      run: ./test.sh all
+      shell: bash

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 17:21:17 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 20:23:46 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,9 @@ class EventHandler
 		// void startCGI(int clientFd, std::string fname);
 		CgiResult startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
+
+
+		void remove_client(int clientFd);
 
 		const Config &get_config(const std::string &host, int clientFd) const;
 		void handle_environment(const Request &req, const std::string &arg);

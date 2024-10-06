@@ -55,17 +55,14 @@
 				"index": "index.html",
 				"dir_listing": true,
 				"directory": "./website/another_folder",
-				"upload": "./upload",
-				"cgi": [
-					{ "extension": "cpp", "exec": "/usr/bin/c++"}
-				]
+				"upload": "./upload"
 			}
 		]
 	},
 	{
 		"name": "this is the first server",
 		"host": "localhost",
-		"port": 9999,
+		"port": 7778,
 		"error": {
 				"404": "./error-pages/not_found_404.html"
 		},

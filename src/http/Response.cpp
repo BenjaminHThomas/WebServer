@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/06 17:45:31 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 19:32:41 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -344,6 +344,7 @@ const std::map<int, std::string> Response::initStatusCodes() {
 	tmp[403] = "403 Forbidden";
 	tmp[404] = "404 Not Found";
 	tmp[405] = "405 Method Not Allowed";
+	tmp[413] = "413 Payload Too Large";
 	tmp[418] = "418 I'm a teapot";
 	tmp[500] = "500 Internal Server Error";
 	tmp[502] = "502 Bad Gateway";

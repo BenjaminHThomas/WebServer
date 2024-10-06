@@ -1,6 +1,9 @@
 #!/bin/bash
 
+# set -e
 set -e
+
+exit_code=0
 
 # Color definitions
 RED='\033[0;31m'
@@ -12,12 +15,13 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 run_test() {
-    local config_file="$1"
-    local config_name=$(basename "$config_file" .json)
-    local test_file="./test/${config_name}.hurl"
+    local test_file="$1"
+    local repeat_count="${2:-1}" # Default to 1 if not provided
+    local config_name=$(basename "$test_file" .hurl)
+    local config_file="./config/${config_name}.json"
 
-    if [ ! -f "$test_file" ]; then
-        echo -e "${RED}❌ Error: Test file not found: $test_file${NC}"
+    if [ ! -f "$config_file" ]; then
+        echo -e "${RED}❌ Error: Config file not found: $config_file${NC}"
         return 1
     fi
 
@@ -25,11 +29,12 @@ run_test() {
     ./webserv "$config_file" &> /dev/null &
     local webserv_pid=$!
 
-    echo -e "${CYAN}🧪 Running test for $config_name...${NC}"
-    if ./test/hurl --test --repeat 1 "$test_file"; then
-      echo -e "${GREEN}✅ Test passed for $config_name${NC}"
+    echo -e "${CYAN}🧪 Running test for $config_name ($repeat_count times)...${NC}"
+    if ./test/hurl --connect-timeout 5s --test --repeat "$repeat_count" "$test_file"; then
+        echo -e "${GREEN}✅ Test passed for $config_name${NC}"
     else
-      echo -e "${RED}❌ Test failed for $config_name${NC}"
+        echo -e "${RED}❌ Test failed for $config_name${NC}"
+        exit_code=1
     fi
 
     echo -e "${YELLOW}🛑 Stopping webserv for $config_name...${NC}"
@@ -51,25 +56,34 @@ run_make() {
 
 if [ "$1" = "all" ]; then
     run_make
-    for config_file in ./config/*.json; do
-        if [ -f "$config_file" ]; then
-            run_test "$config_file"
+    for test_file in ./test/*.hurl; do
+        if [ -f "$test_file" ]; then
+            if [ -n "$2" ]; then
+                run_test "$test_file" "$2"
+            else
+                run_test "$test_file"
+            fi
             sleep 1
         else
-            echo -e "${YELLOW}⚠️  Warning: No config files found in ./config/${NC}"
+            echo -e "${YELLOW}⚠️  Warning: No test files found in ./test/${NC}"
             break
         fi
     done
 elif [ -z "$1" ]; then
-    echo -e "${YELLOW}ℹ️  Usage: $0 <config_file> or $0 all${NC}"
+    echo -e "${YELLOW}ℹ️  Usage: $0 <test_file> [repeat_count] or $0 all [repeat_count]${NC}"
     exit 1
 else
     if [ ! -f "$1" ]; then
-        echo -e "${RED}❌ Error: Config file not found: $1${NC}"
+        echo -e "${RED}❌ Error: Test file not found: $1${NC}"
         exit 1
     fi
     run_make
-    run_test "$1"
+    if [ -n "$2" ]; then
+        run_test "$1" "$2"
+    else
+        run_test "$1"
+    fi
 fi
 
 echo -e "${GREEN}🎉 All tests completed.${NC}"
+exit $exit_code

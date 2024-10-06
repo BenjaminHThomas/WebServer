@@ -3,16 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 18:05:28 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 20:26:49 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <exception>
+#include <stdexcept>
+#include <sys/socket.h>
 
 class EventHandler::epollInitFailure : public std::exception {
 	public:
@@ -211,7 +214,7 @@ void EventHandler::sendInvalidResponse(int clientFd) {
 	std::cerr << "Error: body size limit reached.\n";
 	//_clients.at(clientFd)->resetData();
 	// change request buffer to cause 504
-	_clients.at(clientFd)->_errorCode = 504;
+	_clients.at(clientFd)->_errorCode = 413;
 	generateResponse(clientFd);
 	changeToWrite(clientFd);
 }
@@ -280,9 +283,10 @@ void EventHandler::handleClientRequest(int clientFd) {
 
 void EventHandler::generateResponse(int clientFd) {
 	if (_clients.at(clientFd)->_errorCode) {
+
 		Request	rqs(_clients.at(clientFd)->_requestBuffer);
 		const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
-		Response rsp(conf, 504);
+		Response rsp(conf, _clients.at(clientFd)->_errorCode);
 		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
 		return ;
 	}
@@ -304,6 +308,14 @@ void EventHandler::generateResponse(int clientFd) {
 	_clients.at(clientFd)->_responseBuffer.append(s);
 }
 
+void EventHandler::remove_client(int clientFd)
+{
+	deleteFromEpoll(clientFd);
+	delete _clients.at(clientFd);
+	_openConns.erase(clientFd);
+	_clients.erase(clientFd);
+}
+
 void EventHandler::handleResponse(int clientFd) {
 	std::cout << "Sending response to client " << clientFd << "\n";
 	ssize_t bytes_remaining = _clients.at(clientFd)->_responseBuffer.size();
@@ -311,6 +323,7 @@ void EventHandler::handleResponse(int clientFd) {
 	if (bytes_written < 0) {
 		return  ; // could be temporary full socket, but not allowed to check err code to confirm :(
 	} else if (bytes_written == bytes_remaining) {
+		// remove_client(clientFd);
 		_clients.at(clientFd)->resetData();
 		changeToRead(clientFd);
 	} else {
@@ -322,6 +335,16 @@ void EventHandler::checkCompleteCGIProcesses(void)
 {
 	std::map<int, CGIInfo*>::iterator it;
 	std::vector<int> completed;
+	std::vector<int> clients_complete;
+
+	for (std::map<int, ClientConnection *>::iterator it = _clients.begin(); it != _clients.end(); it ++)
+	{
+		if (write(it->second->_clientFd, 0, 0) != 0)
+			clients_complete.push_back(it->second->_clientFd);
+	}
+
+	for (std::vector<int>::const_iterator it = clients_complete.begin(); it < clients_complete.end(); it++)
+		remove_client(*it);
 
 	for (it = _cgiManager._cgiProcesses.begin();
 			it != _cgiManager._cgiProcesses.end();

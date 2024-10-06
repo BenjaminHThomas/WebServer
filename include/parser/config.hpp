@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:48:37 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/03 13:11:33 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 17:09:51 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ public:
 		std::string	directory;		// default redirected directory Methods except for POST
 		std::string	upload;			// default redirected directory for POST Method
 		bool		dir_listing;	// flag to see if the output is a listing of directories
+		bool		is_redirection;
+		std::string	redirection;
 
 		std::set<std::string>		methods;
 		std::map<std::string, std::string>	cgi;
@@ -65,6 +67,11 @@ private:
 
 	std::map<int, std::string>	_error_pages;
 	std::vector<Routes>			_routes;
+	const JsonValue				&_json;
+
+
+	const std::string &set(const std::string &value_, const std::string &__default);
+	static const std::string &set(const std::string &value, const std::string &__default, const JsonValue &j);
 public:
 	Config(const JsonValue &j);
 	~Config();

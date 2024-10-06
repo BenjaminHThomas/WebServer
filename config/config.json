@@ -3,7 +3,7 @@
 		"name": "first server",
 		"host": "localhost",
 		"port": 8080,
-		"max_body": 10000,
+		"max_body": 10000000,
 		"error": {
 				"404": "./error-pages/not_found_404.html",
 				"405": "./error-pages/method_not_allowed_405.html"
@@ -55,10 +55,7 @@
 				"index": "index.html",
 				"dir_listing": true,
 				"directory": "./website/another_folder",
-				"upload": "./upload",
-				"cgi": [
-					{ "extension": "cpp", "exec": "/usr/bin/c++"}
-				]
+				"upload": "./upload"
 			}
 		]
 	},
