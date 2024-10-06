@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 11:12:26 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 15:46:00 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,8 @@ class EventHandler
 		bool isBodyTooBig(int clientFd);
 		bool isResponseComplete(int clientFd);
 		void sendInvalidResponse(int clientFd);
+		bool isMultiPartReq(int clientFd);
+		bool isMultiPartReqFinished(int clientFd);
 		// void startCGI(int clientFd, std::string fname);
 		CgiResult startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
