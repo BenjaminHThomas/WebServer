@@ -6,19 +6,13 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 16:01:56 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/06 18:05:28 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
-#include <string>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <vector>
-
-void cgiOut(int clientFd, char **av, char **env);
 
 class EventHandler::epollInitFailure : public std::exception {
 	public:
@@ -160,16 +154,13 @@ bool EventHandler::isMultiPartReqFinished(int clientFd) {
 bool EventHandler::isResponseComplete(int clientFd) {
 	// check header completion
 	std::string buff = _clients.at(clientFd)->_requestBuffer;
-	std::string::size_type pos = getHeaderEndPos(clientFd);
-	if (pos == std::string::npos) {
+	std::string::size_type headerEnd = getHeaderEndPos(clientFd);
+	if (headerEnd == std::string::npos) {
 		return false;
 	}
 
-	if (isHeaderChunked(clientFd)) {
+	if (_clients.at(clientFd)->_reqType == (ClientConnection::reqType)CHUNKED || isHeaderChunked(clientFd)) {
 		_clients.at(clientFd)->_reqType = (ClientConnection::reqType)CHUNKED;
-	}
-
-	if (_clients.at(clientFd)->_reqType == (ClientConnection::reqType)CHUNKED) {
 		return isChunkReqFinished(clientFd);
 	}
 
@@ -182,7 +173,7 @@ bool EventHandler::isResponseComplete(int clientFd) {
 		size_t content_len_end = buff.find("\r\n", content_len_pos);
 		std::string content_len_str = buff.substr(content_len_pos + 16, content_len_end - (content_len_pos + 16));
 		int content_length = std::atoi(content_len_str.c_str());
-		return buff.length() >= (pos + 4 + content_length);
+		return buff.length() >= (headerEnd + content_length);
 	}
 	return true;
 }
@@ -203,11 +194,13 @@ std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
 }
 
 bool EventHandler::isBodyTooBig(int clientFd) {
+	uint64_t maxBodySize = _clients.at(clientFd)->_config.get_max_body_size();
+	if (maxBodySize == 0)
+		return false;
 	std::string::size_type headerEndPos = getHeaderEndPos(clientFd);
 	if (headerEndPos == std::string::npos) {
 		return false;
 	}
-	uint64_t maxBodySize = _clients.at(clientFd)->_config.get_max_body_size();
 	std::string::size_type currentBodySize;
 	currentBodySize = _clients.at(clientFd)->_requestBuffer.size() - headerEndPos;
 	std::cout << "Body size: " << currentBodySize << "\n\n";
@@ -238,7 +231,7 @@ void EventHandler::handleClientRequest(int clientFd) {
 		_clients.erase(clientFd);
 		return ;
 	}
-	_clients.at(clientFd)->_requestBuffer.append(buffer, _clients.at(clientFd)->_requestBuffer.size(), bytes_read);
+	_clients.at(clientFd)->_requestBuffer.append(buffer, bytes_read);
 	if (isBodyTooBig(clientFd)) {
 		sendInvalidResponse(clientFd);
 		return ;
