@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/04 21:41:39 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 17:29:53 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,40 @@ addrinfo *Config::init_addrinfo(const std::string &host, const std::string &port
 	return r;
 }
 
-Config::Config(const JsonValue &j) : _addr(NULL)
+const std::string &Config::set(const std::string &value, const std::string &__default)
+{
+	return set(value, __default, _json);
+}
+
+const std::string &Config::set(const std::string &value, const std::string &__default, const JsonValue &j)
 {
 	try
 	{
-		_name = j["name"].as_string();
-		_host = j["host"].as_string();
+		return j[value].as_string();
+	}
+	catch (const std::exception &e)
+	{
+		return __default;
+	}
+}
+
+Config::Config(const JsonValue &j) : _addr(NULL), _json(j)
+{
+	try
+	{
+		_name = set("name", "server_name");
+		_host = set("host", "localhost");
 		if (j["port"].as_number() < 0 || j["port"].as_number() > std::numeric_limits<uint16_t>::max())
 			throw Config::BadValue();
 		_port = j["port"].as_number();
-		if (j["max_body"].as_number() < 0)
-			throw Config::BadValue();
-		_max_body_size = j["max_body"].as_number();
+		try
+		{
+			_max_body_size = j["max_body"].as_number();
+		}
+		catch (const std::exception &e)
+		{
+			_max_body_size = 0;
+		}
 
 		try
 		{
@@ -77,6 +99,8 @@ Config::Config(const JsonValue &j) : _addr(NULL)
 		{
 		}
 
+		if (j["routes"].get_arr().size() < 1)
+			throw Config::BadValue("need at least 1 route");
 		for (JsonValue::const_iter_arr it_route = j["routes"].begin_arr(); it_route < j["routes"].end_arr(); it_route++)
 		{
 			_routes.push_back(Routes(*it_route));
@@ -84,10 +108,10 @@ Config::Config(const JsonValue &j) : _addr(NULL)
 
 		_addr = init_addrinfo(_host, j["port"].as_string());
 
-		std::cout << j["name"] << "\n";
-		std::cout << j["host"] << "\n";
-		std::cout << j["port"] << "\n";
-		std::cout << j["routes"][0]["index"] << "\n";
+		std::cout << _name << "\n";
+		std::cout << _host << "\n";
+		std::cout << _port << "\n";
+		// std::cout << j["routes"][0]["index"] << "\n";
 		std::cout << "--------" << std::endl;
 	}
 	catch (const std::out_of_range &e)
@@ -116,10 +140,27 @@ std::string Config::handle_directory(const std::string &s)
 Config::Routes::Routes(const JsonValue &j) : dir_listing(true)
 {
 	path = j["route"].as_string();
-	index = j["index"].as_string();
-	dir_listing = j["dir_listing"].as_bool();
-	directory = handle_directory(j["directory"].as_string());
-	upload = j["upload"].as_string();
+	index = set("index", "index.html", j);
+	try
+	{
+		dir_listing = j["dir_listing"].as_bool();
+	}
+	catch (const std::exception &e)
+	{
+		dir_listing = true;
+	}
+
+	try
+	{
+		redirection = j["redirection"].as_string();
+		is_redirection = true;
+	}
+	catch (const std::exception &e)
+	{
+		directory = handle_directory(j["directory"].as_string());
+		upload = j["upload"].as_string();
+		is_redirection = false;
+	}
 
 	for (JsonValue::const_iter_arr it_method = j["methods"].begin_arr(); it_method < j["methods"].end_arr(); it_method++)
 		methods.insert(it_method->as_string());
@@ -134,13 +175,14 @@ Config::Routes::Routes(const JsonValue &j) : dir_listing(true)
 			if (std::distance(c.begin_obj(), c.end_obj()) != 2)
 				throw Config::BadValue("too many cgi arguments");
 			std::pair<std::string, std::string> el(c["extension"].as_string(), c["exec"].as_string());
+			if (el.first != "py" && el.first != "php")
+				throw Config::BadValue("invalid extension");
 			std::cout << "CGI: " << el.first << ", exec: " << el.second << std::endl;
 			cgi.insert(el);
 		}
 	}
 	catch (const std::out_of_range &e)
 	{
-		std::cerr << "IGNORE -> route doesnt contain any CGI: " << e.what() << std::endl;
 	}
 	catch (const std::exception &e)
 	{

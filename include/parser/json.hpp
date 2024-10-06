@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 09:54:02 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/02 15:32:08 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 17:32:09 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,8 @@ public:
 	double	to_double(const std::string &str) const;
 	int64_t	to_number(const std::string &str) const;
 
-	array_type &get_arr() { return (*_array); };
-	object_type &get_obj() { return (*_object); };
+	const array_type &get_arr() const { return (*_array); };
+	const object_type &get_obj() const { return (*_object); };
 
 friend std::ostream & operator << (std::ostream &s, const JsonValue &json);
 };

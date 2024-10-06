@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 08:42:01 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/04 21:36:50 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/06 17:33:35 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ Cluster::Cluster(const JsonValue &json)
 {
 	try
 	{
+		if (json.get_arr().size() < 1)
+			throw Config::BadValue("not enough configs");
 		for (JsonValue::const_iter_arr it = json.begin_arr(); it < json.end_arr(); it++)
 		{
 			Config	*current = new Config(*it);
