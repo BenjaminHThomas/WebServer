@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 20:26:49 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 00:22:38 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,6 +303,8 @@ void EventHandler::generateResponse(int clientFd) {
 	{
 		Response rsp(rqs, conf);
 		s = rsp.generateResponse();
+		std::cerr << "------REDIRECTION RESPONSE------\n";
+		std::cerr << s << std::endl;
 	}
 	// IF REQUEST WAS FOR A CGI -> _responseBuffer contains CGI content
 	_clients.at(clientFd)->_responseBuffer.append(s);
