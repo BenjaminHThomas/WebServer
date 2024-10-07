@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/07 00:26:45 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/07 08:51:31 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,8 @@ std::string Response::generateResponse() {
 	response << "Content-Length: " << _content.length() << "\r\n";
 	response << "Date: " << getCurrentTime(STANDARD) << "\r\n";
 	response << "Server: 3GoatServer/1.0\r\n";
+	if (_statusCode == 413)
+		response << "Connection: close\r\n";
 	if (!_extraHeaders.empty()) {
 		for (std::map<std::string, std::string>::iterator it = _extraHeaders.begin();
 			it != _extraHeaders.end(); ++it) {
@@ -155,7 +157,7 @@ std::string		Response::getErrorContent(int errCode) {
 	}
 	catch(int)
 	{
-		std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
+		// std::cerr << "ERROR PAGES -> CATCHED INT" << '\n';
 		content.append("<html><body>");
 		content.append("<h2>Oops! Got an error: </h2><h1>");
 		content.append(_statusCodes.at(_statusCode));

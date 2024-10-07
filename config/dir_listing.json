@@ -1,0 +1,13 @@
+[
+	{
+		"port": 8886,
+		"routes": [
+			{
+				"methods": ["GET"],
+				"route": "/",
+				"directory": "./upload",
+				"dir_listing": true
+			}
+		]
+	}
+]
