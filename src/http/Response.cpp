@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/07 11:17:15 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/07 12:43:29 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,10 @@ std::string Response::generateResponse() {
 	response << "Server: 3GoatServer/1.0\r\n";
 	if (_statusCode == 413)
 		response << "Connection: close\r\n";
+	// else
+	// 	response << "Connection: keep-alive\r\n";
 	if (!_extraHeaders.empty()) {
-		for (std::map<std::string, std::string>::iterator it = _extraHeaders.begin();
+		for (std::multimap<std::string, std::string>::iterator it = _extraHeaders.begin();
 			it != _extraHeaders.end(); ++it) {
 			response << it->first << ": " << it->second << "\r\n";
 		}

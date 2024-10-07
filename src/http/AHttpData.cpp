@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/27 19:03:45 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/07 08:01:12 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 11:08:12 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,14 @@ AHttpData::~AHttpData() {
 }
 
 std::string const &AHttpData::getHeaderValue(std::string const &key) const{
-	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
+	std::multimap<std::string, std::string>::const_iterator it = this->_headers.find(key);
 	if (it != this->_headers.end()) {
 		return it->second;
 	}
 	throw std::runtime_error("Key not found in _headers");
 }
 
-std::map<std::string, std::string> const &AHttpData::getHeaders() const {
+std::multimap<std::string, std::string> const &AHttpData::getHeaders() const {
 	return this->_headers;
 }
 
@@ -98,7 +98,7 @@ bool	AHttpData::parseHeaders() {
 		if (!value.empty() && value[value.length() - 1] == '\r')
 			value.erase(value.length() - 1);
 		if (!key.empty())
-			_headers[key] = value;
+			_headers.insert(std::pair<std::string, std::string>(key,value));
 		// std::cout << "Key: [" << key << "] | Value: [" << value << "]" << std::endl;
 		it = line_end + 1;
 	}

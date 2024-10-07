@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/07 07:59:55 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 11:06:18 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void EventHandler::handle_environment(const Request &req, const std::string &arg
 		setenv("QUERY_STRING", req.getQueryString().c_str(),1);
 	try
 	{
-		for (std::map<std::string, std::string>::const_iterator it = req.getHeaders().begin(); it != req.getHeaders().end(); it++)
+		for (std::multimap<std::string, std::string>::const_iterator it = req.getHeaders().begin(); it != req.getHeaders().end(); it++)
 		{
 			std::string s(process_header_field(it->first));
 			setenv(s.c_str(), it->second.c_str(), 1);
