@@ -20,3 +20,14 @@ email: averygoodemail@email.com
 HTTP 200
 [Asserts]
 body contains "<h1>Welcome, trying_from_cookies!</h1>"
+
+
+DELETE http://localhost:8885
+[Cookies]
+username: trying_from_cookies
+email: averygoodemail@email.com
+
+HTTP 200
+# [Asserts]
+# cookie "username[Value]" == ""
+# cookie "email[Value]" == ""
