@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:36:13 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/07 00:17:09 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/07 11:02:53 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ private:
 	int									_statusCode;
 	std::string							_contentType;
 	Config::Routes						_route;
-	std::map<std::string, std::string>	_extraHeaders;
+	std::multimap<std::string, std::string>	_extraHeaders;
 	Config const 	&_config;
 
 	/* init utils */

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpData.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/27 18:47:57 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/03 15:44:31 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/07 11:06:39 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class AHttpData
 private:
 	/* data */
 protected:
-	std::map<std::string, std::string>	_headers;
+	std::multimap<std::string, std::string>	_headers;
 	std::string		_body;
 	bool			_hasHeaders;
 	std::string	const	_raw;
@@ -40,7 +40,7 @@ public:
 	AHttpData&	operator=(AHttpData const &other);
 	/* getters */
 	std::string const &getHeaderValue(std::string const &key) const;
-	std::map<std::string, std::string>	const &getHeaders() const;
+	std::multimap<std::string, std::string>	const &getHeaders() const;
 	std::string const &getBody() const;
 	std::string const &getRaw() const;
 	/* parser */
