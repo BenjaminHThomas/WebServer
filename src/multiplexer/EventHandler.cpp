@@ -6,13 +6,14 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/07 08:05:42 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 08:45:20 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventHandler.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <cstdio>
 #include <exception>
 #include <stdexcept>
 #include <sys/socket.h>
@@ -228,10 +229,7 @@ void EventHandler::handleClientRequest(int clientFd) {
 	bytes_read = read(clientFd, buffer, sizeof(buffer) - 1);
 	if (bytes_read <= 0) {
 		std::cerr << "Error: failed to read or client closed connection.\n";
-		deleteFromEpoll(clientFd);
-		delete _clients.at(clientFd);
-		_openConns.erase(clientFd);
-		_clients.erase(clientFd);
+		remove_client(clientFd);
 		return ;
 	}
 	_clients.at(clientFd)->_requestBuffer.append(buffer, bytes_read);
@@ -282,30 +280,28 @@ void EventHandler::handleClientRequest(int clientFd) {
 // Write response to the client
 
 void EventHandler::generateResponse(int clientFd) {
-	if (_clients.at(clientFd)->_errorCode) {
-
-		Request	rqs(_clients.at(clientFd)->_requestBuffer);
-		const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
-		Response rsp(conf, _clients.at(clientFd)->_errorCode);
-		_clients.at(clientFd)->_responseBuffer = rsp.generateResponse();
-		return ;
-	}
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
-	std::string s;
-
 	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
-	if (_clients.at(clientFd)->_cgi)
+	if (_clients.at(clientFd)->_errorCode)
 	{
-		Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, _clients.at(clientFd)->_cgiResult);
-		s = rsp.generateResponse();
+		Response rsp(conf, _clients.at(clientFd)->_errorCode);
+		_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
 	}
 	else
 	{
-		Response rsp(rqs, conf);
-		s = rsp.generateResponse();
+		std::string s;
+		if (_clients.at(clientFd)->_cgi)
+		{
+			Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, _clients.at(clientFd)->_cgiResult);
+			s = rsp.generateResponse();
+		}
+		else
+		{
+			Response rsp(rqs, conf);
+			s = rsp.generateResponse();
+		}
+		_clients.at(clientFd)->_responseBuffer.append(s);
 	}
-	// IF REQUEST WAS FOR A CGI -> _responseBuffer contains CGI content
-	_clients.at(clientFd)->_responseBuffer.append(s);
 }
 
 void EventHandler::remove_client(int clientFd)
@@ -321,11 +317,17 @@ void EventHandler::handleResponse(int clientFd) {
 	ssize_t bytes_remaining = _clients.at(clientFd)->_responseBuffer.size();
 	ssize_t bytes_written = write(clientFd, _clients.at(clientFd)->_responseBuffer.c_str(), _clients.at(clientFd)->_responseBuffer.length());
 	if (bytes_written < 0) {
+		std::cerr << "CHECK HERE FOR SURE IF YOU EVER GET THIS DURING DEBUG" << std::endl;
+		remove_client(clientFd);
 		return  ; // could be temporary full socket, but not allowed to check err code to confirm :(
 	} else if (bytes_written == bytes_remaining) {
-		// remove_client(clientFd);
-		_clients.at(clientFd)->resetData();
-		changeToRead(clientFd);
+		if (_clients.at(clientFd)->_errorCode == 413)
+			remove_client(clientFd);
+		else
+		{
+			_clients.at(clientFd)->resetData();
+			changeToRead(clientFd);
+		}
 	} else {
 		_clients.at(clientFd)->_responseBuffer.erase(0, bytes_written);
 	}
@@ -337,14 +339,14 @@ void EventHandler::checkCompleteCGIProcesses(void)
 	std::vector<int> completed;
 	std::vector<int> clients_complete;
 
-	for (std::map<int, ClientConnection *>::iterator it = _clients.begin(); it != _clients.end(); it ++)
-	{
-		if (write(it->second->_clientFd, 0, 0) != 0)
-			clients_complete.push_back(it->second->_clientFd);
-	}
+	// for (std::map<int, ClientConnection *>::iterator it = _clients.begin(); it != _clients.end(); it ++)
+	// {
+	// 	if (write(it->second->_clientFd, 0, 0) != 0)
+	// 		clients_complete.push_back(it->second->_clientFd);
+	// }
 
-	for (std::vector<int>::const_iterator it = clients_complete.begin(); it < clients_complete.end(); it++)
-		remove_client(*it);
+	// for (std::vector<int>::const_iterator it = clients_complete.begin(); it < clients_complete.end(); it++)
+	// 	remove_client(*it);
 
 	for (it = _cgiManager._cgiProcesses.begin();
 			it != _cgiManager._cgiProcesses.end();
