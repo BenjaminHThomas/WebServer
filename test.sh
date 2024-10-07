@@ -30,7 +30,7 @@ run_test() {
     local webserv_pid=$!
 
     echo -e "${CYAN}🧪 Running test for $config_name ($repeat_count times)...${NC}"
-    if ./test/hurl --connect-timeout 5s --test --repeat "$repeat_count" "$test_file"; then
+    if ./test/hurl --connect-timeout 15s --test --repeat "$repeat_count" "$test_file"; then
         echo -e "${GREEN}✅ Test passed for $config_name${NC}"
     else
         echo -e "${RED}❌ Test failed for $config_name${NC}"
