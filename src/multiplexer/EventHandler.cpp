@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/07 11:22:01 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/07 11:38:09 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,12 +139,12 @@ void EventHandler::handleNewConnection(Server & s) {
 }
 
 bool EventHandler::isMultiPartReq(int clientFd) {
-	std::string & req = _clients.at(clientFd)->_requestBuffer;
+	const std::string & req = _clients.at(clientFd)->_requestBuffer;
 	return req.find("Content-Type: multipart") != std::string::npos;
 }
 
 bool EventHandler::isMultiPartReqFinished(int clientFd) {
-	std::string & req = _clients.at(clientFd)->_requestBuffer;
+	const std::string & req = _clients.at(clientFd)->_requestBuffer;
 	std::string::size_type boundaryPos = req.find("boundary=");
 	if (boundaryPos == std::string::npos) {
 		return false;
@@ -157,7 +157,7 @@ bool EventHandler::isMultiPartReqFinished(int clientFd) {
 
 bool EventHandler::isResponseComplete(int clientFd) {
 	// check header completion
-	std::string & buff = _clients.at(clientFd)->_requestBuffer;
+	const std::string & buff = _clients.at(clientFd)->_requestBuffer;
 	std::string::size_type headerEnd = getHeaderEndPos(clientFd);
 	if (headerEnd == std::string::npos) {
 		return false;
@@ -183,7 +183,7 @@ bool EventHandler::isResponseComplete(int clientFd) {
 }
 
 std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
-	std::string & reqBuffer = _clients.at(clientFd)->_requestBuffer;
+	const std::string & reqBuffer = _clients.at(clientFd)->_requestBuffer;
 	std::string::size_type headerEnd = reqBuffer.find("\r\n\r\n");
 	if (headerEnd == std::string::npos) {
 		headerEnd = reqBuffer.find("\n\n");
@@ -198,7 +198,7 @@ std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
 }
 
 size_t EventHandler::getContentSize(int clientFd) {
-	std::string &req = _clients.at(clientFd)->_requestBuffer;
+	const std::string &req = _clients.at(clientFd)->_requestBuffer;
 	std::string::size_type sizePos = req.find("Content-Length:");
 	if (sizePos == std::string::npos) {
 		return 0;
