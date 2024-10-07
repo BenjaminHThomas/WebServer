@@ -6,7 +6,7 @@
 /*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 10:54:25 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/04 15:21:48 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/07 11:23:05 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,12 @@ double CRLF (or \n\n) signifies end of header;
 */
 
 bool EventHandler::isHeaderChunked(int clientFd) {
-	std::string request = _clients[clientFd]->_requestBuffer;
+	std::string & request = _clients[clientFd]->_requestBuffer;
 	return (request.find("Transfer-Encoding: chunked") != std::string::npos);
 }
 
 bool EventHandler::isChunkReqFinished(int clientFd) {
-	std::string request = _clients[clientFd]->_requestBuffer;
+	std::string & request = _clients[clientFd]->_requestBuffer;
 	return (request.find("0\r\n\r\n") != std::string::npos);
 }
 
@@ -68,7 +68,7 @@ std::string::size_type EventHandler::getChunkSize(std::string::size_type & chunk
 }
 
 void EventHandler::cleanChunkedReq(int clientFd) {
-	std::string request = _clients[clientFd]->_requestBuffer;
+	std::string & request = _clients[clientFd]->_requestBuffer;
 	std::string decodedContent;
 	std::string::size_type chunkSize;
 	std::string::size_type headerEnd, chunkStart, chunkEnd;

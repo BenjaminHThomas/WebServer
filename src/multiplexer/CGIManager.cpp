@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIManager.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 12:10:49 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/03 18:37:50 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/07 11:23:52 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void CGIManager::deleteFromCGI(int pipefd) {
 bool CGIManager::isResponseComplete(int pipefd) {
 	if (!isInManager(pipefd))
 		return true;
-	std::string buff = _cgiProcesses[pipefd]->output;
+	std::string & buff = _cgiProcesses.at(pipefd)->output;
 	std::string::size_type pos = buff.find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return false;
