@@ -30,13 +30,31 @@ def create_welcome_page(username, email):
     <h1>Welcome, {username}!</h1>
     <p>Your email is: {email}</p>
     <p>This information is stored in cookies.</p>
+    <form method="POST">
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="submit" value="Clear Cookies">
+    </form>
     """
+
+def clear_cookies():
+    cookie = cookies.SimpleCookie()
+    cookie["username"] = ""
+    cookie["email"] = ""
+    for morsel in cookie.values():
+        morsel["expires"] = "Thu, 01 Jan 1970 00:00:00 GMT"
+    return cookie
 
 def main():
     form = cgi.FieldStorage()
     cookie = cookies.SimpleCookie(os.environ.get("HTTP_COOKIE", ""))
+    method = os.environ.get("REQUEST_METHOD", "GET")
 
-    if "username" in cookie and "email" in cookie:
+    if method == "POST" and form.getvalue("_method") == "DELETE":
+        # Handle DELETE request (clear cookies)
+        new_cookie = clear_cookies()
+        print_headers(new_cookie)
+        print_html("Cookies cleared. <a href='/'>Go back</a>")
+    elif "username" in cookie and "email" in cookie:
         # Cookies exist, show welcome page
         print_headers()
         print_html(create_welcome_page(cookie["username"].value, cookie["email"].value))
