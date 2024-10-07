@@ -4,6 +4,7 @@ import cgi
 import os
 from http import cookies
 import datetime
+import sys
 
 def print_headers(cookie=None):
     print("Content-Type: text/html")
@@ -30,10 +31,16 @@ def create_welcome_page(username, email):
     <h1>Welcome, {username}!</h1>
     <p>Your email is: {email}</p>
     <p>This information is stored in cookies.</p>
-    <form method="POST">
-        <input type="hidden" name="_method" value="DELETE">
-        <input type="submit" value="Clear Cookies">
-    </form>
+    <button onclick="clearCookies()">Clear Cookies</button>
+    <script>
+    function clearCookies() {{
+        fetch(window.location.href, {{
+            method: 'DELETE',
+        }}).then(() => {{
+            window.location.reload();
+        }});
+    }}
+    </script>
     """
 
 def clear_cookies():
@@ -44,22 +51,21 @@ def clear_cookies():
         morsel["expires"] = "Thu, 01 Jan 1970 00:00:00 GMT"
     return cookie
 
-def main():
-    form = cgi.FieldStorage()
-    cookie = cookies.SimpleCookie(os.environ.get("HTTP_COOKIE", ""))
-    method = os.environ.get("REQUEST_METHOD", "GET")
+def handle_delete():
+    new_cookie = clear_cookies()
+    print_headers(new_cookie)
+    print_html("Cookies cleared. <a href='/'>Go back</a>")
 
-    if method == "POST" and form.getvalue("_method") == "DELETE":
-        # Handle DELETE request (clear cookies)
-        new_cookie = clear_cookies()
-        print_headers(new_cookie)
-        print_html("Cookies cleared. <a href='/'>Go back</a>")
-    elif "username" in cookie and "email" in cookie:
-        # Cookies exist, show welcome page
+def handle_get(cookie):
+    if "username" in cookie and "email" in cookie:
         print_headers()
         print_html(create_welcome_page(cookie["username"].value, cookie["email"].value))
-    elif "username" in form and "email" in form:
-        # Form submitted, set cookies and show welcome page
+    else:
+        print_headers()
+        print_html(create_form())
+
+def handle_post(form):
+    if "username" in form and "email" in form:
         username = form["username"].value
         email = form["email"].value
 
@@ -72,9 +78,24 @@ def main():
         print_headers(new_cookie)
         print_html(create_welcome_page(username, email))
     else:
-        # No cookies or form data, show the form
         print_headers()
         print_html(create_form())
+
+def main():
+    method = os.environ.get("REQUEST_METHOD", "GET")
+    cookie = cookies.SimpleCookie(os.environ.get("HTTP_COOKIE", ""))
+
+    if method == "DELETE":
+        handle_delete()
+    elif method == "GET":
+        handle_get(cookie)
+    elif method == "POST":
+        form = cgi.FieldStorage()
+        handle_post(form)
+    else:
+        print("Status: 405 Method Not Allowed")
+        print_headers()
+        print_html("Method Not Allowed")
 
 if __name__ == "__main__":
     main()
