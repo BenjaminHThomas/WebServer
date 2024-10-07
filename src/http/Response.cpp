@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 18:52:17 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/07 08:51:31 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 11:17:15 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,12 @@ std::string		Response::readFile(const std::string &filename) {
 	}
 	if (ifs.bad()) {
 		throw std::runtime_error("Error occurred while reading the file: " + filename);
+	}
+	std::string::size_type dotPos = filename.rfind('.');
+	if (dotPos != std::string::npos) {
+		std::string	ext = toLower(filename.substr(dotPos + 1));
+		if (_acceptedFileReversed.count(ext) > 0)
+			_contentType = _acceptedFileReversed.at(ext);
 	}
 	return content;
 }
@@ -297,8 +303,8 @@ std::string Response::check_postFile(std::string const &type)
 	if (type.empty())
 		// missing content-type header in the request
 		throw (400); //Bad request
-	if (_acceptedPostFile.count(type) > 0)
-		return _acceptedPostFile.at(type);
+	if (_acceptedFile.count(type) > 0)
+		return _acceptedFile.at(type);
 	else
 		throw (403); //Forbidden file type
 }
@@ -367,7 +373,7 @@ const std::vector<std::string> Response::init_allowed_cgi()
 	return cgi;
 }
 
-const std::map<std::string, std::string> Response::initAcceptedPostFile() {
+const std::map<std::string, std::string> Response::initAcceptedFile() {
 	std::map<std::string, std::string>	tmp;
 	tmp["application/octet-stream"] = ".bin";
 	tmp["application/json"] = ".json";
@@ -388,8 +394,31 @@ const std::map<std::string, std::string> Response::initAcceptedPostFile() {
 	return tmp;
 }
 
+const std::map<std::string, std::string> Response::initAcceptedFileReversed() {
+	std::map<std::string, std::string>	tmp;
+	tmp["bin"] = "application/octet-stream";
+	tmp["json"] = "application/json";
+	tmp["pdf"] = "application/pdf";
+	tmp["php"] = "application/x-httpd-php";
+	tmp["sh"] = "application/x-sh";
+	tmp["tar"] = "application/x-tar";
+	tmp["css"] = "text/css";
+	tmp["csv"] = "text/csv";
+	tmp["html"] = "text/html";
+	tmp["txt"] = "text/plain";
+	tmp["js"] = "text/javascript";
+	tmp["gif"] = "image/gif";
+	tmp["jpeg"] = "image/jpeg";
+	tmp["png"] = "image/png";
+	tmp["mp3"] = "audio/mpeg";
+	tmp["mp4"] = "video/mp4";
+	return tmp;
+}
+
 const std::map<int, std::string> Response::_statusCodes = Response::initStatusCodes();
 
 const std::vector<std::string> Response::_allowedCGI = Response::init_allowed_cgi();
 
-const std::map<std::string, std::string> Response::_acceptedPostFile = Response::initAcceptedPostFile();
+const std::map<std::string, std::string> Response::_acceptedFile = Response::initAcceptedFile();
+
+const std::map<std::string, std::string> Response::_acceptedFileReversed = Response::initAcceptedFileReversed();
