@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:21:12 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 20:23:46 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 09:54:42 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,12 +75,12 @@ class EventHandler
 		void epollLoop(void);
 		void changeToWrite(int clientFd);
 		void changeToRead(int clientFd);
+		size_t getContentSize(int clientFd);
 		bool isBodyTooBig(int clientFd);
 		bool isResponseComplete(int clientFd);
 		void sendInvalidResponse(int clientFd);
 		bool isMultiPartReq(int clientFd);
 		bool isMultiPartReqFinished(int clientFd);
-		// void startCGI(int clientFd, std::string fname);
 		CgiResult startCGI(int clientFd, std::vector<std::string> fname);
 		void checkCompleteCGIProcesses(void);
 
