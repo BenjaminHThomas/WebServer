@@ -3,35 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpData.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
+/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/27 19:03:45 by tsuchen           #+#    #+#             */
-/*   Updated: 2024/10/04 15:31:59 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/07 08:01:12 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AHttpData.hpp"
 
 AHttpData::AHttpData(std::string const & str, bool isRequest) : _raw(str), _isRequest(isRequest) {
-	// std::cout << "HttpData constructed" << std::endl;
 
 	_hasHeaders = parseHeaders();
 	if (!_hasHeaders) {
 		_body = _raw;
 	}
-	// try
-	// {
-	// 	/* code */
-	// 	this->parseRest();
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cerr << "[HttpData] Error: " << e.what() << std::endl;
-	// }
 }
 
 AHttpData::AHttpData(AHttpData const & other) : _raw(other._raw), _isRequest(other._isRequest) {
-	// std::cout << "HttpData object copied" << std::endl;
 	*this = other;
 }
 
@@ -44,7 +33,6 @@ AHttpData&	AHttpData::operator=(AHttpData const & other) {
 }
 
 AHttpData::~AHttpData() {
-	// std::cout << "An HttpData is destroyed" << std::endl;
 }
 
 std::string const &AHttpData::getHeaderValue(std::string const &key) const{
@@ -77,7 +65,7 @@ bool	AHttpData::parseHeaders() {
 		if (it == end) return false;
 		++it;
 	}
-	
+
 	// Check header end (empty line) position and see if it exists
 	std::string::size_type headerEnd = _raw.find("\r\n\r\n");
 	if (headerEnd == std::string::npos) {
@@ -92,7 +80,7 @@ bool	AHttpData::parseHeaders() {
     std::string::size_type firstNewline = headerSection.find('\n');
     if (firstColon == std::string::npos || (firstNewline != std::string::npos && firstColon > firstNewline))
 		return false;
-	
+
 	while (it != end) {
 		std::string::const_iterator	line_end = std::find(it, end, '\n');	// the end of next line
 		if (line_end == it || (line_end != end && *(line_end - 1) == '\r' && line_end - 1 == it))
@@ -111,7 +99,7 @@ bool	AHttpData::parseHeaders() {
 			value.erase(value.length() - 1);
 		if (!key.empty())
 			_headers[key] = value;
-		// std::cout << "Key: [" << key << "] | Value: [" << value << "]" << std::endl; 
+		// std::cout << "Key: [" << key << "] | Value: [" << value << "]" << std::endl;
 		it = line_end + 1;
 	}
 	/* Parese Body if there is any*/

@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 12:35:44 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 00:05:20 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 07:59:55 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ void EventHandler::handle_environment(const Request &req, const std::string &arg
 		for (std::map<std::string, std::string>::const_iterator it = req.getHeaders().begin(); it != req.getHeaders().end(); it++)
 		{
 			std::string s(process_header_field(it->first));
-			// std::cout << "zatiri zort zort: " << s <<": " << it->second << std::endl;
 			setenv(s.c_str(), it->second.c_str(), 1);
 		}
 		if (req.getMethod() == "POST")
@@ -155,12 +154,9 @@ CgiResult EventHandler::startCGI(int clientFd, std::vector<std::string> argument
 			{
 				bool code = result < 0 || !WIFEXITED(status) || WEXITSTATUS(status) != 0;
 
-				std::cout << "CGI EXIT STATUS: " << code << std::endl;
 				std::cout << "Response sent to client.\n";
-
 				if (!code)
 				{
-					std::cerr << "HERHERHERHERHERHERE" << std::endl;
 					addToEpoll(fd[0]);
 					_cgiManager.addCgiProcess(clientFd, fd[0], pid);
 					_openConns[fd[0]] = EP_CGI;

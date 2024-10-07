@@ -6,7 +6,7 @@
 /*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/29 14:55:36 by okoca             #+#    #+#             */
-/*   Updated: 2024/10/06 17:43:28 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 08:00:21 by okoca            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,6 @@ Config::Config(const JsonValue &j) : _addr(NULL), _json(j)
 				check_error_page(std::atoi(err->first.c_str()));
 				std::pair<int, std::string> pair(std::atoi(err->first.c_str()), err->second.as_string());
 				_error_pages.insert(pair);
-				std::cout << err->first << ", second" << err->second.as_string() << std::endl;
 			}
 		}
 		catch (const Config::BadValue &e)
@@ -111,7 +110,6 @@ Config::Config(const JsonValue &j) : _addr(NULL), _json(j)
 		std::cout << _name << "\n";
 		std::cout << _host << "\n";
 		std::cout << _port << "\n";
-		// std::cout << j["routes"][0]["index"] << "\n";
 		std::cout << "--------" << std::endl;
 	}
 	catch (const std::out_of_range &e)
@@ -194,7 +192,6 @@ Config::Routes::Routes(const JsonValue &j) : dir_listing(true)
 			std::pair<std::string, std::string> el(c["extension"].as_string(), c["exec"].as_string());
 			if (el.first != "py" && el.first != "php")
 				throw Config::BadValue("invalid extension");
-			std::cout << "CGI: " << el.first << ", exec: " << el.second << std::endl;
 			cgi.insert(el);
 		}
 	}
