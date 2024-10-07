@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: okoca <okoca@student.42.fr>                +#+  +:+       +#+        */
+/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/07 08:45:20 by okoca            ###   ########.fr       */
+/*   Updated: 2024/10/07 10:48:02 by bthomas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,30 @@ std::string::size_type EventHandler::getHeaderEndPos(int clientFd) {
 	return headerEnd;
 }
 
+size_t EventHandler::getContentSize(int clientFd) {
+	std::string &req = _clients.at(clientFd)->_requestBuffer;
+	std::string::size_type sizePos = req.find("Content-Length:");
+	if (sizePos == std::string::npos) {
+		return 0;
+	}
+	if (req.size() < sizePos + 14) {
+		return 0;
+	}
+	sizePos += 14;
+	std::string::size_type lineEnd = req.find("\r\n", sizePos);
+	if (lineEnd == std::string::npos) {
+		return 0;
+	}
+	std::istringstream iss;
+	iss.str(req.substr(sizePos, sizePos - lineEnd));
+	iss.clear();
+	size_t size;
+	if (!(iss >> std::hex >> size)) {
+		return 0;
+	}
+	return size;
+}
+
 bool EventHandler::isBodyTooBig(int clientFd) {
 	uint64_t maxBodySize = _clients.at(clientFd)->_config.get_max_body_size();
 	if (maxBodySize == 0)
@@ -204,6 +228,10 @@ bool EventHandler::isBodyTooBig(int clientFd) {
 	std::string::size_type headerEndPos = getHeaderEndPos(clientFd);
 	if (headerEndPos == std::string::npos) {
 		return false;
+	}
+	size_t contentHeaderSize = getContentSize(clientFd);
+	if (contentHeaderSize && contentHeaderSize > (size_t)maxBodySize) {
+		return true;
 	}
 	std::string::size_type currentBodySize;
 	currentBodySize = _clients.at(clientFd)->_requestBuffer.size() - headerEndPos;
@@ -276,8 +304,6 @@ void EventHandler::handleClientRequest(int clientFd) {
 		}
 	}
 }
-
-// Write response to the client
 
 void EventHandler::generateResponse(int clientFd) {
 	Request	rqs(_clients.at(clientFd)->_requestBuffer);
