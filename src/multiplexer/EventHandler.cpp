@@ -6,7 +6,7 @@
 /*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/08 00:08:23 by tsuchen          ###   ########.fr       */
+/*   Updated: 2024/10/08 12:17:27 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,15 +311,15 @@ void EventHandler::handleClientRequest(int clientFd) {
 
 void EventHandler::generateResponse(int clientFd) {
 	// Request	rqs(_clients.at(clientFd)->_requestBuffer);
-	Request	*rqs = _clients.at(clientFd)->requestHTTP;
-	const Config &conf = get_config(rqs->getHeaderValue("Host"), clientFd);
 	if (_clients.at(clientFd)->_errorCode)
 	{
-		Response rsp(conf, _clients.at(clientFd)->_errorCode);
+		Response rsp(_clients.at(clientFd)->_config, _clients.at(clientFd)->_errorCode);
 		_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
 	}
 	else
 	{
+		Request	*rqs = _clients.at(clientFd)->requestHTTP;
+		const Config &conf = get_config(rqs->getHeaderValue("Host"), clientFd);
 		std::string s;
 		if (_clients.at(clientFd)->_cgi)
 		{
