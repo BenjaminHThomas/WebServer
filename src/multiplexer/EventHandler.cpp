@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventHandler.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 12:20:55 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/07 11:38:09 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/08 12:17:27 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,26 +270,30 @@ void EventHandler::handleClientRequest(int clientFd) {
 		if (_clients[clientFd]->_reqType == (ClientConnection::reqType)CHUNKED) {
 			cleanChunkedReq(clientFd);
 		}
-		// Create a temporary Request object to check if CGI needs to be triggered
-		Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
 
-		tmp_request.printAll();
+		// Create an allocated Request and store in client
+		_clients.at(clientFd)->requestHTTP = new Request(_clients.at(clientFd)->_requestBuffer);
+		Request	*rqs = _clients.at(clientFd)->requestHTTP;
+		rqs->printAll();
+		// Create a temporary Request object to check if CGI needs to be triggered
+		// Request	tmp_request(_clients.at(clientFd)->_requestBuffer);
+		// tmp_request.printAll();
 
 		// Get corresponding Config and Route based on Client Request
-		const Config &conf = get_config(tmp_request.getHeaderValue("Host"), clientFd);
-		const Config::Routes &route = Response::find_match(conf, tmp_request.getUrl());
+		const Config &conf = get_config(rqs->getHeaderValue("Host"), clientFd);
+		const Config::Routes &route = Response::find_match(conf, rqs->getUrl());
 
 		std::map<std::string, std::string>::const_iterator cgi_route;
-		if ((cgi_route = Response::check_cgi(route, tmp_request.getUrl())) != route.cgi.end())
+		if ((cgi_route = Response::check_cgi(route, rqs->getUrl())) != route.cgi.end())
 		{
 			_clients.at(clientFd)->_cgi = true;
 			std::vector<std::string> arguments;
 			arguments.push_back(cgi_route->second);
 			std::string file;
-			if (tmp_request.getUrl() == route.path)
+			if (rqs->getUrl() == route.path)
 				file = route.index;
 			else
-				file = tmp_request.getUrl().substr(route.path.length());
+				file = rqs->getUrl().substr(route.path.length());
 			arguments.push_back(route.directory + file);
 			_clients.at(clientFd)->_cgiResult = startCGI(clientFd, arguments);
 			if (_clients.at(clientFd)->_cgiResult != SUCCESS) {
@@ -306,27 +310,29 @@ void EventHandler::handleClientRequest(int clientFd) {
 }
 
 void EventHandler::generateResponse(int clientFd) {
-	Request	rqs(_clients.at(clientFd)->_requestBuffer);
-	const Config &conf = get_config(rqs.getHeaderValue("Host"), clientFd);
+	// Request	rqs(_clients.at(clientFd)->_requestBuffer);
 	if (_clients.at(clientFd)->_errorCode)
 	{
-		Response rsp(conf, _clients.at(clientFd)->_errorCode);
+		Response rsp(_clients.at(clientFd)->_config, _clients.at(clientFd)->_errorCode);
 		_clients.at(clientFd)->_responseBuffer.append(rsp.generateResponse());
 	}
 	else
 	{
+		Request	*rqs = _clients.at(clientFd)->requestHTTP;
+		const Config &conf = get_config(rqs->getHeaderValue("Host"), clientFd);
 		std::string s;
 		if (_clients.at(clientFd)->_cgi)
 		{
-			Response rsp(rqs, conf, _clients.at(clientFd)->_cgiBuffer, _clients.at(clientFd)->_cgiResult);
+			Response rsp(*rqs, conf, _clients.at(clientFd)->_cgiBuffer, _clients.at(clientFd)->_cgiResult);
 			s = rsp.generateResponse();
 		}
 		else
 		{
-			Response rsp(rqs, conf);
+			Response rsp(*rqs, conf);
 			s = rsp.generateResponse();
 		}
 		_clients.at(clientFd)->_responseBuffer.append(s);
+		delete rqs;
 	}
 }
 

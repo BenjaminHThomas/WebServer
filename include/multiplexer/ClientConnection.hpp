@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientConnection.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bthomas <bthomas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tsuchen <tsuchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/26 10:53:42 by bthomas           #+#    #+#             */
-/*   Updated: 2024/10/06 11:12:37 by bthomas          ###   ########.fr       */
+/*   Updated: 2024/10/07 23:33:03 by tsuchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 # include "EventHandler.hpp"
 # include <utils.hpp>
+# include "Request.hpp"
 
 
 class ClientConnection
@@ -40,6 +41,7 @@ class ClientConnection
 		int _errorCode;
 
 		const Config &_config;
+		Request	*requestHTTP;
 
 	public:
 		void resetData();
