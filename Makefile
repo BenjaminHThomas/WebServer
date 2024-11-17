@@ -45,6 +45,9 @@ DEPS = $(OBJS:%.o=%.d)
 
 all: $(NAME)
 
+test: all
+	bash test.sh all
+
 $(OBJDIR)/%.o: %.cpp | $(OBJDIR)
 	$(CPP) $(CFLAGS) $(INCS) -c $< -o $@
 
