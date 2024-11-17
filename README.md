@@ -14,9 +14,11 @@ WebServer is an HTTP/1.1 server implemented from scratch in C++98, designed to h
 
 ## Getting Started
 
+### Using Makefile
+
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/nyzss/webserver.git
+   git clone https://github.com/BenjaminHThomas/WebServer.git
    ```
 2. **Build the Server**:
    ```bash
@@ -26,6 +28,18 @@ WebServer is an HTTP/1.1 server implemented from scratch in C++98, designed to h
 3. **Run the Server**:
    ```bash
    ./webserver <config_filename>.json
+   ```
+
+### Using Docker Compose
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/BenjaminHThomas/WebServer.git
+   ```
+2. **Build and Run the Server**:
+   ```bash
+   cd webserver
+   docker-compose up --build
    ```
 
 ## Configuration
