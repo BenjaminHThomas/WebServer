@@ -1,0 +1,8 @@
+services:
+  webserv:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/webserv
+    command: ["./webserv", "config/config.json"]
