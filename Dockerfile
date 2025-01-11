@@ -1,5 +1,7 @@
 FROM gcc:13.2
 
+RUN mkdir -p /webserv
+
 COPY . /webserv
 
 WORKDIR /webserv
