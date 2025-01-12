@@ -1,7 +1,7 @@
 [
 	{
 		"name": "first server",
-		"host": "localhost",
+		"host": "0.0.0.0",
 		"port": 8080,
 		"max_body": 5,
 		"error": {
@@ -42,7 +42,7 @@
 	},
 	{
 		"name": "second server",
-		"host": "localhost",
+		"host": "0.0.0.0",
 		"port": 8081,
 		"error": {
 				"404": "./error-pages/not_found_404.html"
@@ -61,7 +61,7 @@
 	},
 	{
 		"name": "this is the first server",
-		"host": "localhost",
+		"host": "0.0.0.0",
 		"port": 7778,
 		"error": {
 				"404": "./error-pages/not_found_404.html"

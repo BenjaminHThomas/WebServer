@@ -1,6 +1,6 @@
 [
 	{
-		"host": "localhost",
+		"host": "0.0.0.0",
 		"port": 8888,
 		"routes": [
 			{
@@ -12,7 +12,7 @@
 		]
 	},
 	{
-		"host": "localhost",
+		"host": "0.0.0.0",
 		"port": 8889,
 		"max_body": 10,
 		"routes": [
