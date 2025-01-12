@@ -1,7 +1,7 @@
 [
 	{
 		"name": "form testing",
-		"host": "localhost",
+		"host": "0.0.0.0",
 		"port": 8082,
 		"max_body": 10000,
 		"routes": [

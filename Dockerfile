@@ -1,8 +1,25 @@
-FROM gcc:13.2
+FROM debian:bullseye
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    curl \
+    libcurl4-openssl-dev \
+    openssl \
+    libssl-dev \
+    bash \
+    procps \
+    net-tools \
+    python3 \
+    php-cgi \
+    php-cli \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /webserv
 
 COPY . /webserv
+
+RUN chown -R root:root /webserv
 
 WORKDIR /webserv
 

@@ -5,6 +5,7 @@ services:
     ports:
       - "8080:8080"
       - "8081:8081"
-    volumes:
-      - ./website/:/webserv/website:ro
+    # volumes:
+    #   # - .:/webserv:ro
+    #   - ./website/:/webserv/website:ro
     command: ["./webserv", "config/config.json"]
